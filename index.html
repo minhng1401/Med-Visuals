@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Medical Visuals</title>
+<meta name="description" content="An index of interactive medical visuals.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F2F0F6;
+    --ink: #24204F;
+    --muted: #5F5B7F;
+    --rule: #D9D4E6;
+    --eosin: #B83A70;
+    --eosin-soft: #F6E3EC;
+    --violet: #6C5BB3;
+    --gray-matter: #CFC8E2;
+    --white-matter: #FBFAFD;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #15142A;
+      --ink: #E8E5F6;
+      --muted: #A39FC2;
+      --rule: #33315A;
+      --eosin: #EB7DAB;
+      --eosin-soft: #2E1F3C;
+      --violet: #A99BF0;
+      --gray-matter: #3E3B66;
+      --white-matter: #201F3C;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 1rem/1.55 "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+             env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+  .wrap { max-width: 52rem; margin: 0 auto; padding: 3.5rem 1.5rem 5rem; }
+
+  /* Header: the cord cross-section is the page's one bold element */
+  header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.75rem;
+    align-items: center;
+    padding-bottom: 2.25rem;
+    border-bottom: 1px solid var(--ink);
+  }
+  .seal { width: 8.5rem; height: auto; display: block; }
+  .seal .wm { fill: var(--white-matter); stroke: var(--ink); stroke-width: 1.5; }
+  .seal .gm { fill: var(--gray-matter); stroke: var(--ink); stroke-width: 1.2; }
+  .seal .dc { fill: var(--eosin); }
+  .seal .cst { fill: var(--violet); }
+  .seal .stt { fill: var(--eosin); opacity: .5; }
+  .seal .line { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+  .seal .canal { fill: var(--ink); }
+
+  h1 {
+    font-family: "Literata", Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(2.2rem, 5vw, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 .6rem;
+  }
+  .lede { margin: 0; color: var(--muted); max-width: 34rem; }
+
+  /* Search + count */
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem 1.25rem;
+    align-items: center;
+    margin: 2rem 0 .5rem;
+  }
+  .search {
+    flex: 1 1 16rem;
+    font: inherit;
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--rule);
+    padding: .5rem 0;
+    border-radius: 0;
+  }
+  .search::placeholder { color: var(--muted); }
+  .search:focus { outline: none; border-bottom-color: var(--eosin); }
+  .count { color: var(--muted); font-size: .9rem; }
+
+  /* Groups and entries */
+  .group { margin-top: 2.5rem; }
+  .group h2 {
+    font-family: "Literata", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.4rem;
+    margin: 0 0 .4rem;
+    display: flex;
+    align-items: baseline;
+    gap: .6rem;
+  }
+  .group h2 .n {
+    font-family: "Figtree", system-ui, sans-serif;
+    font-style: normal;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+  .items { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .2rem 1.5rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--rule);
+    color: inherit;
+    text-decoration: none;
+  }
+  .item .t {
+    font-family: "Literata", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+  .item .d { grid-column: 1; color: var(--muted); font-size: .95rem; max-width: 38rem; }
+  .item .f {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: baseline;
+    font-size: .82rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .item:hover .t {
+    color: var(--eosin);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: .22em;
+  }
+  .item:focus-visible { outline: 2px solid var(--eosin); outline-offset: 4px; border-radius: 2px; }
+
+  /* Status and notices */
+  .status { color: var(--muted); margin: 2rem 0 0; }
+  .note {
+    margin: 2rem 0 0;
+    padding: .9rem 1.1rem;
+    background: var(--eosin-soft);
+    border-left: 3px solid var(--eosin);
+    max-width: 40rem;
+  }
+  .note[hidden], .status:empty { display: none; }
+
+  @media (max-width: 560px) {
+    .wrap { padding-top: 2.5rem; }
+    header { grid-template-columns: 1fr; gap: 1.25rem; }
+    .seal { width: 6rem; }
+    .item { grid-template-columns: 1fr; }
+    .item .f { grid-column: 1; grid-row: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <!-- Stylized spinal cord cross-section, dorsal side up -->
+    <svg class="seal" viewBox="0 0 200 150" aria-hidden="true">
+      <ellipse class="wm" cx="100" cy="75" rx="90" ry="65"/>
+      <ellipse class="dc" cx="89" cy="36" rx="9" ry="20"/>
+      <ellipse class="dc" cx="111" cy="36" rx="9" ry="20"/>
+      <ellipse class="cst" cx="38" cy="60" rx="12" ry="14"/>
+      <ellipse class="cst" cx="162" cy="60" rx="12" ry="14"/>
+      <ellipse class="stt" cx="40" cy="100" rx="10" ry="12"/>
+      <ellipse class="stt" cx="160" cy="100" rx="10" ry="12"/>
+      <path class="gm" d="M100,62 C92,62 86,58 82,48 C78,38 74,26 70,20 C66,22 64,30 66,40 C68,52 64,60 56,64 C48,68 46,74 48,82 C50,92 46,100 52,108 C58,114 70,110 76,102 C82,94 88,90 100,88 C112,90 118,94 124,102 C130,110 142,114 148,108 C154,100 150,92 152,82 C154,74 152,68 144,64 C136,60 132,52 134,40 C136,30 134,22 130,20 C126,26 122,38 118,48 C114,58 108,62 100,62 Z"/>
+      <circle class="canal" cx="100" cy="75" r="2.5"/>
+      <path class="line" d="M100,10 L100,24"/>
+      <path class="line" d="M100,140 L100,124"/>
+    </svg>
+    <div>
+      <h1 id="site-title">Medical Visuals</h1>
+      <p class="lede">Interactive diagrams and explainers. Choose one to open it.</p>
+    </div>
+  </header>
+
+  <div class="tools">
+    <input id="search" class="search" type="search" placeholder="Search visuals (press / to focus)" aria-label="Search visuals" autocomplete="off">
+    <span id="count" class="count" aria-live="polite"></span>
+  </div>
+
+  <p id="status" class="status" role="status"></p>
+  <p id="note" class="note" hidden></p>
+  <main id="list"></main>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   CONFIG — usually nothing to change.
+   On <user>.github.io/<repo>/ the owner and repo are detected from the URL.
+   Fill owner/repo only if you use a custom domain.
+------------------------------------------------------------------- */
+const CONFIG = {
+  title: "Medical Visuals",
+  owner: "",            // e.g. "minh-lab"   (blank = auto-detect)
+  repo: "",             // e.g. "medical-visuals" (blank = auto-detect)
+  branch: "",           // blank = repo's default branch
+  siteRoot: "",         // "docs" if GitHub Pages serves from the /docs folder
+  folder: "artifacts",  // where you drop artifact .html files ("" = whole site)
+  cacheMinutes: 2       // how long a visitor's browser reuses the list
+};
+
+/* Shown only when you open index.html locally, so you can preview the layout */
+const DEMO = [
+  {
+    href: "artifacts/neuroanatomy/spinal-tracts.html",
+    file: "spinal-tracts.html",
+    title: "Spinal Tracts",
+    description: "Ascending and descending pathways in cross-section: dorsal columns, spinothalamic, and corticospinal tracts.",
+    group: "Neuroanatomy"
+  }
+];
+
+const $ = s => document.querySelector(s);
+const listEl = $("#list"), statusEl = $("#status"), noteEl = $("#note"),
+      countEl = $("#count"), searchEl = $("#search");
+let ALL = [];
+
+const trimSlashes = s => (s || "").replace(/^\/+|\/+$/g, "");
+const pretty = s => {
+  const t = decodeURIComponent(s).replace(/\.html?$/i, "").replace(/[-_]+/g, " ").trim();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
+const setStatus = t => { statusEl.textContent = t; };
+const showNote = t => { noteEl.textContent = t; noteEl.hidden = false; };
+
+function detectRepo() {
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/i);
+  if (!m) return null;
+  const owner = m[1];
+  const first = location.pathname.split("/").filter(Boolean)[0];
+  const repo = first && !first.includes(".") ? first : `${owner}.github.io`;
+  return { owner, repo };
+}
+
+async function gh(path) {
+  const r = await fetch("https://api.github.com" + path, {
+    headers: { Accept: "application/vnd.github+json" }
+  });
+  if (!r.ok) {
+    const err = new Error("GitHub responded " + r.status);
+    err.status = r.status;
+    err.rateLimited = (r.status === 403 || r.status === 429) &&
+                      r.headers.get("x-ratelimit-remaining") === "0";
+    throw err;
+  }
+  return r.json();
+}
+
+/* Lists every .html file under CONFIG.folder (subfolders become groups).
+   Anything inside a folder or file starting with "_" or "." is skipped. */
+async function listFiles(owner, repo) {
+  const branch = CONFIG.branch || (await gh(`/repos/${owner}/${repo}`)).default_branch;
+  const tree = await gh(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`);
+  const base = CONFIG.siteRoot ? trimSlashes(CONFIG.siteRoot) + "/" : "";
+  const scan = base + (CONFIG.folder ? trimSlashes(CONFIG.folder) + "/" : "");
+  return tree.tree
+    .filter(n => n.type === "blob" && /\.html?$/i.test(n.path) && n.path.startsWith(scan))
+    .map(n => ({ site: n.path.slice(base.length), inner: n.path.slice(scan.length) }))
+    .filter(f => !f.inner.split("/").some(seg => seg.startsWith("_") || seg.startsWith(".")))
+    .filter(f => !(!f.inner.includes("/") && /^(index|404)\.html?$/i.test(f.inner)));
+}
+
+/* Reads <title>, <meta name="description"> and <meta name="category"> from each artifact */
+async function describe(f) {
+  const parts = f.inner.split("/");
+  const file = parts.pop();
+  const item = {
+    href: f.site.split("/").map(encodeURIComponent).join("/"),
+    file,
+    title: pretty(file),
+    description: "",
+    group: parts.map(pretty).join(" / ")
+  };
+  try {
+    const r = await fetch(item.href, { cache: "no-cache" });
+    if (r.ok) {
+      const doc = new DOMParser().parseFromString(await r.text(), "text/html");
+      const t = doc.querySelector("title")?.textContent.trim();
+      const d = doc.querySelector('meta[name="description"]')?.getAttribute("content")?.trim();
+      const c = doc.querySelector('meta[name="category"]')?.getAttribute("content")?.trim();
+      if (t) item.title = t;
+      if (d) item.description = d;
+      if (c) item.group = c;
+    }
+  } catch (_) { /* keep filename-based fallback */ }
+  return item;
+}
+
+function readCache(key, allowStale) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const { at, items } = JSON.parse(raw);
+    if (allowStale || Date.now() - at < CONFIG.cacheMinutes * 60000) return items;
+  } catch (_) {}
+  return null;
+}
+function writeCache(key, items) {
+  try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), items })); } catch (_) {}
+}
+
+function entry(i) {
+  const li = document.createElement("li");
+  const a = document.createElement("a");
+  a.className = "item";
+  a.href = i.href;
+  const t = document.createElement("span"); t.className = "t"; t.textContent = i.title;
+  const f = document.createElement("span"); f.className = "f"; f.textContent = i.file;
+  a.append(t, f);
+  if (i.description) {
+    const d = document.createElement("span"); d.className = "d"; d.textContent = i.description;
+    a.append(d);
+  }
+  li.append(a);
+  return li;
+}
+
+function draw() {
+  const q = searchEl.value.trim().toLowerCase();
+  const shown = ALL.filter(i =>
+    !q || [i.title, i.description, i.group, i.file].join(" ").toLowerCase().includes(q));
+
+  const groups = new Map();
+  for (const i of shown) {
+    const g = i.group || "";
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(i);
+  }
+  const names = [...groups.keys()].sort((a, b) => a === "" ? -1 : b === "" ? 1 : a.localeCompare(b));
+  const labelled = names.some(Boolean);
+
+  listEl.replaceChildren();
+  for (const name of names) {
+    const sec = document.createElement("section");
+    sec.className = "group";
+    const items = groups.get(name).sort((a, b) => a.title.localeCompare(b.title));
+    if (labelled) {
+      const h = document.createElement("h2");
+      h.textContent = name || "General";
+      const n = document.createElement("span"); n.className = "n"; n.textContent = items.length;
+      h.append(n);
+      sec.append(h);
+    }
+    const ul = document.createElement("ul");
+    ul.className = "items";
+    items.forEach(i => ul.append(entry(i)));
+    sec.append(ul);
+    listEl.append(sec);
+  }
+
+  const total = ALL.length;
+  countEl.textContent = q
+    ? `${shown.length} of ${total} visuals`
+    : `${total} visual${total === 1 ? "" : "s"}`;
+  setStatus(q && !shown.length && total ? `No visuals match “${searchEl.value.trim()}”.` : "");
+}
+
+function render(items) { ALL = items; draw(); }
+
+searchEl.addEventListener("input", draw);
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== searchEl) { e.preventDefault(); searchEl.focus(); }
+});
+
+(async function init() {
+  document.title = CONFIG.title;
+  $("#site-title").textContent = CONFIG.title;
+
+  const repo = CONFIG.owner && CONFIG.repo
+    ? { owner: CONFIG.owner, repo: CONFIG.repo }
+    : detectRepo();
+
+  if (!repo) {
+    if (location.protocol === "file:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+      showNote("Preview mode: this is an example entry. Once the page is on GitHub Pages, the list fills itself from your artifacts folder.");
+      render(DEMO);
+    } else {
+      showNote("This page can’t tell which GitHub repository it belongs to. Set owner and repo in the CONFIG block near the bottom of index.html.");
+    }
+    return;
+  }
+
+  const key = `artifact-index:${repo.owner}/${repo.repo}`;
+  const fresh = readCache(key, false);
+  if (fresh) { render(fresh); return; }
+
+  setStatus("Loading visuals…");
+  try {
+    const files = await listFiles(repo.owner, repo.repo);
+    const items = await Promise.all(files.map(describe));
+    writeCache(key, items);
+    setStatus("");
+    if (!items.length) {
+      showNote(`No visuals yet. Add an .html file to the ${CONFIG.folder || "repository"} folder and push; it appears here once GitHub Pages finishes publishing.`);
+    }
+    render(items);
+  } catch (e) {
+    setStatus("");
+    const stale = readCache(key, true);
+    if (e.rateLimited && stale) { render(stale); return; }
+    showNote(
+      e.rateLimited ? "GitHub’s limit of 60 listings per hour was reached from this network. The list will load again within the hour."
+      : e.status === 404 ? `Repository ${repo.owner}/${repo.repo} wasn’t found or is private. Check owner and repo in CONFIG.`
+      : `The list couldn’t load (${e.message}). Reload the page to try again.`
+    );
+  }
+})();
+</script>
+</body>
+</html>
