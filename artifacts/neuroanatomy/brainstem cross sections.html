@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brainstem in six cuts</title>
+<meta name="description" content="Interactive brainstem cross-sections: open each cut, identify nuclei, tracts and cranial nerves, and trace any structure through the whole brainstem.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E3E7E5; --panel:#F3F5F4; --ink:#1B2232; --ink2:#4E586B; --rule:#C7CECC;
+  --tissue:#8A96AF; --wm:#28324C; --gm:#DED5BD; --edge:#56627D; --lumen:#E3E7E5;
+  --col-a:#CDD3DE; --col-b:#9EA8BC; --cap:#B9C1D1; --nerve-ov:#3B4766;
+  --hl:#D3175F; --ok:#23895A; --bad:#C0392B;
+  --c-gse:#C0392B; --c-sve:#E67E22; --c-gve:#8E44AD; --c-sens:#16A085; --c-other:#B8913A;
+  --c-asc:#2E6BD1; --c-desc:#7A5230; --c-cbl:#5E9E3A; --c-gaze:#3F6973; --c-cn:#D4A80A; --c-csf:#E3E7E5;
+  --serif:"Literata", Georgia, "Times New Roman", serif;
+  --sans:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131925; --panel:#1A2130; --ink:#E7EAF0; --ink2:#A2ABBD; --rule:#2E3749;
+    --tissue:#4D5A79; --wm:#161C2C; --gm:#C8BE9F; --edge:#8390AE; --lumen:#131925;
+    --col-a:#3E4A66; --col-b:#28314A; --cap:#4A5672; --nerve-ov:#A9B4CE; --hl:#FF4D94; --c-csf:#131925;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131925; --panel:#1A2130; --ink:#E7EAF0; --ink2:#A2ABBD; --rule:#2E3749;
+  --tissue:#4D5A79; --wm:#161C2C; --gm:#C8BE9F; --edge:#8390AE; --lumen:#131925;
+  --col-a:#3E4A66; --col-b:#28314A; --cap:#4A5672; --nerve-ov:#A9B4CE; --hl:#FF4D94; --c-csf:#131925;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:minmax(0,1fr) 390px;height:100%}
+main{display:flex;flex-direction:column;min-height:0;min-width:0}
+header{padding:18px 24px 4px}
+h1{font-family:var(--serif);font-weight:600;font-size:1.65rem;line-height:1.15;margin:0;letter-spacing:-.01em}
+header p{margin:.3rem 0 0;color:var(--ink2);font-size:.95rem;max-width:62ch}
+
+.stage{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:manipulation}
+.layer{position:absolute;inset:0;will-change:transform,opacity}
+#ovLayer{padding:4px 8px 8px}
+#secLayer{padding:76px 110px 62px;visibility:hidden;opacity:0;pointer-events:none}
+.layer svg{width:100%;height:100%;display:block;overflow:visible}
+
+/* ---------- overview ---------- */
+.col{fill:url(#colGrad);stroke:var(--edge);stroke-width:1.2}
+.cap{fill:var(--cap);stroke:var(--edge);stroke-width:1}
+.surf{fill:none;stroke:var(--edge);stroke-width:1;opacity:.35}
+.fossa{fill:var(--edge);opacity:.28}
+.pyr{fill:var(--panel);opacity:.22}
+.olv{fill:var(--panel);opacity:.3;stroke:var(--edge);stroke-opacity:.45}
+.ov-nerve{fill:none;stroke:var(--nerve-ov);stroke-linecap:round;cursor:pointer;transition:stroke .2s}
+.ov-nerve:hover{stroke:var(--ink)}
+.ov-nerve.sel{stroke:var(--hl)}
+.nlab{font-family:var(--sans);font-size:12px;font-weight:700;fill:var(--ink2);pointer-events:none}
+.nlab.sel{fill:var(--hl)}
+.slice{cursor:pointer;outline:none;transition:transform .25s ease, opacity .3s}
+.slice:hover,.slice.hover,.slice:focus-visible{transform:translateY(-5px)}
+.slice .tissue{fill:var(--tissue);stroke:var(--edge);stroke-width:1}
+.slice.hover .tissue,.slice:hover .tissue,.slice:focus-visible .tissue{stroke:var(--hl);stroke-width:2.2}
+.slice .slab{fill:var(--wm);opacity:.55}
+.slice .rim{fill:none;stroke:var(--edge);stroke-width:1}
+.slice.hover .rim,.slice:hover .rim,.slice:focus-visible .rim{stroke:var(--hl);stroke-width:2.2}
+.slice *{vector-effect:non-scaling-stroke}
+.slice .fiber{stroke-width:1.1}
+.slice .olive-line{stroke-width:1.3}
+.slice .k-csf{stroke-width:.6}
+.ov.has-sel .slice .st:not(.sel){opacity:.3}
+.ov.has-sel .slice.absent{opacity:.6}
+.ov.has-sel .col,.ov.has-sel .cap{opacity:.75}
+.lvl-lab{cursor:pointer}
+.lvl-lab .ln1{font-family:var(--serif);font-size:15px;font-weight:600;fill:var(--ink)}
+.lvl-lab .num{font-family:var(--sans);font-weight:700;fill:var(--ink2)}
+.lvl-lab .ln2{font-family:var(--sans);font-size:11.5px;fill:var(--ink2)}
+.lvl-lab .lead{stroke:var(--rule);stroke-width:1}
+.lvl-lab.hover .ln1,.lvl-lab.hover .num{fill:var(--hl)}
+.lvl-lab.hover .lead{stroke:var(--hl)}
+.lvl-lab.has .num{fill:var(--hl)}
+.region line{stroke:var(--ink2);stroke-width:1.2}
+.region text{font-family:var(--sans);font-size:12px;fill:var(--ink2);text-anchor:middle}
+.rib-halo,.rib,.rib-core{fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.rib-halo{stroke:var(--hl);opacity:.16}
+.rib{stroke:var(--hl);opacity:.62}
+.rib-core{stroke:#fff;opacity:.8}
+
+/* ---------- cross-section ---------- */
+.tissue{fill:var(--tissue);stroke:var(--edge);stroke-width:1.2}
+.st{cursor:pointer;transition:fill .2s, stroke .2s, opacity .25s}
+.k-nuc{fill:var(--gm)}
+.k-wm{fill:var(--wm)}
+.k-csf{fill:var(--lumen);stroke:var(--edge);stroke-width:.8}
+.fiber{fill:none;stroke:var(--wm);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.olive-line{fill:none;stroke:var(--wm);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+body.colorize .st[data-cat="gse"]:not(.fiber):not(.olive-line){fill:var(--c-gse)}
+body.colorize .st[data-cat="sve"]:not(.fiber):not(.olive-line){fill:var(--c-sve)}
+body.colorize .st[data-cat="gve"]:not(.fiber):not(.olive-line){fill:var(--c-gve)}
+body.colorize .st[data-cat="sens"]:not(.fiber):not(.olive-line){fill:var(--c-sens)}
+body.colorize .st[data-cat="other"]:not(.fiber):not(.olive-line){fill:var(--c-other)}
+body.colorize .st[data-cat="asc"]:not(.fiber):not(.olive-line){fill:var(--c-asc)}
+body.colorize .st[data-cat="desc"]:not(.fiber):not(.olive-line){fill:var(--c-desc)}
+body.colorize .st[data-cat="cbl"]:not(.fiber):not(.olive-line){fill:var(--c-cbl)}
+body.colorize .st[data-cat="gaze"]:not(.fiber):not(.olive-line){fill:var(--c-gaze)}
+body.colorize .fiber{stroke:var(--c-cn)}
+body.colorize .olive-line{stroke:#6E5620}
+.st.hov:not(.fiber):not(.olive-line){stroke:var(--ink);stroke-width:1.4}
+.fiber.hov{stroke-width:3.4}
+.st.sel:not(.fiber):not(.olive-line){fill:var(--hl) !important}
+.fiber.sel,.olive-line.sel{stroke:var(--hl) !important}
+#secLayer .fiber.sel{stroke-width:3.4}
+#secSvg.has-sel .st:not(.sel){opacity:.5}
+.st.q-right:not(.fiber):not(.olive-line){fill:var(--ok) !important;opacity:1 !important}
+.fiber.q-right,.olive-line.q-right{stroke:var(--ok) !important;opacity:1 !important}
+.st.q-wrong:not(.fiber):not(.olive-line){fill:var(--bad) !important;opacity:1 !important}
+.fiber.q-wrong,.olive-line.q-wrong{stroke:var(--bad) !important}
+.labels{display:none}
+.show-labels .labels{display:inline}
+.lab{font-family:var(--sans);font-size:8.6px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:2.6px;stroke-linejoin:round;dominant-baseline:central;pointer-events:none}
+.orient{font-family:var(--sans);font-size:9px;fill:var(--ink2);text-anchor:start}
+.orient-ax{fill:none;stroke:var(--rule);stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- stage chrome ---------- */
+.sec-only{transition:opacity .3s, visibility .3s}
+body.mode-overview .sec-only{opacity:0;visibility:hidden;pointer-events:none}
+body.busy .sec-only{opacity:0}
+.sectop{position:absolute;left:14px;right:14px;top:10px;display:flex;gap:10px 14px;align-items:flex-start;flex-wrap:wrap;pointer-events:none}
+.sectop > *{pointer-events:auto}
+.back{display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--rule);background:var(--panel);border-radius:999px;padding:.4rem .8rem .4rem .55rem;font-size:.88rem}
+.back svg{width:16px;height:16px}
+.lvl-title{display:flex;align-items:center;gap:.5rem}
+.lvl-title h2{font-family:var(--serif);font-weight:600;font-size:1.25rem;margin:0;line-height:1.2}
+.lvl-title .lm{font-size:.84rem;color:var(--ink2);display:block;font-family:var(--sans);font-weight:400}
+.step{width:32px;height:32px;border-radius:50%;border:1px solid var(--rule);background:var(--panel);display:grid;place-items:center;padding:0}
+.step svg{width:16px;height:16px}
+.step:disabled{opacity:.35;cursor:default}
+.quizbar{margin-left:auto;display:none;align-items:center;gap:.6rem;background:var(--ink);color:var(--panel);border-radius:10px;padding:.45rem .5rem .45rem .8rem;font-size:.9rem;max-width:100%}
+body.quiz .quizbar{display:flex}
+.quizbar b{font-weight:700}
+.quizbar .score{opacity:.75;font-variant-numeric:tabular-nums}
+.quizbar button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:999px;padding:.2rem .6rem;font-size:.8rem;opacity:.85}
+.quizbar .fb-ok{color:#7BE0A9}
+.quizbar .fb-bad{color:#FFB3A8}
+
+.tools{position:absolute;left:14px;bottom:14px;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(100% - 190px)}
+.tg{font-size:.85rem;padding:.42rem .85rem;border-radius:999px;border:1px solid var(--rule);background:var(--panel);color:var(--ink)}
+.tg[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.tg:disabled{opacity:.4;cursor:default}
+body.mode-overview .tg.sec-tool{display:none}
+
+.inset{position:absolute;right:14px;bottom:14px;width:150px;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:6px 6px 4px}
+.inset svg{width:100%;height:auto;display:block}
+.inset p{margin:0;font-size:.74rem;color:var(--ink2);text-align:center}
+.in-bs{fill:var(--col-b);stroke:var(--edge);stroke-width:.8}
+.in-cb{fill:var(--cap);stroke:var(--edge);stroke-width:.6;opacity:.8}
+.in-fol{fill:none;stroke:var(--edge);stroke-width:.5;opacity:.6}
+.in-di{fill:var(--cap);opacity:.6}
+.in-cut{cursor:pointer}
+.in-line{stroke:var(--ink2);stroke-width:1.3;stroke-linecap:round}
+.in-hit{stroke:transparent;stroke-width:11}
+.in-num{font-family:var(--sans);font-size:9px;font-weight:700;fill:var(--ink2);text-anchor:middle}
+.in-cut.has .in-line{stroke:var(--hl);stroke-width:2}
+.in-cut.has .in-num{fill:var(--hl)}
+.in-cut.cur .in-line,.in-cut.hover .in-line{stroke:var(--ink);stroke-width:2.6}
+.in-cut.cur .in-num,.in-cut.hover .in-num{fill:var(--ink)}
+
+.tip{position:absolute;left:0;top:0;pointer-events:none;background:var(--ink);color:var(--panel);font-size:.82rem;padding:.28rem .55rem;border-radius:6px;white-space:nowrap;opacity:0;transform:translate(-50%,calc(-100% - 12px));transition:opacity .12s}
+.tip.on{opacity:1}
+
+/* ---------- panel ---------- */
+aside{background:var(--panel);border-left:1px solid var(--rule);overflow-y:auto;padding:22px 24px 40px;min-height:0}
+aside h2{font-family:var(--serif);font-weight:600;font-size:1.5rem;line-height:1.2;margin:.15rem 0 .35rem}
+aside h3{font-family:var(--sans);font-size:.82rem;font-weight:700;color:var(--ink2);margin:1.35rem 0 .4rem;letter-spacing:.01em}
+aside p{margin:.35rem 0}
+.prose{font-family:var(--serif);font-size:.98rem;line-height:1.62}
+.kicker{font-size:.86rem;color:var(--ink2);display:flex;align-items:center;gap:.45rem;margin:0}
+.here{font-size:.88rem;color:var(--hl);margin:.1rem 0 .4rem}
+.sw{display:inline-block;width:.72rem;height:.72rem;border-radius:3px;background:var(--c);flex:none}
+.cuts{display:flex;flex-direction:column;gap:6px}
+.cutbtn{display:grid;grid-template-columns:1.7rem 1fr;align-items:baseline;text-align:left;width:100%;padding:.5rem .65rem;border:1px solid var(--rule);border-radius:8px;background:transparent}
+.cutbtn:hover{border-color:var(--ink2)}
+.cutbtn b{font-weight:700;color:var(--ink2)}
+.cutbtn span{font-family:var(--serif);font-weight:600}
+.cutbtn small{grid-column:2;color:var(--ink2);font-size:.8rem}
+.cutbtn.cur{border-color:var(--hl)}
+.cutbtn.cur b{color:var(--hl)}
+.grp{margin:.55rem 0 .7rem}
+.gl{font-size:.8rem;color:var(--ink2);display:flex;align-items:center;gap:.4rem;margin:0 0 .3rem}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:.84rem;padding:.24rem .55rem;border-radius:6px;border:1px solid var(--rule);background:transparent;text-align:left}
+.chip:hover{border-color:var(--ink2)}
+.chip.on{background:var(--hl);border-color:var(--hl);color:#fff}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink2);text-decoration:underline;text-underline-offset:3px;font-size:.88rem;margin-top:.9rem}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem .8rem;font-size:.82rem;color:var(--ink2)}
+.legend div{display:flex;align-items:center;gap:.45rem}
+.legend .ln{width:.9rem;height:0;border-top:2.5px solid var(--wm);flex:none}
+.keys{font-size:.82rem;color:var(--ink2)}
+kbd{font-family:var(--sans);font-size:.78rem;border:1px solid var(--rule);border-bottom-width:2px;border-radius:4px;padding:0 .3rem;background:var(--bg)}
+.note{font-size:.8rem;color:var(--ink2);margin-top:1.6rem;border-top:1px solid var(--rule);padding-top:.8rem}
+.credit{font-family:var(--serif);font-size:.88rem;color:var(--ink2);margin-top:.6rem}
+hr.sep{border:0;border-top:1px solid var(--rule);margin:1.4rem 0 0}
+
+@keyframes drop{from{opacity:0;transform:translateY(-16px)}}
+.ov.intro .slice{animation:drop .6s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i) * 80ms + 120ms)}
+
+@media (max-width:860px){
+  .app{display:block;height:auto}
+  body{height:auto}
+  header{padding:14px 16px 2px}
+  h1{font-size:1.4rem}
+  .stage{height:min(74vh,660px);flex:none}
+  aside{border-left:0;border-top:1px solid var(--rule);padding:18px 18px 40px}
+  #secLayer{padding:96px 6px 58px}
+  body.mode-section .inset{display:none}
+}
+@media (max-width:560px){
+  .lvl-lab .ln2{display:none}
+  .lvl-lab .ln1{font-size:19px}
+  .nlab{font-size:15px}
+  .inset{width:104px}
+  body.mode-section .inset{display:none}
+  .tools{max-width:100%}
+  body.mode-overview .tools{max-width:calc(100% - 130px)}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition-duration:0s !important;animation:none !important}
+}
+</style>
+</head>
+<body class="mode-overview">
+<div class="app">
+<main>
+  <header>
+    <h1>Brainstem, in six cuts</h1>
+    <p>Open a cut to study its nuclei, tracts and cranial nerves. Select any structure, then return to the whole brainstem to see everywhere it runs.</p>
+  </header>
+  <div class="stage" id="stage">
+    <div class="layer" id="ovLayer"><svg id="ovSvg" class="ov intro" viewBox="0 0 680 770" preserveAspectRatio="xMidYMid meet" aria-label="Whole brainstem with six cross-sections"></svg></div>
+    <div class="layer" id="secLayer"><svg id="secSvg" viewBox="-62 -4 524 312" preserveAspectRatio="xMidYMid meet" aria-label="Cross-section"></svg></div>
+
+    <div class="sectop sec-only">
+      <button class="back" id="backBtn" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg>Whole brainstem</button>
+      <div class="lvl-title">
+        <button class="step" id="prevBtn" type="button" aria-label="Previous cut (more rostral)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg></button>
+        <h2 id="lvlTitle">Cut</h2>
+        <button class="step" id="nextBtn" type="button" aria-label="Next cut (more caudal)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 3 5 5-5 5"/></svg></button>
+      </div>
+      <div class="quizbar" id="quizbar" aria-live="polite"></div>
+    </div>
+
+    <div class="tools">
+      <button class="tg sec-tool" id="tgLabels" type="button" aria-pressed="false">Labels</button>
+      <button class="tg" id="tgColor" type="button" aria-pressed="false">Color by function</button>
+      <button class="tg sec-tool" id="tgQuiz" type="button" aria-pressed="false">Quiz me</button>
+    </div>
+
+    <div class="inset" id="inset">
+      <svg id="insetSvg" viewBox="0 0 152 176" aria-label="Plane of each cut, side view"></svg>
+      <p>Plane of each cut</p>
+    </div>
+    <div class="tip" id="tip"></div>
+  </div>
+</main>
+<aside id="panel" aria-live="polite"></aside>
+</div>
+
+<script>
+"use strict";
+/* =========================================================
+   DATA: structures
+   ========================================================= */
+const CATS = {
+  gse:  {label:"Somatic motor nuclei",   kind:"nuc"},
+  sve:  {label:"Branchial motor nuclei", kind:"nuc"},
+  gve:  {label:"Parasympathetic nuclei", kind:"nuc"},
+  sens: {label:"Sensory nuclei",         kind:"nuc"},
+  other:{label:"Other gray matter",      kind:"nuc"},
+  asc:  {label:"Ascending tracts",       kind:"wm"},
+  desc: {label:"Descending tracts",      kind:"wm"},
+  cbl:  {label:"Cerebellar pathways",    kind:"wm"},
+  gaze: {label:"Gaze pathway",           kind:"wm"},
+  cn:   {label:"Cranial nerve fibers",   kind:"fiber"},
+  csf:  {label:"CSF spaces",             kind:"csf"}
+};
+const CAT_ORDER = ["gse","sve","gve","sens","other","asc","desc","cbl","gaze","cn","csf"];
+
+const S = {
+  sc:{name:"Superior colliculus",abbr:"SC",cat:"other",ext:[80,175],
+    fn:"Visual reflex center of the dorsal midbrain. Orients the eyes and head toward sudden visual stimuli and helps coordinate vertical gaze. The neighboring pretectal area drives the pupillary light reflex.",
+    clin:"Compression of the dorsal midbrain, classically by a pineal tumor, causes Parinaud syndrome: impaired upgaze, light-near dissociation of the pupils, and convergence-retraction nystagmus."},
+  ic:{name:"Inferior colliculus",abbr:"IC",cat:"other",ext:[180,262],
+    fn:"Obligatory relay in the auditory pathway. Receives the lateral lemniscus and projects through its brachium to the medial geniculate body of the thalamus.",
+    clin:"Auditory input is already bilateral at this level, so a one-sided lesion causes little or no hearing loss, mainly trouble localizing sound."},
+  aq:{name:"Cerebral aqueduct",abbr:"Aq",cat:"csf",mid:true,ext:[75,272],
+    fn:"Narrow channel carrying CSF from the third ventricle to the fourth ventricle.",
+    clin:"Its narrowness makes it the most common site of blockage in congenital non-communicating hydrocephalus (aqueductal stenosis)."},
+  pag:{name:"Periaqueductal gray",abbr:"PAG",cat:"other",mid:true,ext:[75,272],
+    fn:"Gray matter around the aqueduct. A key part of the descending pain-control system (projects to the rostral ventromedial medulla) and coordinates defensive and autonomic responses.",
+    clin:"Stimulating it produces strong analgesia, and it is a major site of action of opioid analgesics."},
+  cn3n:{name:"Oculomotor nucleus",abbr:"III",cat:"gse",ext:[105,170],
+    fn:"Motor neurons for the superior, inferior and medial rectus, the inferior oblique and levator palpebrae superioris. Lies ventral to the periaqueductal gray at the level of the superior colliculus.",
+    clin:"A nuclear lesion looks different from a nerve lesion: the superior rectus subnucleus projects to the opposite eye and one midline subnucleus supplies both levators, so expect bilateral ptosis and contralateral superior rectus weakness."},
+  ew:{name:"Edinger-Westphal nucleus",abbr:"EW",cat:"gve",ext:[100,160],
+    fn:"Preganglionic parasympathetic neurons that travel with CN III to the ciliary ganglion. They constrict the pupil (sphincter pupillae) and drive accommodation (ciliary muscle).",
+    clin:"These fibers run on the outside of CN III, so compression (uncal herniation, posterior communicating artery aneurysm) gives a fixed, dilated pupil, often before the eye movement deficit."},
+  cn4n:{name:"Trochlear nucleus",abbr:"IV",cat:"gse",ext:[200,245],
+    fn:"Motor neurons for the superior oblique muscle. Lies ventral to the periaqueductal gray at the level of the inferior colliculus, nestled in the MLF.",
+    clin:"Its axons cross before leaving the brainstem, so a nuclear lesion weakens the opposite superior oblique: vertical double vision worse when looking down and in (stairs, reading) and a head tilt away from the weak eye."},
+  mlf:{name:"Medial longitudinal fasciculus",abbr:"MLF",cat:"gaze",ext:[90,725],
+    fn:"Paired paramedian tract linking the vestibular nuclei with the nuclei of III, IV and VI. It yokes the eyes together: for horizontal gaze it carries the signal from the abducens nucleus to the opposite medial rectus subnucleus, and it carries the vestibulo-ocular reflex.",
+    clin:"A lesion causes internuclear ophthalmoplegia (INO): the eye on the side of the lesion fails to adduct on lateral gaze while the abducting eye shows nystagmus; convergence is spared. Bilateral INO in a young adult strongly suggests multiple sclerosis."},
+  rn:{name:"Red nucleus",abbr:"RN",cat:"other",ext:[90,182],
+    fn:"Large tegmental nucleus that receives the crossed superior cerebellar peduncle and input from motor cortex. Gives rise to the rubrospinal tract (upper limb flexor tone) and projects to the inferior olive.",
+    clin:"Damage together with CN III fascicles (Benedikt syndrome) gives an ipsilateral oculomotor palsy with contralateral tremor and ataxia. Lesions above the red nucleus are associated with decorticate (flexor) posturing."},
+  sn:{name:"Substantia nigra",abbr:"SN",cat:"other",ext:[75,266],
+    fn:"Pars compacta: dopaminergic neurons projecting to the striatum (nigrostriatal pathway). Pars reticulata: a GABAergic output nucleus of the basal ganglia.",
+    clin:"Loss of pars compacta dopamine neurons causes Parkinson disease: resting tremor, rigidity, bradykinesia and postural instability."},
+  cst:{name:"Corticospinal tract",abbr:"CST",cat:"desc",ext:[70,725],
+    lvl:{1:"Cerebral crus (corticospinal fibers in its middle part)",2:"Cerebral crus",3:"Corticospinal bundles in the basilar pons",4:"Corticospinal bundles in the basilar pons",5:"Pyramid",6:"Pyramid"},
+    fn:"The main voluntary motor pathway from cortex to spinal cord. It runs in the middle of the cerebral crus, breaks into scattered bundles in the basilar pons, regroups as the pyramid in the medulla, and mostly crosses at the pyramidal decussation. The crus also carries corticobulbar and corticopontine fibers.",
+    clin:"A lesion anywhere in the brainstem gives contralateral spastic weakness. An accompanying ipsilateral cranial nerve palsy marks the level: III means Weber syndrome (midbrain), VI or VII means Millard-Gubler (pons), XII means medial medullary syndrome."},
+  pn:{name:"Pontine nuclei",abbr:"PN",cat:"other",ext:[285,482],
+    fn:"Gray matter scattered through the basilar pons. Relays cortical input (corticopontine fibers) across the midline to the opposite cerebellum through the middle cerebellar peduncle.",
+    clin:"Small infarcts of the basilar pons hit these relays along with corticospinal bundles, causing ataxic hemiparesis or dysarthria-clumsy hand syndrome. Extensive bilateral basilar pons infarction causes locked-in syndrome."},
+  ml:{name:"Medial lemniscus",abbr:"ML",cat:"asc",ext:[70,662],
+    fn:"Carries fine touch, vibration and proprioception from the opposite side of the body to the VPL nucleus of the thalamus. It forms from the internal arcuate fibers in the caudal medulla, runs upright beside the midline in the medulla, lies flat in the pons, and drifts laterally in the midbrain.",
+    clin:"A brainstem lesion causes loss of vibration and position sense on the opposite side of the body. In medial medullary syndrome it is damaged together with the pyramid and CN XII."},
+  stt:{name:"Spinothalamic tract",abbr:"STT",cat:"asc",ext:[70,740],
+    lvl:{1:"Spinothalamic tract (spinal lemniscus)",2:"Spinothalamic tract (spinal lemniscus)"},
+    fn:"Carries pain, temperature and crude touch from the opposite side of the body to the thalamus. Already crossed in the spinal cord, it runs in the lateral brainstem throughout.",
+    clin:"Part of lateral medullary (Wallenberg) syndrome: loss of pain and temperature on the opposite body, paired with loss on the same side of the face from the spinal trigeminal nucleus. That crossed pattern localizes to the lateral medulla or pons."},
+  ll:{name:"Lateral lemniscus",abbr:"LL",cat:"asc",ext:[190,425],
+    fn:"Ascending auditory tract from the cochlear nuclei and superior olivary complex to the inferior colliculus, carrying input from both ears.",
+    clin:"Because it carries bilateral input, a one-sided lesion causes at most mild hearing loss, mainly impaired sound localization."},
+  mesv:{name:"Mesencephalic nucleus of V",abbr:"Mes V",cat:"sens",ext:[90,350],
+    fn:"An unusual nucleus: the cell bodies of primary sensory neurons sit inside the CNS. Carries proprioception from the muscles of mastication and periodontal ligaments and forms the afferent limb of the jaw-jerk reflex.",
+    clin:"The jaw jerk tests this loop (Mes V to motor V). A brisk jaw jerk points to an upper motor neuron lesion above the pons."},
+  scpd:{name:"Decussation of the superior cerebellar peduncles",abbr:"dSCP",cat:"cbl",mid:true,ext:[200,250],
+    fn:"Where cerebellar output fibers, mostly from the dentate nucleus, cross the midline in the caudal midbrain on their way to the opposite red nucleus and VL thalamus.",
+    clin:"This crossing, combined with the later crossing of the corticospinal tract, is why a cerebellar hemisphere lesion causes ataxia on the same side. A midline lesion here can cause bilateral cerebellar signs."},
+  scp:{name:"Superior cerebellar peduncle",abbr:"SCP",cat:"cbl",ext:[220,425],
+    fn:"Main output pathway of the cerebellum, from the deep cerebellar nuclei (dentate, interposed) to the red nucleus and thalamus. Forms the lateral walls of the rostral fourth ventricle.",
+    clin:"A lesion below its decussation causes ipsilateral limb ataxia and intention tremor."},
+  mcp:{name:"Middle cerebellar peduncle",abbr:"MCP",cat:"cbl",ext:[292,470],
+    fn:"The largest cerebellar peduncle. Carries fibers from the opposite pontine nuclei into the cerebellum, the last link of the cortico-ponto-cerebellar pathway.",
+    clin:"Infarction or demyelination here causes ipsilateral limb ataxia."},
+  icp:{name:"Inferior cerebellar peduncle",abbr:"ICP",cat:"cbl",ext:[420,600],
+    fn:"Brings input into the cerebellum from the spinal cord (dorsal spinocerebellar and cuneocerebellar tracts), the opposite inferior olive (climbing fibers) and the vestibular nuclei.",
+    clin:"Damaged in lateral medullary syndrome, contributing ipsilateral limb ataxia and a tendency to fall toward the side of the lesion."},
+  psv:{name:"Principal sensory nucleus of V",abbr:"Pr V",cat:"sens",ext:[320,356],
+    fn:"Receives discriminative touch and pressure from the face through the trigeminal nerve and projects mainly to the opposite VPM thalamus. It is the facial counterpart of the dorsal column nuclei.",
+    clin:"A lesion here impairs fine touch on the same side of the face, while pain and temperature (spinal trigeminal nucleus) can be spared."},
+  mv:{name:"Trigeminal motor nucleus",abbr:"Mo V",cat:"sve",ext:[320,356],
+    fn:"Branchial motor neurons for the muscles of mastication (masseter, temporalis, pterygoids), plus tensor tympani, tensor veli palatini, mylohyoid and anterior digastric.",
+    clin:"A lower motor neuron lesion weakens chewing on the same side, and the jaw deviates toward the weak side on opening because the intact lateral pterygoid pushes it over."},
+  sp5:{name:"Spinal trigeminal nucleus",abbr:"Sp V",cat:"sens",ext:[340,740],
+    lvl:{3:"Spinal trigeminal nucleus and tract",4:"Spinal trigeminal nucleus and tract",5:"Spinal trigeminal nucleus and tract",6:"Spinal trigeminal nucleus and tract"},
+    fn:"A long column receiving pain and temperature from the same side of the face through CN V, and from the ear and pharynx through VII, IX and X. Runs from the mid pons down to the upper cervical cord, where it merges with the dorsal horn.",
+    clin:"Damaged in lateral medullary syndrome: loss of pain and temperature on the same side of the face, opposite to the body loss from the spinothalamic tract."},
+  cn6n:{name:"Abducens nucleus",abbr:"VI",cat:"gse",ext:[425,456],
+    fn:"Holds motor neurons for the lateral rectus on the same side and interneurons that cross into the opposite MLF to reach the medial rectus subnucleus. Together with the PPRF it is the horizontal gaze center.",
+    clin:"A nuclear lesion causes a horizontal gaze palsy toward the side of the lesion (neither eye looks that way), not just a lateral rectus palsy. It often comes with a facial palsy because the facial genu wraps around it."},
+  cn7n:{name:"Facial motor nucleus",abbr:"VII",cat:"sve",ext:[430,482],
+    fn:"Branchial motor neurons for the muscles of facial expression, stapedius, posterior digastric and stylohyoid. Its axons first run dorsomedially and loop over the abducens nucleus (internal genu), raising the facial colliculus.",
+    clin:"Nuclear or fascicular damage causes a lower motor neuron facial palsy of the whole half-face, forehead included. A cortical lesion, by contrast, spares the forehead."},
+  vn:{name:"Vestibular nuclei",abbr:"Vest",cat:"sens",ext:[400,560],
+    fn:"Four nuclei (superior, lateral, medial, inferior) in the floor of the fourth ventricle receiving vestibular input from CN VIII. They drive the vestibulo-ocular reflex through the MLF and posture through the vestibulospinal tracts.",
+    clin:"Involved in lateral medullary syndrome: vertigo, nystagmus, nausea and vomiting."},
+  cochn:{name:"Cochlear nuclei",abbr:"Coch",cat:"sens",ext:[495,540],
+    fn:"Dorsal and ventral cochlear nuclei wrap around the inferior cerebellar peduncle and receive every auditory nerve fiber. This is the last point where the pathway carries input from one ear only.",
+    clin:"A lesion here, or of CN VIII, causes ipsilateral sensorineural deafness. Lesions higher up cause little hearing loss because input is bilateral by then."},
+  so:{name:"Superior olivary complex",abbr:"SO",cat:"other",ext:[430,482],
+    fn:"Auditory relay in the caudal pons and the first site where input from both ears converges. Compares timing and loudness between ears to localize sound, and gives rise to olivocochlear efferents.",
+    clin:"Contributes to brainstem auditory evoked potentials; lesions impair sound localization rather than hearing itself."},
+  cn12n:{name:"Hypoglossal nucleus",abbr:"XII",cat:"gse",ext:[520,682],
+    fn:"Motor neurons for the intrinsic and most extrinsic tongue muscles (genioglossus, hyoglossus, styloglossus). Sits under the hypoglossal trigone in the floor of the fourth ventricle, next to the midline.",
+    clin:"A lower motor neuron lesion causes atrophy and fasciculations on the same side of the tongue, which deviates toward the weak side when protruded."},
+  dmnx:{name:"Dorsal motor nucleus of vagus",abbr:"DMN X",cat:"gve",ext:[520,682],
+    fn:"Preganglionic parasympathetic neurons for the heart, lungs and gut as far as the left colic flexure. Lies lateral to the hypoglossal nucleus under the vagal trigone.",
+    clin:"Affected early in Parkinson disease (Braak stage 1), which may contribute to constipation and other autonomic symptoms years before motor signs."},
+  nts:{name:"Nucleus of the solitary tract",abbr:"NTS",cat:"sens",ext:[440,690],
+    fn:"The visceral sensory nucleus. Its rostral part receives taste (VII, IX, X); its caudal part receives baroreceptor, chemoreceptor, lung and gut input (IX, X). Hub of cardiovascular, respiratory and gastrointestinal reflexes.",
+    clin:"Lateral medullary infarcts can involve it, causing loss of taste on the same side. It is the afferent hub of the baroreceptor reflex."},
+  na:{name:"Nucleus ambiguus",abbr:"NA",cat:"sve",ext:[515,682],
+    fn:"Branchial motor neurons for the pharynx, larynx and soft palate (through IX and X), essential for swallowing and voice. Also contains cardiac vagal neurons that slow the heart.",
+    clin:"Damaged in lateral medullary (Wallenberg) syndrome from PICA or vertebral artery occlusion: dysphagia, hoarseness, a reduced gag reflex and a uvula that deviates away from the lesion."},
+  io:{name:"Inferior olivary nucleus",abbr:"ION",cat:"other",ext:[500,622],
+    fn:"Large folded nucleus that forms the olive on the ventral medulla. Sends climbing fibers through the opposite inferior cerebellar peduncle to Purkinje cells; important for motor learning and timing.",
+    clin:"After a lesion in the dentato-rubro-olivary pathway (Guillain-Mollaret triangle), the olive can undergo hypertrophic degeneration, causing palatal tremor."},
+  v4:{name:"Fourth ventricle",abbr:"4V",cat:"csf",mid:true,ext:[280,600],
+    fn:"CSF space between the pons and medulla (its floor, the rhomboid fossa) and the cerebellum (its roof). Drains into the subarachnoid space through the median aperture (Magendie) and lateral apertures (Luschka).",
+    clin:"Masses in or near it (medulloblastoma or ependymoma in children) block CSF flow, causing hydrocephalus, and can compress cranial nerve nuclei in the floor."},
+  cc:{name:"Central canal",abbr:"CC",cat:"csf",mid:true,ext:[610,745],
+    fn:"Narrow continuation of the fourth ventricle into the closed caudal medulla and the spinal cord.",
+    clin:"A syrinx of the cord (syringomyelia, often with Chiari I malformation) can extend up into the medulla as syringobulbia."},
+  ng:{name:"Nucleus gracilis",abbr:"NG",cat:"sens",ext:[610,700],
+    fn:"Relay for fine touch, vibration and proprioception from the lower body (below about T6). Receives the fasciculus gracilis and sends internal arcuate fibers across the midline into the medial lemniscus.",
+    clin:"A lesion impairs vibration and joint position sense in the leg on the same side."},
+  ncun:{name:"Nucleus cuneatus",abbr:"NC",cat:"sens",ext:[610,692],
+    fn:"Relay for fine touch, vibration and proprioception from the arm and upper trunk (above about T6). Receives the fasciculus cuneatus and projects through internal arcuate fibers to the opposite medial lemniscus.",
+    clin:"A lesion impairs discriminative touch and position sense in the arm on the same side."},
+  fg:{name:"Fasciculus gracilis",abbr:"FG",cat:"asc",ext:[620,745],
+    fn:"Dorsal column carrying first-order fibers for fine touch, vibration and proprioception from the leg and lower trunk on the same side. Ends in the nucleus gracilis.",
+    clin:"Damaged in B12 deficiency (subacute combined degeneration) and tabes dorsalis: loss of vibration and position sense with a positive Romberg sign."},
+  fc:{name:"Fasciculus cuneatus",abbr:"FC",cat:"asc",ext:[620,745],
+    fn:"Dorsal column carrying first-order fibers for fine touch, vibration and proprioception from the arm and upper trunk on the same side. Ends in the nucleus cuneatus.",
+    clin:"Present only above about T6; a lesion impairs position sense and fine touch in the same-side arm."},
+  iaf:{name:"Internal arcuate fibers",abbr:"IAF",cat:"asc",ext:[628,672],
+    fn:"Second-order axons from the gracile and cuneate nuclei that sweep ventromedially around the central canal and cross the midline (sensory decussation) to form the opposite medial lemniscus.",
+    clin:"This is where the dorsal column pathway crosses: a lesion below it causes same-side loss of vibration and position sense; a lesion above it causes opposite-side loss."},
+  n3:{name:"Oculomotor nerve (CN III)",abbr:"CN III",cat:"cn",
+    fn:"Fascicles run ventrally through the tegmentum, beside or through the red nucleus, and leave in the interpeduncular fossa. Supplies most extraocular muscles and levator palpebrae, and carries parasympathetics to the pupil and lens.",
+    clin:"Weber syndrome (ventral midbrain, posterior cerebral artery branches): ipsilateral CN III palsy, with the eye down and out, ptosis and a dilated pupil, plus contralateral hemiparesis from the cerebral crus."},
+  n4:{name:"Trochlear nerve (CN IV)",abbr:"CN IV",cat:"cn",
+    fn:"The only cranial nerve to leave the dorsal brainstem and the only one whose fibers all cross (in the superior medullary velum). Supplies the superior oblique.",
+    clin:"Its long, thin course makes it vulnerable to head trauma. Palsy causes vertical double vision, worse looking down and toward the nose."},
+  n5:{name:"Trigeminal nerve (CN V)",abbr:"CN V",cat:"cn",
+    fn:"Leaves the lateral pons through the middle cerebellar peduncle as a large sensory root and a small motor root. Sensation from the face, scalp, cornea, mouth and nasal cavity; motor to the muscles of mastication.",
+    clin:"Trigeminal neuralgia causes brief, electric-shock facial pain, often from a blood vessel compressing the root where it enters the pons."},
+  n6:{name:"Abducens nerve (CN VI)",abbr:"CN VI",cat:"cn",
+    fn:"Fibers run ventrally from the abducens nucleus through the pontine tegmentum and basis and leave at the pontomedullary junction near the midline. Supplies the lateral rectus.",
+    clin:"Millard-Gubler syndrome (ventral caudal pons): ipsilateral lateral rectus palsy, often with facial palsy, plus contralateral hemiparesis. Its long course also makes it a classic false localizing sign of raised intracranial pressure."},
+  n7:{name:"Facial nerve (CN VII)",abbr:"CN VII",cat:"cn",
+    fn:"Motor fibers loop dorsally over the abducens nucleus (internal genu) before leaving at the lateral pontomedullary junction with CN VIII. The nerve also carries taste from the front two-thirds of the tongue and parasympathetics to the lacrimal and salivary glands.",
+    clin:"Foville syndrome (dorsal caudal pons) combines facial palsy, horizontal gaze palsy and contralateral hemiparesis. Bell palsy is the common peripheral counterpart."},
+  n8:{name:"Vestibulocochlear nerve (CN VIII)",abbr:"CN VIII",cat:"cn",
+    fn:"Enters the brainstem at the cerebellopontine angle. Cochlear fibers end in the cochlear nuclei; vestibular fibers end in the vestibular nuclei and partly in the cerebellum.",
+    clin:"A vestibular schwannoma at the cerebellopontine angle presents with one-sided sensorineural hearing loss and tinnitus, and can later compress V and VII."},
+  n9:{name:"Glossopharyngeal nerve (CN IX)",abbr:"CN IX",cat:"cn",
+    fn:"Rootlets leave the retro-olivary groove, between the olive and the inferior cerebellar peduncle. Motor to stylopharyngeus (nucleus ambiguus), parasympathetic to the parotid, and sensory to the solitary and spinal trigeminal nuclei (back third of the tongue, pharynx, carotid sinus).",
+    clin:"Carries the afferent limb of the gag reflex; a lesion reduces the gag and pharyngeal sensation on that side."},
+  n10:{name:"Vagus nerve (CN X)",abbr:"CN X",cat:"cn",
+    fn:"Rootlets leave the retro-olivary groove just below IX. Motor to the pharynx, larynx and palate (nucleus ambiguus), parasympathetic to the thoracic and abdominal viscera (DMN X), and visceral sensation and taste to the NTS.",
+    clin:"A one-sided lesion causes hoarseness, dysphagia and a uvula that deviates away from the lesion. Recurrent laryngeal nerve injury paralyzes the vocal cord."},
+  n12:{name:"Hypoglossal nerve (CN XII)",abbr:"CN XII",cat:"cn",
+    fn:"Fibers run ventrally from the hypoglossal nucleus, lateral to the medial lemniscus, and leave between the pyramid and the olive (preolivary sulcus). Motor to the tongue.",
+    clin:"Medial medullary (Dejerine) syndrome: ipsilateral tongue weakness (deviates toward the lesion), contralateral hemiparesis from the pyramid, and contralateral loss of vibration and position sense from the medial lemniscus."}
+};
+
+/* =========================================================
+   DATA: six cuts (right half drawn, mirrored automatically)
+   frame: x 0..400 (midline 200), y 0 dorsal .. 300 ventral
+   ========================================================= */
+const LEVELS = [
+{n:1,region:"Midbrain",name:"Rostral midbrain",landmark:"Superior colliculus, CN III",Y:130,
+ key:"Level of the superior colliculus and oculomotor nucleus. The red nucleus and substantia nigra dominate the tegmentum, and CN III leaves through the interpeduncular fossa.",
+ clinic:"Weber syndrome (ventral: CN III with the cerebral crus) and Benedikt syndrome (tegmental: CN III with the red nucleus), both from posterior cerebral artery branches. Compression from above and behind gives Parinaud syndrome.",
+ outline:"M200,26 C232,24 262,30 284,46 C304,60 314,82 320,106 C326,130 336,150 348,176 C360,204 362,236 346,258 C330,280 296,288 270,280 C248,274 232,262 222,246 C214,234 206,226 200,224 C194,226 186,234 178,246 C168,262 152,274 130,280 C104,288 70,280 54,258 C38,236 40,204 52,176 C64,150 74,130 80,106 C86,82 96,60 116,46 C138,30 168,24 200,26 Z",
+ shapes:[
+  ["e","sc",242,50,38,19,12],
+  ["e","pag",200,96,44,34],
+  ["e","aq",200,92,7,11],
+  ["p","sn","M226,214 C252,206 290,206 322,192 C334,204 330,222 314,232 C290,244 252,244 230,236 C222,232 220,220 226,214 Z"],
+  ["p","cst","M226,242 C252,248 296,246 336,216 C350,236 346,262 322,274 C296,286 262,282 240,266 C232,258 228,250 226,242 Z"],
+  ["e","rn",236,170,22,22],
+  ["e","ml",294,176,22,8,-38],
+  ["e","stt",318,140,10,7,-55],
+  ["e","cn3n",217,133,12,9,15],
+  ["e","ew",207,118,5,6],
+  ["e","mlf",216,150,8,5],
+  ["s","n3","M219,141 C224,168 210,192 213,214 C214,226 210,236 206,250"]
+ ]},
+{n:2,region:"Midbrain",name:"Caudal midbrain",landmark:"Inferior colliculus, CN IV",Y:225,
+ key:"Level of the inferior colliculus and trochlear nucleus. Cerebellar output crosses the midline here in the decussation of the superior cerebellar peduncles.",
+ clinic:"The trochlear nerve is easily injured by head trauma as it wraps around the midbrain. Tegmental lesions here can hit the decussating cerebellar fibers, causing bilateral ataxia.",
+ outline:"M200,24 C232,22 264,28 286,44 C306,58 316,80 320,104 C324,130 334,150 344,176 C354,204 354,234 340,254 C324,276 292,282 268,274 C248,268 232,256 222,242 C214,232 206,226 200,224 C194,226 186,232 178,242 C168,256 152,268 132,274 C108,282 76,276 60,254 C46,234 46,204 56,176 C66,150 76,130 80,104 C84,80 94,58 114,44 C136,28 168,22 200,24 Z",
+ shapes:[
+  ["e","ic",242,52,38,22,10],
+  ["e","pag",200,94,44,32],
+  ["e","aq",200,90,7,10],
+  ["e","mesv",245,93,3.5,10,-10],
+  ["p","sn","M228,210 C254,204 288,204 318,190 C328,202 324,218 308,228 C286,238 252,238 232,232 C224,228 222,216 228,210 Z"],
+  ["p","cst","M226,238 C252,244 292,242 332,214 C344,232 338,256 316,268 C292,280 262,276 240,262 C232,254 228,246 226,238 Z"],
+  ["e","scpd",200,168,30,17],
+  ["e","ml",290,184,22,8,-30],
+  ["e","stt",314,152,10,7,-50],
+  ["e","ll",312,94,8,18,22],
+  ["e","cn4n",214,130,10,7,10],
+  ["e","mlf",215,146,8,5],
+  ["s","n4","M222,128 C240,122 254,108 252,88 C250,68 232,48 214,30 C210,24 207,16 205,6"]
+ ]},
+{n:3,region:"Pons",name:"Rostral pons",landmark:"Trigeminal level, CN V",Y:335,
+ key:"Mid-pontine level where the trigeminal nerve enters. The basilar pons, packed with pontine nuclei and corticospinal bundles, makes up most of the section; the superior cerebellar peduncles wall in a narrow fourth ventricle.",
+ clinic:"Paramedian basilar artery branch infarcts give contralateral hemiparesis or ataxic hemiparesis. Lateral lesions here involve facial sensation and chewing on the same side.",
+ outline:"M200,46 C214,40 226,34 244,32 C268,30 288,40 298,56 C312,70 334,84 352,102 C376,126 386,160 380,192 C372,230 342,262 300,276 C268,286 232,290 200,290 C168,290 132,286 100,276 C58,262 28,230 20,192 C14,160 24,126 48,102 C66,84 88,70 102,56 C112,40 132,30 156,32 C174,34 186,40 200,46 Z",
+ shapes:[
+  ["p","pn","M200,168 C240,166 300,170 340,186 C346,222 316,256 268,270 C246,276 222,278 200,278 Z"],
+  ["p","mcp","M300,98 C334,110 362,140 366,176 C370,212 352,244 320,264 C332,236 340,206 334,180 C328,150 316,124 296,108 Z"],
+  ["e","cst",220,206,11,7],["e","cst",250,218,10,7],["e","cst",230,238,11,6],["e","cst",270,198,8,6],["e","cst",264,242,9,6],
+  ["p","v4","M180,50 C190,46 210,46 220,50 L212,66 C206,72 194,72 188,66 Z"],
+  ["e","scp",248,64,24,13,32],
+  ["e","mesv",226,74,3,7],
+  ["e","mlf",212,88,7,5],
+  ["e","mv",248,122,12,10],
+  ["e","psv",276,118,14,11],
+  ["e","ll",304,90,8,13,25],
+  ["e","ml",240,154,36,8,-6],
+  ["e","stt",294,146,10,7,-20],
+  ["s","n5","M276,126 C302,142 334,162 368,182 C382,190 398,196 416,200 M250,130 C282,150 330,172 370,190"]
+ ]},
+{n:4,region:"Pons",name:"Caudal pons",landmark:"Facial colliculus, CN VI and VII",Y:428,
+ key:"Level of the facial colliculus, where facial nerve fibers loop over the abducens nucleus in the floor of the fourth ventricle. CN VI leaves ventrally, CN VII laterally.",
+ clinic:"Millard-Gubler syndrome (ventral: VI, often VII, with the corticospinal tract) and Foville syndrome (dorsal: abducens nucleus or PPRF, VII and corticospinal tract). AICA infarcts cause lateral pontine syndrome.",
+ outline:"M200,52 C216,46 232,38 252,36 C276,34 294,44 304,58 C318,72 338,86 354,104 C376,128 384,162 378,194 C370,230 340,260 298,274 C266,284 232,288 200,288 C168,288 134,284 102,274 C60,260 30,230 22,194 C16,162 24,128 46,104 C62,86 82,72 96,58 C106,44 124,34 148,36 C168,38 184,46 200,52 Z",
+ shapes:[
+  ["p","pn","M200,170 C240,168 300,172 338,190 C342,224 312,254 266,268 C244,274 222,276 200,276 Z"],
+  ["p","mcp","M306,100 C338,114 362,144 364,178 C366,212 350,242 318,262 C330,234 338,206 332,180 C326,152 314,128 300,112 Z"],
+  ["e","cst",222,208,11,7],["e","cst",250,220,10,7],["e","cst",232,240,11,6],["e","cst",268,204,8,6],["e","cst",262,244,9,6],
+  ["p","v4","M160,52 C180,46 220,46 240,52 L226,66 C214,74 186,74 174,66 Z"],
+  ["e","icp",302,76,16,14],
+  ["e","vn",260,66,20,11,12],
+  ["e","cn6n",216,84,10,9],
+  ["e","mlf",210,102,6,5],
+  ["e","sp5",300,118,12,14],
+  ["e","cn7n",264,154,13,10],
+  ["e","so",278,178,9,7],
+  ["e","ml",228,182,26,7],
+  ["e","stt",298,158,9,6,-15],
+  ["s","n7","M260,146 C248,118 230,74 214,70 C198,68 197,94 220,100 C252,110 300,152 346,186 C362,196 384,206 410,212"],
+  ["s","n6","M218,94 C222,140 230,200 234,268 C235,280 236,290 237,302"]
+ ]},
+{n:5,region:"Medulla",name:"Rostral medulla",landmark:"Inferior olive, CN VIII to XII",Y:545,
+ key:"Open medulla: the fourth ventricle floor carries the hypoglossal, vagal and vestibular nuclei, and the inferior olive bulges ventrolaterally. CN XII leaves in front of the olive; IX and X leave behind it.",
+ clinic:"Lateral medullary (Wallenberg) syndrome from PICA or vertebral artery occlusion. Medial medullary (Dejerine) syndrome from the anterior spinal artery or vertebral branches.",
+ outline:"M200,62 C185,55 170,46 150,44 C120,42 95,52 80,72 C62,96 58,130 62,160 C66,190 74,212 88,232 C104,254 128,262 150,264 C160,276 182,282 200,278 C218,282 240,276 250,264 C272,262 296,254 312,232 C326,212 334,190 338,160 C342,130 338,96 320,72 C305,52 280,42 250,44 C230,46 215,55 200,62 Z",
+ shapes:[
+  ["p","v4","M150,50 C172,54 190,60 200,64 C210,60 228,54 250,50 C244,60 228,70 212,76 C206,78 194,78 188,76 C172,70 156,60 150,50 Z"],
+  ["e","icp",300,100,22,24,-10],
+  ["e","cochn",326,84,9,16,-25],
+  ["e","vn",268,72,18,9,14],
+  ["e","sp5",292,138,12,14],
+  ["e","nts",244,92,8,8],
+  ["e","dmnx",226,84,8,6],
+  ["e","cn12n",209,86,9,7],
+  ["e","mlf",208,112,6,8],
+  ["e","na",262,152,6,6],
+  ["w","io",268,214,26,20,250,500],
+  ["e","ml",211,192,8,34],
+  ["e","cst",226,250,22,16],
+  ["e","stt",304,186,9,7],
+  ["s","n12","M210,94 C214,140 226,200 244,252 C247,262 250,272 254,286"],
+  ["s","n9","M244,96 C276,124 306,150 334,160 C350,165 368,166 394,164"],
+  ["s","n10","M228,88 C258,112 296,150 336,172 C350,180 368,186 394,190 M262,152 C290,162 316,172 338,176"],
+  ["s","n8","M330,82 C350,76 372,70 400,64"]
+ ]},
+{n:6,region:"Medulla",name:"Caudal medulla",landmark:"Sensory decussation",Y:640,
+ key:"Closed medulla around the central canal. The gracile and cuneate nuclei relay the dorsal columns, and their internal arcuate fibers cross the midline to form the medial lemniscus.",
+ clinic:"A lesion here splits the dorsal column pathway: fibers above the decussation serve the opposite body, fibers below it serve the same side. Anterior spinal artery territory includes the pyramid and CN XII.",
+ outline:"M200,40 C222,36 252,40 272,52 C298,66 320,86 332,112 C346,142 344,176 334,204 C322,234 298,256 268,268 C248,276 222,280 200,278 C178,280 152,276 132,268 C102,256 78,234 66,204 C56,176 54,142 68,112 C80,86 102,66 128,52 C148,40 178,36 200,40 Z",
+ shapes:[
+  ["e","fg",212,58,13,20,-5],
+  ["e","fc",249,66,22,22,18],
+  ["e","ng",212,68,7,11],
+  ["e","ncun",246,80,10,12],
+  ["e","sp5",296,108,16,19],
+  ["e","cc",200,124,5,5],
+  ["e","cn12n",207,142,7,6],
+  ["e","dmnx",221,134,6,5],
+  ["e","nts",235,120,6,6],
+  ["e","na",258,166,5,5],
+  ["e","mlf",206,160,5,6],
+  ["s","iaf","M246,90 C246,132 230,160 200,178 M214,80 C224,118 218,150 200,170"],
+  ["e","ml",208,198,8,18],
+  ["e","stt",298,190,10,8],
+  ["e","cst",222,240,22,18],
+  ["s","n12","M208,148 C214,184 228,218 244,266 C246,274 248,282 250,292"]
+ ]}
+];
+
+/* overview nerve stubs (right side; mirrored) */
+const OV_NERVES = [
+  {id:"n3", w:5,  d:"M382,258 C400,270 425,272 455,262", lab:[461,264]},
+  {id:"n4", w:2.5,d:"M452,248 C468,252 486,258 506,256", lab:[511,258]},
+  {id:"n5", w:10, d:"M508,354 C520,352 532,349 546,345", lab:[552,349]},
+  {id:"n6", w:3,  d:"M377,493 C379,486 381,478 383,470", lab:[390,486]},
+  {id:"n7", w:4,  d:"M462,486 C485,480 508,474 535,470", lab:[541,471]},
+  {id:"n8", w:6,  d:"M465,495 C490,494 514,492 540,492", lab:[548,496]},
+  {id:"n9", w:3,  d:"M446,518 C470,516 494,514 520,512", lab:[526,515]},
+  {id:"n10",w:3,  d:"M446,532 C470,534 494,536 520,537 M446,544 C470,548 492,552 518,556", lab:[526,548]},
+  {id:"n12",w:2.2,d:"M406,540 C420,548 432,560 440,578 M406,556 C418,566 428,578 434,594 M406,572 C416,582 423,594 428,608", lab:[434,622]}
+];
+const NERVE_LAB = {n3:"III",n4:"IV",n5:"V",n6:"VI",n7:"VII",n8:"VIII",n9:"IX",n10:"X",n12:"XII"};
+
+/* =========================================================
+   GEOMETRY
+   ========================================================= */
+const NS = "http://www.w3.org/2000/svg";
+const CX = 370, K = 0.34;
+const HW = [[60,108],[100,98],[130,92],[180,84],[225,80],[262,82],[282,108],[310,132],[350,142],[400,140],[440,132],[470,116],[492,90],[515,80],[545,84],[575,78],[610,68],[640,60],[675,52],[705,46],[760,44]];
+function hw(Y){
+  if (Y <= HW[0][0]) return HW[0][1];
+  for (let i=1;i<HW.length;i++){
+    const [y1,w1]=HW[i];
+    if (Y<=y1){ const [y0,w0]=HW[i-1]; return w0+(w1-w0)*(Y-y0)/(y1-y0); }
+  }
+  return HW[HW.length-1][1];
+}
+const f1 = v => Math.round(v*10)/10;
+function smooth(pts){
+  let d = `M${f1(pts[0][0])},${f1(pts[0][1])}`;
+  for (let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2;
+    const c1=[p1[0]+(p2[0]-p0[0])/6, p1[1]+(p2[1]-p0[1])/6];
+    const c2=[p2[0]-(p3[0]-p1[0])/6, p2[1]-(p3[1]-p1[1])/6];
+    d += ` C${f1(c1[0])},${f1(c1[1])} ${f1(c2[0])},${f1(c2[1])} ${f1(p2[0])},${f1(p2[1])}`;
+  }
+  return d;
+}
+function wavy(cx,cy,rx,ry,a0,a1,waves=8,amp=0.11){
+  const pts=[], N=160;
+  for (let i=0;i<=N;i++){
+    const t=i/N, a=(a0+(a1-a0)*t)*Math.PI/180, m=1+amp*Math.sin(t*waves*2*Math.PI);
+    pts.push([cx+rx*m*Math.cos(a), cy+ry*m*Math.sin(a)]);
+  }
+  return "M"+pts.map(p=>f1(p[0])+","+f1(p[1])).join(" L");
+}
+function el(tag, attrs, parent){
+  const e=document.createElementNS(NS,tag);
+  if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const MIRROR = "matrix(-1 0 0 1 400 0)";
+
+function buildSectionContent(g, L){
+  el("path",{d:L.outline,class:"tissue"},g);
+  for (const sh of L.shapes){
+    const t=sh[0], id=sh[1], st=S[id], kind=CATS[st.cat].kind;
+    const sides = st.mid ? [false] : [false,true];
+    for (const mirror of sides){
+      const made=[];
+      if (t==="e"){
+        const [, ,cx,cy,rx,ry,rot=0]=sh;
+        const e=el("ellipse",{cx,cy,rx,ry},g);
+        let tf = rot ? `rotate(${rot} ${cx} ${cy})` : "";
+        if (mirror) tf = MIRROR + " " + tf;
+        if (tf.trim()) e.setAttribute("transform", tf.trim());
+        e.classList.add("k-"+kind); made.push(e);
+      } else if (t==="p" || t==="s"){
+        const e=el("path",{d:sh[2]},g);
+        if (mirror) e.setAttribute("transform", MIRROR);
+        e.classList.add(t==="s" ? "fiber" : "k-"+kind); made.push(e);
+      } else if (t==="w"){
+        const [, ,cx,cy,rx,ry,a0,a1]=sh;
+        const base=el("ellipse",{cx,cy,rx:rx*0.96,ry:ry*0.96},g);
+        base.classList.add("k-"+kind);
+        const line=el("path",{d:wavy(cx,cy,rx,ry,a0,a1)},g);
+        line.classList.add("olive-line");
+        if (mirror){ base.setAttribute("transform",MIRROR); line.setAttribute("transform",MIRROR); }
+        made.push(base,line);
+      }
+      for (const e of made){
+        e.classList.add("st");
+        e.dataset.id=id; e.dataset.cat=st.cat;
+        if (!mirror) e.dataset.primary="1";
+      }
+    }
+  }
+}
+
+/* measure every cut once (bounding boxes, centroids, label anchors) */
+function measure(){
+  const m = el("svg",{viewBox:"-30 -4 460 312",style:"position:absolute;left:-9999px;top:0;width:460px;height:312px;visibility:hidden"},document.body);
+  for (const L of LEVELS){
+    const g = el("g",{},m);
+    buildSectionContent(g,L);
+    const tb = g.querySelector(".tissue").getBBox();
+    L.bb = {x:tb.x,y:tb.y,w:tb.width,h:tb.height,cx:tb.x+tb.width/2,cy:tb.y+tb.height/2};
+    const groups = {};
+    g.querySelectorAll(".st[data-primary]").forEach(e => (groups[e.dataset.id] ||= []).push(e));
+    L.cent = {}; L.labelPos = {};
+    for (const id in groups){
+      let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+      for (const e of groups[id]){
+        const b=e.getBBox();
+        x0=Math.min(x0,b.x); y0=Math.min(y0,b.y); x1=Math.max(x1,b.x+b.width); y1=Math.max(y1,b.y+b.height);
+      }
+      L.cent[id] = {x:(x0+x1)/2, y:(y0+y1)/2, w:x1-x0, h:y1-y0};
+      const fib = groups[id].find(e=>e.classList.contains("fiber"));
+      if (fib){
+        const len = fib.getTotalLength(); let best=null, bd=-1;
+        for (let i=0;i<=48;i++){
+          const p=fib.getPointAtLength(len*i/48), d=Math.hypot(p.x-200,p.y-160);
+          if (d>bd){bd=d;best=p;}
+        }
+        const dx=best.x-200, dy=best.y-160, dl=Math.hypot(dx,dy)||1;
+        L.labelPos[id] = {x:best.x+dx/dl*9, y:best.y+dy/dl*7, anchor: dx>12 ? "start" : (dx<-12 ? "end":"middle")};
+      } else {
+        const c=L.cent[id];
+        L.labelPos[id] = {x:c.x, y: id==="pag" ? c.y+c.h*0.34 : c.y, anchor:"middle"};
+      }
+    }
+    L.ids = Object.keys(groups);
+    L.s  = hw(L.Y)/(L.bb.w/2);
+    L.tx = CX - L.bb.cx*L.s;
+    L.ty = L.Y - L.bb.cy*L.s*K;
+  }
+  m.remove();
+}
+
+/* =========================================================
+   STATE + DOM
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const stage=$("#stage"), ovLayer=$("#ovLayer"), secLayer=$("#secLayer"), ovSvg=$("#ovSvg"), secSvg=$("#secSvg");
+const panel=$("#panel"), tip=$("#tip"), quizbar=$("#quizbar");
+const RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const state = {mode:"overview", level:1, sel:null, labels:false, colorize:false, quiz:null, busy:false};
+const slices = {};
+let gRibbons, secContent, secLabels;
+const levelOf = n => LEVELS[n-1];
+const presentIn = id => LEVELS.filter(L => L.ids.includes(id));
+const nameIn = (id,n) => (S[id].lvl && S[id].lvl[n]) || S[id].name;
+
+/* ---------- overview ---------- */
+function buildOverview(){
+  const defs = el("defs",{},ovSvg);
+  const cg = el("linearGradient",{id:"colGrad",x1:"0",x2:"1",y1:"0",y2:"0"},defs);
+  el("stop",{offset:"0","stop-color":"var(--col-b)"},cg);
+  el("stop",{offset:"0.42","stop-color":"var(--col-a)"},cg);
+  el("stop",{offset:"0.58","stop-color":"var(--col-a)"},cg);
+  el("stop",{offset:"1","stop-color":"var(--col-b)"},cg);
+  const fg = el("linearGradient",{id:"fadeGrad",x1:"0",x2:"0",y1:"0",y2:"1",gradientUnits:"userSpaceOnUse"},defs);
+  fg.setAttribute("y1","680"); fg.setAttribute("y2","768");
+  el("stop",{offset:"0","stop-color":"#fff"},fg);
+  el("stop",{offset:"1","stop-color":"#000"},fg);
+  const mask = el("mask",{id:"fade",maskUnits:"userSpaceOnUse",x:"0",y:"0",width:"680",height:"770"},defs);
+  el("rect",{x:0,y:0,width:680,height:680,fill:"#fff"},mask);
+  el("rect",{x:0,y:680,width:680,height:90,fill:"url(#fadeGrad)"},mask);
+
+  /* region brackets */
+  const regions=[["Midbrain",66,272],["Pons",282,488],["Medulla",496,700]];
+  const rg=el("g",{class:"region"},ovSvg);
+  for (const [nm,a,b] of regions){
+    el("line",{x1:24,x2:24,y1:a,y2:b},rg);
+    el("line",{x1:24,x2:30,y1:a,y2:a},rg); el("line",{x1:24,x2:30,y1:b,y2:b},rg);
+    const t=el("text",{transform:`translate(15 ${(a+b)/2}) rotate(-90)`},rg); t.textContent=nm;
+  }
+
+  /* column */
+  const gCol = el("g",{mask:"url(#fade)"},ovSvg);
+  const right = HW.map(([y,w])=>[CX+w,y]);
+  const left  = HW.slice().reverse().map(([y,w])=>[CX-w,y]);
+  const dR = smooth(right), dL = smooth(left);
+  el("path",{d:dR+" L"+f1(left[0][0])+","+f1(left[0][1])+dL.replace(/^M[^C]+/,"")+" Z",class:"col"},gCol);
+  /* surface detail */
+  el("path",{d:"M370,92 C362,150 357,222 361,262 Q370,272 379,262 C383,222 378,150 370,92 Z",class:"fossa"},gCol);
+  el("path",{d:"M352,96 C344,160 340,220 346,270 M388,96 C396,160 400,220 394,270",class:"surf"},gCol);
+  for (let Y=298; Y<=474; Y+=13){
+    const w=hw(Y)-6;
+    el("path",{d:`M${f1(CX-w)},${Y} Q${CX},${Y+12} ${f1(CX+w)},${Y}`,class:"surf",style:"opacity:.2"},gCol);
+  }
+  el("path",{d:"M370,286 L370,486",class:"surf"},gCol);
+  el("path",{d:"M372,496 C394,496 404,506 404,526 L403,650 C402,682 392,700 378,706 C374,706 372,700 372,690 Z M368,496 C346,496 336,506 336,526 L337,650 C338,682 348,700 362,706 C366,706 368,700 368,690 Z",class:"pyr"},gCol);
+  el("path",{d:"M370,494 L370,760",class:"surf"},gCol);
+  el("ellipse",{cx:CX+56,cy:552,rx:15,ry:34,class:"olv"},gCol);
+  el("ellipse",{cx:CX-56,cy:552,rx:15,ry:34,class:"olv"},gCol);
+  el("ellipse",{cx:CX,cy:60,rx:hw(60),ry:hw(60)*0.62*K,class:"cap"},gCol);
+
+  /* ribbons sit between the column and the slices */
+  gRibbons = el("g",{},ovSvg);
+
+  /* slices */
+  const gSl = el("g",{},ovSvg);
+  for (const L of LEVELS){
+    const sg = el("g",{class:"slice",tabindex:"0",role:"button","aria-label":`Open cut ${L.n}: ${L.name}`,"data-level":L.n,style:`--i:${L.n}`},gSl);
+    const inner = el("g",{transform:`matrix(${L.s} 0 0 ${L.s*K} ${L.tx} ${L.ty})`},sg);
+    el("path",{d:L.outline,class:"slab",transform:`translate(0 ${f1(5/(L.s*K))})`},inner);
+    const cp=el("clipPath",{id:"clip"+L.n},defs); el("path",{d:L.outline},cp);
+    const clipped=el("g",{"clip-path":`url(#clip${L.n})`},inner);
+    buildSectionContent(clipped,L);
+    el("path",{d:L.outline,class:"rim"},inner);
+    slices[L.n]=sg;
+    sg.addEventListener("click",()=>zoomIn(L.n));
+    sg.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); zoomIn(L.n);} });
+    sg.addEventListener("mouseenter",()=>setHover(L.n));
+    sg.addEventListener("mouseleave",()=>setHover(null));
+    sg.addEventListener("focus",()=>setHover(L.n));
+    sg.addEventListener("blur",()=>setHover(null));
+  }
+
+  /* nerves (on top so they read as surface structures) */
+  const gN = el("g",{},ovSvg);
+  for (const nv of OV_NERVES){
+    for (const mirror of [false,true]){
+      const p = el("path",{d:nv.d,class:"ov-nerve","stroke-width":nv.w,"data-id":nv.id},gN);
+      if (mirror) p.setAttribute("transform",`matrix(-1 0 0 1 ${2*CX} 0)`);
+      p.addEventListener("click",()=>select(nv.id));
+      p.addEventListener("mouseenter",e=>showTip(S[nv.id].name,e));
+      p.addEventListener("mousemove",e=>showTip(S[nv.id].name,e));
+      p.addEventListener("mouseleave",hideTip);
+    }
+    const t=el("text",{x:nv.lab[0],y:nv.lab[1],class:"nlab","data-id":nv.id},gN); t.textContent=NERVE_LAB[nv.id];
+  }
+
+  /* level labels (left) */
+  const gL = el("g",{},ovSvg);
+  for (const L of LEVELS){
+    const lg = el("g",{class:"lvl-lab","data-level":L.n},gL);
+    el("line",{x1:196,x2:f1(CX-hw(L.Y)-8),y1:L.Y,y2:L.Y,class:"lead"},lg);
+    const t1 = el("text",{x:188,y:L.Y-1,"text-anchor":"end",class:"ln1"},lg);
+    const tn = el("tspan",{class:"num"},t1); tn.textContent = L.n+"  ";
+    const tt = el("tspan",{},t1); tt.textContent = L.name;
+    const t2 = el("text",{x:188,y:L.Y+15,"text-anchor":"end",class:"ln2"},lg); t2.textContent=L.landmark;
+    lg.addEventListener("click",()=>zoomIn(L.n));
+    lg.addEventListener("mouseenter",()=>setHover(L.n));
+    lg.addEventListener("mouseleave",()=>setHover(null));
+  }
+  setTimeout(()=>ovSvg.classList.remove("intro"), 1400);
+}
+
+function setHover(n){
+  document.querySelectorAll(".slice.hover,.lvl-lab.hover,.in-cut.hover").forEach(e=>e.classList.remove("hover"));
+  if (!n) return;
+  document.querySelectorAll(`.slice[data-level="${n}"],.lvl-lab[data-level="${n}"],.in-cut[data-level="${n}"]`).forEach(e=>e.classList.add("hover"));
+}
+
+/* ribbons: trace a structure's rostrocaudal course through the column */
+function drawRibbons(id, animate){
+  gRibbons.innerHTML="";
+  const st=S[id]; if (!st || !st.ext) return;
+  const known = LEVELS.filter(L=>L.cent[id]).map(L=>{
+    const c=L.cent[id];
+    return {Y:L.Y, r:(c.x-L.bb.cx)/(L.bb.w/2), d:(c.y-L.bb.cy)/(L.bb.h/2), a:L.bb.h/L.bb.w, sz:(c.w+c.h)/4*L.s};
+  });
+  if (!known.length) return;
+  const interp=(Y,k)=>{
+    if (Y<=known[0].Y) return known[0][k];
+    const last=known[known.length-1]; if (Y>=last.Y) return last[k];
+    for (let i=1;i<known.length;i++) if (Y<=known[i].Y){
+      const A=known[i-1],B=known[i],t=(Y-A.Y)/(B.Y-A.Y); return A[k]+(B[k]-A[k])*t;
+    }
+  };
+  const pts=[];
+  for (let Y=st.ext[0]; Y<=st.ext[1]; Y+=5){
+    const r=interp(Y,"r"), d=interp(Y,"d"), a=interp(Y,"a"), w=hw(Y);
+    pts.push([CX + r*w, Y + d*w*a*K]);
+  }
+  if (pts.length<2) pts.push([pts[0][0],pts[0][1]+4]);
+  const size = known.reduce((s,k)=>s+k.sz,0)/known.length;
+  const W = Math.max(4, Math.min(st.mid ? 16 : 12, size*0.9));
+  const d = smooth(pts);
+  const sides = st.mid ? [false] : [false,true];
+  for (const mirror of sides){
+    const g = el("g", mirror ? {transform:`matrix(-1 0 0 1 ${2*CX} 0)`} : {}, gRibbons);
+    el("path",{d,class:"rib-halo","stroke-width":f1(W*2.2)},g);
+    const main=el("path",{d,class:"rib","stroke-width":f1(W)},g);
+    const core=el("path",{d,class:"rib-core","stroke-width":f1(Math.max(1.2,W*0.28))},g);
+    if (animate && !RM){
+      for (const p of g.children){
+        const len = main.getTotalLength();
+        p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+        p.getBoundingClientRect();
+        p.style.transition = "stroke-dashoffset 1s cubic-bezier(.3,.6,.2,1)";
+        p.style.strokeDashoffset = 0;
+      }
+    }
+  }
+}
+
+/* ---------- inset (side view with oblique planes) ---------- */
+function buildInset(){
+  const s=$("#insetSvg");
+  const g=el("g",{transform:"translate(42 20) rotate(-22)"},s);
+  el("ellipse",{cx:8,cy:-4,rx:26,ry:13,class:"in-di"},g);
+  el("ellipse",{cx:46,cy:86,rx:32,ry:30,class:"in-cb"},g);
+  for (let i=0;i<5;i++) el("path",{d:`M${24},${68+i*9} Q46,${60+i*9} 72,${70+i*9}`,class:"in-fol"},g);
+  el("path",{d:"M-14,0 C-16,20 -16,38 -14,50 C-26,58 -32,72 -30,86 C-28,100 -22,108 -14,112 C-12,124 -12,140 -10,158 L6,158 C8,140 10,124 12,112 C14,100 14,80 12,66 C14,56 20,46 22,36 C24,26 22,12 18,0 Z",class:"in-bs"},g);
+  const Ys={1:18,2:40,3:66,4:94,5:122,6:146};
+  for (const L of LEVELS){
+    const y=Ys[L.n];
+    const lg=el("g",{class:"in-cut","data-level":L.n},g);
+    el("line",{x1:-40,x2:30,y1:y,y2:y,class:"in-hit"},lg);
+    el("line",{x1:-38,x2:28,y1:y,y2:y,class:"in-line"},lg);
+    const t=el("text",{transform:`translate(-47 ${y+3}) rotate(22)`,class:"in-num"},lg); t.textContent=L.n;
+    lg.addEventListener("click",()=> state.mode==="overview" ? zoomIn(L.n) : switchLevel(L.n));
+    lg.addEventListener("mouseenter",()=>setHover(L.n));
+    lg.addEventListener("mouseleave",()=>setHover(null));
+  }
+}
+
+/* ---------- section view ---------- */
+function buildSecSvg(){
+  secContent = el("g",{class:"secg"},secSvg);
+  secLabels  = el("g",{class:"labels"},secSvg);
+  const t1=el("text",{x:-56,y:30,class:"orient"},secSvg); t1.textContent="Dorsal";
+  const t2=el("text",{x:-56,y:284,class:"orient"},secSvg); t2.textContent="Ventral";
+  el("path",{d:"M-44,40 L-44,272 M-48,46 L-44,40 L-40,46 M-48,266 L-44,272 L-40,266",class:"orient-ax"},secSvg);
+  secSvg.addEventListener("pointermove",onSecMove);
+  secSvg.addEventListener("pointerleave",()=>{hideTip(); clearHov();});
+  secSvg.addEventListener("click",onSecClick);
+}
+function renderSection(n){
+  state.level=n;
+  const L=levelOf(n);
+  secContent.innerHTML=""; secLabels.innerHTML="";
+  buildSectionContent(secContent,L);
+  for (const id of L.ids){
+    const p=L.labelPos[id];
+    const t=el("text",{x:f1(p.x),y:f1(p.y),class:"lab","text-anchor":p.anchor},secLabels);
+    t.textContent=S[id].abbr;
+  }
+  $("#lvlTitle").innerHTML = `${L.n}&ensp;${L.name}<span class="lm">${L.landmark}</span>`;
+  $("#prevBtn").disabled = n===1; $("#nextBtn").disabled = n===6;
+  document.querySelectorAll(".in-cut").forEach(e=>e.classList.toggle("cur", state.mode==="section" && +e.dataset.level===n));
+  applySelection();
+}
+function switchLevel(n){
+  if (state.busy || n<1 || n>6) return;
+  if (state.mode!=="section") return zoomIn(n);
+  if (n===state.level) return;
+  secSvg.style.transition = RM ? "none" : "opacity .14s";
+  secSvg.style.opacity = "0";
+  setTimeout(()=>{
+    renderSection(n);
+    document.querySelectorAll(".in-cut").forEach(e=>e.classList.toggle("cur", +e.dataset.level===n));
+    secSvg.style.opacity="1";
+    if (state.quiz) nextQ(); else renderPanel();
+  }, RM?0:140);
+}
+function clearHov(){ document.querySelectorAll(".hov").forEach(e=>e.classList.remove("hov")); }
+function onSecMove(e){
+  const t=e.target.closest(".st");
+  clearHov();
+  if (!t){ hideTip(); return; }
+  const id=t.dataset.id;
+  secSvg.querySelectorAll(`.st[data-id="${id}"]`).forEach(x=>x.classList.add("hov"));
+  if (!state.quiz) showTip(nameIn(id,state.level), e); else hideTip();
+}
+function onSecClick(e){
+  const t=e.target.closest(".st");
+  if (state.quiz){ if (t) answer(t.dataset.id); return; }
+  if (t) select(t.dataset.id); else clearSel();
+}
+function showTip(text,e){
+  const r=stage.getBoundingClientRect();
+  tip.textContent=text;
+  tip.style.left=(e.clientX-r.left)+"px"; tip.style.top=(e.clientY-r.top)+"px";
+  tip.classList.add("on");
+}
+function hideTip(){ tip.classList.remove("on"); }
+
+/* ---------- selection ---------- */
+function select(id){
+  state.sel=id;
+  applySelection();
+  if (state.mode==="overview") drawRibbons(id,true);
+  renderPanel();
+}
+function clearSel(){
+  state.sel=null; applySelection(); gRibbons.innerHTML=""; renderPanel();
+}
+function applySelection(){
+  const id=state.sel;
+  document.querySelectorAll(".sel").forEach(e=>e.classList.remove("sel"));
+  ovSvg.classList.toggle("has-sel",!!id);
+  secSvg.classList.toggle("has-sel",!!id && !state.quiz);
+  document.querySelectorAll(".in-cut").forEach(e=>e.classList.remove("has"));
+  document.querySelectorAll(".lvl-lab").forEach(e=>e.classList.remove("has"));
+  Object.values(slices).forEach(s=>s.classList.remove("absent"));
+  if (!id) return;
+  document.querySelectorAll(`[data-id="${id}"]`).forEach(e=>e.classList.add("sel"));
+  for (const L of LEVELS){
+    const has=L.ids.includes(id);
+    slices[L.n].classList.toggle("absent",!has);
+    if (has){
+      document.querySelector(`.in-cut[data-level="${L.n}"]`).classList.add("has");
+      document.querySelector(`.lvl-lab[data-level="${L.n}"]`).classList.add("has");
+    }
+  }
+}
+
+/* ---------- zoom transitions ---------- */
+const D = RM ? 0 : 720;
+const EASE = "cubic-bezier(.22,.7,.12,1)";
+function rel(r,sr){ return {l:r.left-sr.left, t:r.top-sr.top, w:r.width, h:r.height}; }
+function setBusy(b){ state.busy=b; document.body.classList.toggle("busy",b); }
+
+function zoomIn(n){
+  if (state.busy) return;
+  if (state.mode==="section") return switchLevel(n);
+  setBusy(true); hideTip(); setHover(null);
+  state.mode="section";
+  renderSection(n);
+  const sr=stage.getBoundingClientRect();
+  secLayer.style.transition="none"; secLayer.style.transform="none";
+  secLayer.style.visibility="visible"; secLayer.style.opacity="0";
+  const tr=rel(secContent.querySelector(".tissue").getBoundingClientRect(),sr);
+  const sl=rel(slices[n].querySelector(".tissue").getBoundingClientRect(),sr);
+  const sx=sl.w/tr.w, sy=sl.h/tr.h, tx=sl.l-tr.l*sx, ty=sl.t-tr.t*sy;
+  secLayer.style.transformOrigin="0 0";
+  secLayer.style.transform=`translate(${tx}px,${ty}px) scale(${sx},${sy})`;
+  secLayer.style.opacity="1";
+  ovLayer.style.transition="none";
+  ovLayer.style.transformOrigin=`${sl.l+sl.w/2}px ${sl.t+sl.h/2}px`;
+  secLayer.getBoundingClientRect();
+  secLayer.style.transition=`transform ${D}ms ${EASE}`;
+  ovLayer.style.transition=`transform ${D}ms ${EASE}, opacity ${D*0.55}ms ease`;
+  secLayer.style.transform="none";
+  ovLayer.style.transform="scale(2.6)"; ovLayer.style.opacity="0";
+  document.body.classList.replace("mode-overview","mode-section");
+  setTimeout(()=>{
+    ovLayer.style.visibility="hidden";
+    secLayer.style.pointerEvents="auto";
+    setBusy(false);
+    document.querySelectorAll(".in-cut").forEach(e=>e.classList.toggle("cur", +e.dataset.level===n));
+    renderPanel();
+    $("#backBtn").focus({preventScroll:true});
+  }, D+20);
+  renderPanel();
+}
+
+function zoomOut(){
+  if (state.busy || state.mode!=="section") return;
+  if (state.quiz) endQuiz();
+  setBusy(true); hideTip(); clearHov();
+  state.mode="overview";
+  applySelection();
+  gRibbons.innerHTML="";
+  const sr=stage.getBoundingClientRect();
+  ovLayer.style.transition="none"; ovLayer.style.transform="none"; ovLayer.style.visibility="visible";
+  const sl=rel(slices[state.level].querySelector(".tissue").getBoundingClientRect(),sr);
+  const tr=rel(secContent.querySelector(".tissue").getBoundingClientRect(),sr);
+  const sx=sl.w/tr.w, sy=sl.h/tr.h, tx=sl.l-tr.l*sx, ty=sl.t-tr.t*sy;
+  ovLayer.style.transformOrigin=`${sl.l+sl.w/2}px ${sl.t+sl.h/2}px`;
+  ovLayer.style.transform="scale(2.6)"; ovLayer.style.opacity="0";
+  ovLayer.getBoundingClientRect();
+  ovLayer.style.transition=`transform ${D}ms ${EASE}, opacity ${D*0.5}ms ease`;
+  secLayer.style.transition=`transform ${D}ms ${EASE}, opacity ${D*0.3}ms ease ${D*0.7}ms`;
+  ovLayer.style.transform="none"; ovLayer.style.opacity="1";
+  secLayer.style.transform=`translate(${tx}px,${ty}px) scale(${sx},${sy})`;
+  secLayer.style.opacity="0";
+  secLayer.style.pointerEvents="none";
+  document.body.classList.replace("mode-section","mode-overview");
+  document.querySelectorAll(".in-cut").forEach(e=>e.classList.remove("cur"));
+  setTimeout(()=>{
+    secLayer.style.visibility="hidden";
+    setBusy(false);
+    if (state.sel) drawRibbons(state.sel,true);
+    renderPanel();
+    slices[state.level].focus({preventScroll:true});
+  }, D+20);
+}
+
+/* ---------- quiz ---------- */
+function startQuiz(){
+  state.quiz={score:0,total:0,target:null,prev:null,locked:false,labelsBefore:state.labels};
+  setLabels(false); $("#tgLabels").disabled=true;
+  $("#tgQuiz").setAttribute("aria-pressed","true");
+  document.body.classList.add("quiz");
+  state.sel=null; applySelection();
+  nextQ();
+}
+function endQuiz(){
+  if (!state.quiz) return;
+  const before=state.quiz.labelsBefore;
+  document.querySelectorAll(".q-right,.q-wrong").forEach(e=>e.classList.remove("q-right","q-wrong"));
+  state.quiz=null;
+  document.body.classList.remove("quiz");
+  $("#tgQuiz").setAttribute("aria-pressed","false");
+  $("#tgLabels").disabled=false; setLabels(before);
+  applySelection(); renderPanel();
+}
+function nextQ(){
+  const q=state.quiz; if (!q) return;
+  document.querySelectorAll(".q-right,.q-wrong").forEach(e=>e.classList.remove("q-right","q-wrong"));
+  const pool=levelOf(state.level).ids.filter(id=>id!==q.prev);
+  q.target=pool[Math.floor(Math.random()*pool.length)];
+  q.prev=q.target; q.locked=false;
+  quizbar.innerHTML=`<span>Find: <b>${nameIn(q.target,state.level)}</b></span><span class="score">${q.score} / ${q.total}</span><button type="button" data-q="skip">Skip</button><button type="button" data-q="end">End quiz</button>`;
+  renderPanel();
+}
+function answer(id){
+  const q=state.quiz; if (!q || q.locked) return;
+  q.locked=true; q.total++;
+  const ok = id===q.target;
+  if (ok) q.score++;
+  secSvg.querySelectorAll(`.st[data-id="${q.target}"]`).forEach(e=>e.classList.add("q-right"));
+  if (!ok) secSvg.querySelectorAll(`.st[data-id="${id}"]`).forEach(e=>e.classList.add("q-wrong"));
+  quizbar.innerHTML = ok
+    ? `<span class="fb-ok">Correct: <b>${nameIn(q.target,state.level)}</b></span><span class="score">${q.score} / ${q.total}</span>`
+    : `<span class="fb-bad">That was the ${nameIn(id,state.level)}. Shown in green: <b>${nameIn(q.target,state.level)}</b></span><span class="score">${q.score} / ${q.total}</span>`;
+  renderPanel(q.target);
+  setTimeout(nextQ, ok ? 1100 : 2200);
+}
+quizbar.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if (!b) return;
+  if (b.dataset.q==="skip") nextQ(); else endQuiz();
+});
+
+/* ---------- panel ---------- */
+const sw = cat => `<span class="sw" style="--c:var(--c-${cat})"></span>`;
+function cardIntro(){
+  return `<p class="kicker">Six cuts, rostral to caudal</p>
+  <h2>How to use this</h2>
+  <p class="prose">Select a cut on the brainstem, its number, or its plane in the side view to open it. Inside a cut, select any nucleus, tract or nerve to read what it does and what happens when it is damaged.</p>
+  <p class="prose">Go back to the whole brainstem and the structure stays lit in every cut where it appears, with its course traced through the column.</p>
+  <p class="keys"><kbd>1</kbd>–<kbd>6</kbd> open a cut &nbsp; <kbd>←</kbd> <kbd>→</kbd> step between cuts &nbsp; <kbd>Esc</kbd> back out</p>`;
+}
+function cardLevel(L){
+  return `<p class="kicker">Cut ${L.n} of 6, ${L.region.toLowerCase()}</p>
+  <h2>${L.name}</h2>
+  <p class="here" style="color:var(--ink2)">${L.landmark}</p>
+  <p class="prose">${L.key}</p>
+  <h3>Clinical correlate</h3>
+  <p class="prose">${L.clinic}</p>`;
+}
+function cardQuiz(L){
+  const q=state.quiz;
+  return `<p class="kicker">Quiz, cut ${L.n}</p><h2>Find each structure</h2>
+  <p class="prose">Labels are hidden. Select the structure named at the top of the cut. After each answer, its notes appear here.</p>
+  <p class="keys">Score: ${q.score} of ${q.total}. <kbd>Esc</kbd> ends the quiz.</p>`;
+}
+function cardStructure(id){
+  const st=S[id], lv=presentIn(id);
+  const inSec = state.mode==="section";
+  const here = inSec && st.lvl && st.lvl[state.level] && st.lvl[state.level]!==st.name ? `<p class="here">In this cut: ${st.lvl[state.level]}</p>` : "";
+  const cuts = lv.map(L=>`<button type="button" class="cutbtn${inSec&&L.n===state.level?" cur":""}" data-act="open" data-level="${L.n}"><b>${L.n}</b><span>${L.name}</span><small>${L.landmark}</small></button>`).join("");
+  return `<p class="kicker">${sw(st.cat)}${CATS[st.cat].label}</p>
+  <h2>${st.name}</h2>${here}
+  <h3>What it does</h3><p class="prose">${st.fn}</p>
+  <h3>When it is damaged</h3><p class="prose">${st.clin}</p>
+  <h3>Seen in ${lv.length===1?"this cut":lv.length+" cuts"}</h3>
+  <div class="cuts">${cuts}</div>
+  ${!inSec && st.ext ? `<p class="keys" style="margin-top:.6rem">The highlighted ribbon shows its course through the brainstem.</p>` : ""}
+  ${state.quiz ? "" : `<button type="button" class="linkbtn" data-act="clear">Clear selection</button>`}`;
+}
+function listStructures(L){
+  const byCat={};
+  for (const id of L.ids) (byCat[S[id].cat] ||= []).push(id);
+  let h=`<hr class="sep"><h3>In this cut</h3>`;
+  for (const c of CAT_ORDER){
+    if (!byCat[c]) continue;
+    h+=`<div class="grp"><p class="gl">${sw(c)}${CATS[c].label}</p><div class="chips">`+
+      byCat[c].map(id=>`<button type="button" class="chip${state.sel===id?" on":""}" data-act="select" data-id="${id}">${S[id].name}</button>`).join("")+
+      `</div></div>`;
+  }
+  return h;
+}
+function listCuts(){
+  return `<hr class="sep"><h3>Cuts</h3><div class="cuts">`+LEVELS.map(L=>`<button type="button" class="cutbtn" data-act="open" data-level="${L.n}"><b>${L.n}</b><span>${L.name}</span><small>${L.landmark}</small></button>`).join("")+`</div>`;
+}
+function legend(){
+  let h=`<h3>Key</h3><div class="legend">`;
+  if (state.colorize){
+    for (const c of CAT_ORDER){ if (c==="csf") continue; h+=`<div>${sw(c)}${CATS[c].label}</div>`; }
+  } else {
+    h+=`<div><span class="sw" style="--c:var(--gm)"></span>Gray matter (nuclei)</div>
+        <div><span class="sw" style="--c:var(--wm)"></span>White matter (tracts)</div>
+        <div><span class="ln"></span>Nerve fibers</div>
+        <div><span class="sw" style="--c:var(--hl)"></span>Selected</div>`;
+  }
+  return h+`</div>`;
+}
+function renderPanel(overrideId){
+  const L=levelOf(state.level);
+  const id = overrideId || state.sel;
+  let h="";
+  if (state.quiz && !overrideId) h+=cardQuiz(L);
+  else if (id) h+=cardStructure(id);
+  else if (state.mode==="section") h+=cardLevel(L);
+  else h+=cardIntro();
+  if (state.mode==="section" && !state.quiz) h+=listStructures(L);
+  if (state.mode==="overview") h+=listCuts();
+  h+=legend();
+  h+=`<p class="note">Schematic drawing, not to scale. Dorsal is up in every cut; the gray matter and white matter tones follow a myelin stain.</p><p class="credit">Created by Minh</p>`;
+  panel.innerHTML=h;
+}
+panel.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]"); if (!b) return;
+  const a=b.dataset.act;
+  if (a==="open"){ const n=+b.dataset.level; state.mode==="overview" ? zoomIn(n) : switchLevel(n); }
+  else if (a==="select") select(b.dataset.id);
+  else if (a==="clear") clearSel();
+});
+panel.addEventListener("mouseover",e=>{
+  const b=e.target.closest(".chip"); clearHov();
+  if (b) secSvg.querySelectorAll(`.st[data-id="${b.dataset.id}"]`).forEach(x=>x.classList.add("hov"));
+});
+panel.addEventListener("mouseleave",clearHov);
+
+/* ---------- toggles ---------- */
+function setLabels(on){
+  state.labels=on; secSvg.classList.toggle("show-labels",on);
+  $("#tgLabels").setAttribute("aria-pressed",String(on));
+}
+$("#tgLabels").addEventListener("click",()=>setLabels(!state.labels));
+$("#tgColor").addEventListener("click",()=>{
+  state.colorize=!state.colorize;
+  document.body.classList.toggle("colorize",state.colorize);
+  $("#tgColor").setAttribute("aria-pressed",String(state.colorize));
+  renderPanel(state.quiz && state.quiz.locked ? state.quiz.target : undefined);
+});
+$("#tgQuiz").addEventListener("click",()=> state.quiz ? endQuiz() : startQuiz());
+$("#backBtn").addEventListener("click",zoomOut);
+$("#prevBtn").addEventListener("click",()=>switchLevel(state.level-1));
+$("#nextBtn").addEventListener("click",()=>switchLevel(state.level+1));
+
+/* ---------- keyboard + wheel ---------- */
+document.addEventListener("keydown",e=>{
+  if (e.target.closest && e.target.closest("input,textarea")) return;
+  if (/^[1-6]$/.test(e.key)){ const n=+e.key; state.mode==="overview" ? zoomIn(n) : switchLevel(n); }
+  else if (e.key==="Escape"){
+    if (state.quiz) endQuiz();
+    else if (state.mode==="section") zoomOut();
+    else if (state.sel) clearSel();
+  }
+  else if (state.mode==="section" && e.key==="ArrowLeft") switchLevel(state.level-1);
+  else if (state.mode==="section" && e.key==="ArrowRight") switchLevel(state.level+1);
+});
+let wheelAcc=0, wheelTimer=null, hoverLevel=null;
+stage.addEventListener("mouseover",e=>{ const s=e.target.closest && e.target.closest(".slice"); hoverLevel = s ? +s.dataset.level : hoverLevel; });
+stage.addEventListener("mouseout",e=>{ if (e.target.closest && e.target.closest(".slice") && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".slice"))) hoverLevel=null; });
+stage.addEventListener("wheel",e=>{
+  if (state.busy) { e.preventDefault(); return; }
+  wheelAcc += e.deltaY;
+  clearTimeout(wheelTimer); wheelTimer=setTimeout(()=>wheelAcc=0,220);
+  if (state.mode==="section" && wheelAcc>60){ e.preventDefault(); wheelAcc=0; zoomOut(); }
+  else if (state.mode==="overview" && hoverLevel && wheelAcc<-60){ e.preventDefault(); wheelAcc=0; zoomIn(hoverLevel); }
+  else if ((state.mode==="section" && e.deltaY>0) || (state.mode==="overview" && hoverLevel && e.deltaY<0)) e.preventDefault();
+},{passive:false});
+
+/* ---------- boot ---------- */
+measure();
+buildOverview();
+buildInset();
+buildSecSvg();
+renderSection(1);
+renderPanel();
+</script>
+</body>
+</html>
