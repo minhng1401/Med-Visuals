@@ -1,0 +1,986 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Spinal Cord Tracts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+<style>
+/* Layout: zoomable neuraxis drawing (sticky, left) | controls + neuron-by-neuron steps (right); stacks on phones.
+   Neuron order is the only strong color: 1 blue, 2 orange, 3 green. Anatomy stays in quiet tissue tones. */
+:root{
+  --bg:#eef1f0; --panel:#f9fbfa; --ink:#18201f; --muted:#5a6664; --rule:#cfd7d5;
+  --wm:#fbfcfb; --wm2:#e4e9e7; --tract:#dde4e1; --gm:#dccfc7; --gm2:#ebe2dc; --rn:#e8c8c1; --sn:#6f6560;
+  --line:#98a4a1; --csf:#cfe2ea; --slice:#f4f6f5;
+  --n1:#2464c9; --n2:#d9700f; --n3:#23914a; --focus:#b07d10;
+  --display:"Source Serif 4",Georgia,serif; --body:"Atkinson Hyperlegible",-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111716; --panel:#172020; --ink:#e3e9e7; --muted:#9aa8a5; --rule:#2c3735;
+  --wm:#1f2928; --wm2:#2a3534; --tract:#2f3a39; --gm:#463c38; --gm2:#3a3330; --rn:#5c3833; --sn:#0b0e0e;
+  --line:#62706d; --csf:#26414b; --slice:#1b2423;
+  --n1:#6ea6f5; --n2:#f6a35a; --n3:#5fcb84; --focus:#e0b44a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111716; --panel:#172020; --ink:#e3e9e7; --muted:#9aa8a5; --rule:#2c3735;
+  --wm:#1f2928; --wm2:#2a3534; --tract:#2f3a39; --gm:#463c38; --gm2:#3a3330; --rn:#5c3833; --sn:#0b0e0e;
+  --line:#62706d; --csf:#26414b; --slice:#1b2423;
+  --n1:#6ea6f5; --n2:#f6a35a; --n3:#5fcb84; --focus:#e0b44a; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--panel);color:var(--ink)}
+html,body{height:100%}
+body{font:15px/1.5 var(--body);padding-inline:16px;padding-block:10px 0;display:flex;flex-direction:column;margin:0}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin:0 0 8px;flex:none}
+.hgrow{flex:1 1 auto}
+.themebtn{font:600 13px/1 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:8px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.themebtn:hover{border-color:var(--line)}
+footer.credit{flex:none;text-align:center;font-size:12.5px;color:var(--muted);padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);margin-top:8px}
+footer.credit b{color:var(--ink);font-weight:700}
+h1{font:600 26px/1.15 var(--display);margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted);font-size:14px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;flex:1 1 auto;min-height:0}
+.stage{display:flex;flex-direction:column;min-width:0;min-height:0}
+.tools{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:0 0 6px;flex:none}
+.tools .tl{font:700 11px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.chip{font:13px/1 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:6px 10px;cursor:pointer}
+.chip:hover{border-color:var(--line)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.zbtns{display:flex;gap:4px;margin-left:auto}
+.zbtns button{font:600 14px/1 var(--body);min-width:32px;height:30px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:6px;cursor:pointer}
+.tools button:disabled{opacity:.4;cursor:not-allowed}
+.viewport{position:relative}
+.viewport{flex:1 1 auto;min-height:0}
+#svg{display:block;width:100%;height:100%;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+#svg.dragging{cursor:grabbing}
+.stage.playing #svg{cursor:default}
+.badge{position:absolute;left:6px;top:6px;max-width:calc(100% - 12px);background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:5px 9px;font:600 13px/1.3 var(--display);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.caption{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:min(560px,calc(100% - 16px));background:var(--panel);border:1px solid var(--rule);border-left:5px solid var(--c,var(--ink));border-radius:8px;padding:9px 12px;font-size:14px;line-height:1.4;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+.caption{padding-right:84px}
+.caption .ch{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;margin-bottom:2px}
+.caption b{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--c,var(--muted))}
+.caption .ch span{font-size:12px;color:var(--muted)}
+.cnav{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;gap:4px}
+.cnav button{width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:13px;cursor:pointer}
+.cnav button:hover{border-color:var(--c,var(--line))}
+.cnav button:disabled{opacity:.35;cursor:not-allowed}
+.legend{flex:none;display:flex;flex-wrap:wrap;gap:6px 16px;padding:6px 8px 0;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:22px;height:5px;border-radius:3px;display:inline-block}
+.panel{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row2.mid{align-items:center}
+.row2.mid .seg button{padding:6px 8px;font-size:13px}
+#stage-ct{text-align:right;font-variant-numeric:tabular-nums}
+.scrollbox{position:relative;flex:1 1 auto;min-height:260px;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;padding:10px;margin-inline:-2px;border:1px solid var(--rule);border-radius:10px;background:color-mix(in srgb,var(--rule) 22%,var(--bg))}
+.scrollbox::-webkit-scrollbar{width:8px}.scrollbox::-webkit-scrollbar-thumb{background:var(--rule);border-radius:4px}
+.group{display:flex;flex-direction:column;gap:6px}
+.glabel{font:700 11.5px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button,.ctrl button{font:14px/1.2 var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:8px 11px;cursor:pointer;flex:1 1 auto}
+.seg button:hover,.ctrl button:hover{border-color:var(--line)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,li:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.ctrl{display:flex;gap:6px;flex-wrap:wrap}
+.ctrl .primary{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
+.ctrl button:disabled{opacity:.4;cursor:not-allowed}
+.summary{font:600 17px/1.35 var(--display);margin:0;text-wrap:balance}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.steps>li{background:var(--panel);border:1px solid var(--rule);border-left:5px solid var(--c);border-radius:8px;padding:10px 12px;transition:opacity .2s}
+button.sh{all:unset;cursor:pointer;display:flex}
+button.sh:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+ol.sub{list-style:none;margin:8px 0 0;padding:8px 0 0;border-top:1px dashed var(--rule);display:flex;flex-wrap:wrap;gap:4px}
+ol.sub button{font:12.5px/1.2 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:5px 9px 5px 5px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+ol.sub button:hover{border-color:var(--c)}
+ol.sub .sk{font:500 10.5px/1 var(--mono);padding:3px 5px;border-radius:999px;background:var(--panel);color:var(--muted)}
+ol.sub button.done .sk{background:var(--c);color:var(--bg);opacity:.55}
+ol.sub button.now{border-color:var(--c);box-shadow:0 0 0 1.5px var(--c)}
+ol.sub button.now .sk{background:var(--c);color:var(--bg)}
+ol.steps>li.dim{opacity:.5}
+ol.steps>li.cur{box-shadow:0 0 0 2px var(--c)}
+.sh{display:flex;align-items:center;gap:9px;margin-bottom:6px;width:100%}
+.num{width:24px;height:24px;border-radius:50%;background:var(--c);color:var(--bg);display:grid;place-items:center;font:700 13px/1 var(--body);flex:none}
+.st{font-weight:700}
+.st small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;font-size:13.5px}
+dt{color:var(--muted)}
+dd{margin:0}
+.facts{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:13.5px}
+.facts h2{font:600 15px/1.3 var(--display);margin:0 0 6px}
+.facts ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+svg text{font-family:var(--body)}
+.lvl{font:600 12.5px var(--body);fill:var(--ink)}
+.lvl-t{font:500 10.5px var(--mono);fill:var(--muted)}
+.lab{font-size:12px;fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
+.lab.b{font-weight:700}
+.side{font:500 11px var(--mono);fill:var(--muted);letter-spacing:.06em}
+.dt{fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-linejoin:round}
+.dn{fill:var(--muted);font-family:var(--mono)}
+.ov{transition:opacity .25s}
+svg.zoomed .ov{opacity:0}
+.zd{opacity:0;transition:opacity .3s;pointer-events:none}
+.zd.on{opacity:1}
+.fade{animation:fade .35s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (max-width:900px){html,body{height:auto}main{grid-template-columns:1fr}.viewport{flex:none;height:auto;aspect-ratio:760/940;max-height:88vh;width:100%}.scrollbox{flex:none;max-height:62vh}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}ol.steps li,.ov,.zd{transition:none}}
+</style>
+
+<header>
+  <h1>Spinal Cord Tracts</h1>
+  <p class="hgrow">Follow each pathway one neuron at a time. Front view: patient’s right is on your left.</p>
+  <button class="themebtn" id="theme-btn" type="button" aria-label="Switch color mode"></button>
+</header>
+<main>
+  <div class="stage" id="stage">
+    <div class="tools" id="tools">
+      <span class="tl">Zoom to</span>
+      <span id="chips" style="display:contents"></span>
+      <span class="zbtns">
+        <button id="z-in" aria-label="Zoom in">+</button>
+        <button id="z-out" aria-label="Zoom out">−</button>
+        <button id="z-fit" aria-label="Show whole drawing">Fit</button>
+      </span>
+    </div>
+    <div class="viewport">
+      <svg id="svg" viewBox="0 -44 760 940" role="img" aria-label="Schematic neuraxis from cortex to lumbosacral cord with the selected pathway drawn neuron by neuron"></svg>
+      <div class="badge" id="badge" hidden></div>
+      <div class="caption" id="cap" hidden><div class="ch"><b id="cap-h"></b><span id="cap-s"></span></div><span id="cap-t"></span><div class="cnav"><button id="cap-prev" aria-label="Previous stage">◀</button><button id="cap-next" aria-label="Next stage">▶</button></div></div>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="panel">
+    <div class="group"><span class="glabel">Pathway</span>
+      <div class="seg" id="g-path">
+        <button id="p-dcml" data-v="dcml">Dorsal column–medial lemniscus</button>
+        <button id="p-tri" data-v="tri">Trigeminothalamic</button>
+        <button id="p-als" data-v="als">Spinothalamic</button>
+        <button id="p-cst" data-v="cst">Lateral corticospinal</button>
+        <button id="p-acst" data-v="acst">Anterior corticospinal</button>
+        <button id="p-scb" data-v="scb">Dorsal spinocerebellar</button>
+        <button id="p-vscb" data-v="vscb">Ventral spinocerebellar</button>
+      </div></div>
+    <div class="row2">
+      <div class="group"><span class="glabel" id="region-label">Body region</span>
+        <div class="seg" id="g-region">
+          <button id="r-hand" data-v="hand">Hand</button>
+          <button id="r-foot" data-v="foot">Foot</button>
+        </div></div>
+      <div class="group"><span class="glabel">Body side</span>
+        <div class="seg" id="g-side">
+          <button id="s-left" data-v="left">Left</button>
+          <button id="s-right" data-v="right">Right</button>
+        </div></div>
+    </div>
+    <div class="ctrl">
+      <button class="primary" id="b-play">Play neuron by neuron</button>
+      <button id="b-prev" aria-label="Previous stage">◀ Stage</button>
+      <button id="b-next" aria-label="Next stage">Stage ▶</button>
+      <button id="b-all">Show all</button>
+    </div>
+    <div class="row2 mid">
+      <div class="seg" id="g-speed" aria-label="Play speed">
+        <button id="sp-slow" data-v="0.6">Slow</button>
+        <button id="sp-norm" data-v="1">Normal</button>
+        <button id="sp-fast" data-v="1.8">Fast</button>
+      </div>
+      <p class="note" id="stage-ct" aria-live="polite"></p>
+    </div>
+    <div class="scrollbox" id="scrollbox">
+      <p class="summary" id="summary"></p>
+      <ol class="steps" id="steps"></ol>
+      <div class="facts" id="facts"></div>
+      <p class="note">Play zooms into each level as the signal reaches it. Use ◀ Stage and Stage ▶ (or the arrow keys) to step through the stages yourself, or click any stage above to start there; Play then continues from that stage. When it isn’t playing, scroll or pinch on the drawing to zoom, drag to pan, or double-click a level to jump in. Labels for each level appear once you zoom in.</p>
+      <p class="note">Schematic, not to scale. Brainstem and cord levels are drawn as cross-sections with the dorsal side up; the precentral and postcentral gyri are shown in one plane for clarity.</p>
+    </div>
+  </div>
+</main>
+<footer class="credit">Created by <b>Minh</b></footer>
+
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg", C=440, svg=document.getElementById("svg"), stage=document.getElementById("stage");
+const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+const state={path:"dcml",region:"hand",side:"left",shown:0,cur:-1,speed:"1"};
+const CY={hand:610,foot:770};
+const COLORS=["var(--n1)","var(--n2)","var(--n3)"];
+const NSS={"vector-effect":"non-scaling-stroke"};
+
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function X(d,s){return C+s*d}
+function smooth(p){let d=`M${p[0][0]},${p[0][1]}`;for(let i=0;i<p.length-1;i++){const a=p[i-1]||p[i],b=p[i],c=p[i+1],e=p[i+2]||c;
+  const c1=[b[0]+(c[0]-a[0])/6,b[1]+(c[1]-a[1])/6],c2=[c[0]-(e[0]-b[0])/6,c[1]-(e[1]-b[1])/6];
+  d+=` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${c[0]},${c[1]}`}return d}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+const gA=el("g",{},svg), gD=el("g",{},svg), gZ=el("g",{},svg);
+
+/* ---------- zones (camera targets + detail label sets) ---------- */
+const ZONES={
+  cortex:{cx:C,cy:104,w:450,kmin:1.3,chip:"Cortex",title:"Cerebral cortex · motor and sensory homunculus"},
+  thalamus:{cx:C,cy:178,w:300,kmin:2,chip:"Thalamus",title:"Thalamus, basal ganglia and internal capsule"},
+  midbrain:{cx:C,cy:300,w:200,kmin:2,chip:"Midbrain",title:"Midbrain · level of the superior colliculus"},
+  trigeminal:{cx:C,cy:338,w:420,kmin:1.7,chip:"Trigeminal",title:"Trigeminal ganglion and nerve (CN V)"},
+  pons:{cx:C,cy:384,w:260,kmin:2,chip:"Pons",title:"Mid-pons"},
+  cerebellum:{cx:C,cy:425,w:500,kmin:1.25,chip:"Cerebellum",title:"Cerebellum and cerebellar peduncles"},
+  medulla:{cx:C,cy:466,w:200,kmin:2,chip:"Medulla",title:"Caudal medulla · sensory decussation"},
+  pyramidal:{cx:C,cy:536,w:200,kmin:2,chip:"Pyramidal decussation",title:"Cervicomedullary junction · pyramidal decussation"},
+  cervical:{cx:C,cy:614,w:300,kmin:1.9,chip:"Cervical cord",title:"Cervical enlargement (C5–T1)"},
+  thoracic:{cx:C,cy:692,w:260,kmin:2,chip:"Thoracic cord",title:"Thoracic cord (T10) · Clarke’s nucleus and lateral horn"},
+  lumbar:{cx:C,cy:774,w:300,kmin:1.9,chip:"Lumbosacral cord",title:"Lumbosacral enlargement (L2–S2) · no fasciculus cuneatus below T6"}
+};
+const zg={}; for(const k in ZONES) zg[k]=el("g",{class:"zd"},gZ);
+
+// detail label: text (\n for 2 lines), label pos, target pos, anchor, font size
+function dl(g,text,lx,ly,tx,ty,anchor,fs){
+  const lines=text.split("\n");
+  if(tx!=null){
+    let sx=anchor==="end"?lx+fs*.35:anchor==="start"?lx-fs*.35:lx, sy=ly-fs*.35;
+    if(anchor==="middle") sy= ty>ly? ly+fs*.4+(lines.length-1)*fs*1.1 : ly-fs*1.05;
+    el("path",{d:`M${sx},${sy} L${tx},${ty}`,stroke:"var(--muted)","stroke-width":.8,fill:"none",...NSS},g);
+    el("circle",{cx:tx,cy:ty,r:fs*.16,fill:"var(--muted)"},g);
+  }
+  const t=el("text",{x:lx,y:ly,class:"dt","font-size":fs,"stroke-width":fs*.32,"text-anchor":anchor},g);
+  lines.forEach((ln,i)=>{const sp=el("tspan",{x:lx,dy:i?fs*1.1:0},t);sp.textContent=ln});
+}
+function dn(g,text,x,y,fs){const t=el("text",{x,y,class:"dn","font-size":fs,"text-anchor":"middle"},g);t.textContent=text}
+
+/* ---------- static anatomy ---------- */
+function E(cx,cy,rx,ry,fill,extra,g){return el("ellipse",Object.assign({cx,cy,rx,ry,fill},extra||{}),g||gA)}
+const thin={stroke:"var(--line)","stroke-width":1,...NSS};
+function butterfly(cx,cy,g,k=1){
+  const half=s=>{const x=d=>cx+s*d*k,y=d=>cy+d*k;
+    return `M${x(0)},${y(-4)} C${x(5)},${y(-10)} ${x(14)},${y(-26)} ${x(22)},${y(-31)} C${x(28)},${y(-35)} ${x(33)},${y(-31)} ${x(30)},${y(-24)} C${x(28)},${y(-18)} ${x(30)},${y(-10)} ${x(34)},${y(-4)} C${x(42)},${y(4)} ${x(44)},${y(22)} ${x(36)},${y(28)} C${x(28)},${y(33)} ${x(15)},${y(28)} ${x(9)},${y(13)} L${x(0)},${y(13)} Z`};
+  [1,-1].forEach(s=>el("path",{d:half(s),fill:"var(--gm)"},g));
+}
+function cordSlice(cy,cervical){
+  // roots, DRG and spinal nerve
+  [1,-1].forEach(s=>{
+    const x=d=>X(d,s), y=d=>cy+d;
+    el("path",{d:`M${x(35)},${y(-33)} C${x(50)},${y(-42)} ${x(70)},${y(-45)} ${x(88)},${y(-42)}`,stroke:"var(--line)","stroke-width":3,fill:"none"},gA);
+    el("path",{d:`M${x(112)},${y(-37)} C${x(126)},${y(-32)} ${x(132)},${y(-10)} ${x(138)},${y(4)}`,stroke:"var(--line)","stroke-width":3,fill:"none"},gA);
+    el("path",{d:`M${x(40)},${y(31)} C${x(70)},${y(36)} ${x(110)},${y(24)} ${x(138)},${y(4)}`,stroke:"var(--line)","stroke-width":3,fill:"none"},gA);
+    el("path",{d:`M${x(138)},${y(4)} L${x(205)},${y(10)}`,stroke:"var(--line)","stroke-width":4.5,fill:"none","stroke-linecap":"round"},gA);
+    E(x(100),y(-40),13,8,"var(--gm)",thin);
+  });
+  E(C,cy,66,40,"var(--slice)",{stroke:"var(--line)","stroke-width":1.2,...NSS});
+  [1,-1].forEach(s=>{
+    const x=d=>X(d,s), y=d=>cy+d;
+    E(x(5),y(-24),4,11,"var(--tract)");
+    if(cervical) E(x(13),y(-31),4.5,4.5,"var(--tract)");
+    E(x(33),y(-31),3,2.2,"var(--tract)");
+    E(x(44),y(-6),7,9,"var(--tract)");
+    E(x(53),y(12),5,9,"var(--tract)",{transform:`rotate(${-25*s} ${x(53)} ${y(12)})`});
+    if(cervical) E(x(5),y(33),3,4,"var(--tract)");
+    if(cervical) E(x(58),y(-12),3.5,6,"var(--tract)",{transform:`rotate(${-30*s} ${x(58)} ${y(-12)})`});
+    E(x(61),y(3),2.6,7,"var(--tract)",{stroke:"var(--line)","stroke-width":.5,"stroke-dasharray":"1.5 1.5",...NSS});
+    if(!cervical) [[36,6],[39,11],[35,12]].forEach(([a,b])=>el("circle",{cx:x(a),cy:y(b),r:1.5,fill:"var(--sn)"},gA));
+  });
+  E(C,cy+17,10,2.4,"var(--tract)");
+  butterfly(C,cy,gA);
+  [1,-1].forEach(s=>E(X(26,s),cy-29,4,2.4,"var(--gm2)",{transform:`rotate(${35*s} ${X(26,s)} ${cy-29})`}));
+  el("circle",{cx:C,cy:cy+4,r:2.2,fill:"var(--csf)",...thin},gA);
+  el("path",{d:`M${C},${cy+40} L${C},${cy+31} M${C},${cy-40} L${C},${cy-35}`,...thin},gA);
+}
+function thoracicSlice(cy){
+  E(C,cy,58,30,"var(--slice)",{stroke:"var(--line)","stroke-width":1.2,...NSS});
+  [1,-1].forEach(s=>{const x=d=>X(d,s), y=d=>cy+d;
+    E(x(4),y(-17),3.5,8,"var(--tract)");
+    E(x(50),y(-12),3.5,6,"var(--tract)",{transform:`rotate(${-35*s} ${x(50)} ${y(-12)})`});
+    E(x(40),y(-4),6,7,"var(--tract)");
+    E(x(46),y(9),4,7,"var(--tract)",{transform:`rotate(${-25*s} ${x(46)} ${y(9)})`});
+    E(x(54),y(5),2.4,6,"var(--tract)",{stroke:"var(--line)","stroke-width":.5,"stroke-dasharray":"1.5 1.5",...NSS});
+  });
+  butterfly(C,cy,gA,.72);
+  [1,-1].forEach(s=>{
+    E(X(27,s),cy-1,5,3.5,"var(--gm)");
+    E(X(8,s),cy-3,3.6,3,"var(--gm)",{stroke:"var(--line)","stroke-width":.8,...NSS});
+  });
+  el("circle",{cx:C,cy:cy+3,r:1.8,fill:"var(--csf)",...thin},gA);
+}
+function cerebellum(){
+  // vermis: joins the two lobes behind the brainstem (drawn as a faint arch above the pons)
+  el("path",{d:`M${X(134,-1)},392 C${X(108,-1)},316 ${X(108,1)},316 ${X(134,1)},392`,stroke:"var(--gm2)","stroke-width":11,fill:"none",opacity:.85},gA);
+  el("path",{d:`M${X(134,-1)},392 C${X(108,-1)},316 ${X(108,1)},316 ${X(134,1)},392`,stroke:"var(--line)","stroke-width":.7,fill:"none","stroke-dasharray":"3 3",...NSS},gA);
+  [1,-1].forEach(s=>{const x=d=>X(d,s);
+    el("path",{d:`M${x(60)},356 C${x(84)},346 ${x(110)},350 ${x(126)},366 S${x(138)},384 ${x(140)},390`,stroke:"var(--tract)","stroke-width":8,fill:"none","stroke-linecap":"round"},gA);
+    el("path",{d:`M${x(86)},${392} C${x(100)},${398} ${x(118)},${406} ${x(140)},${410}`,stroke:"var(--wm2)","stroke-width":14,fill:"none"},gA);
+    el("path",{d:`M${x(86)},${392} C${x(100)},${398} ${x(118)},${406} ${x(140)},${410}`,stroke:"var(--line)","stroke-width":.6,fill:"none","stroke-dasharray":"3 2",...NSS},gA);
+    el("path",{d:`M${x(46)},${455} C${x(70)},${452} ${x(100)},${444} ${x(140)},${434}`,stroke:"var(--tract)","stroke-width":9,fill:"none","stroke-linecap":"round"},gA);
+    E(x(190),425,58,46,"var(--gm)",{stroke:"var(--line)","stroke-width":1,...NSS});
+    // arbor vitae: white-matter core with branches running out toward the folia
+    const cx=x(182), cy0=427;
+    for(let i=0;i<9;i++){const a=(-160+i*40)*Math.PI/180, ex=cx+s*Math.cos(a)*44, ey=cy0+Math.sin(a)*36, mx=cx+s*Math.cos(a)*24, my=cy0+Math.sin(a)*19;
+      el("path",{d:`M${cx},${cy0} L${ex.toFixed(1)},${ey.toFixed(1)}`,stroke:"var(--wm)","stroke-width":4.2,"stroke-linecap":"round"},gA);
+      [-1,1].forEach(t=>{const b2=a+t*.5;el("path",{d:`M${mx.toFixed(1)},${my.toFixed(1)} L${(mx+s*Math.cos(b2)*14).toFixed(1)},${(my+Math.sin(b2)*12).toFixed(1)}`,stroke:"var(--wm)","stroke-width":2.4,"stroke-linecap":"round"},gA)});}
+    E(cx,cy0,15,12,"var(--wm)");
+    for(let i=0;i<14;i++){const a=(i/14)*Math.PI*2, px=x(190)+s*Math.cos(a)*58, py=425+Math.sin(a)*46;
+      el("path",{d:`M${px.toFixed(1)},${py.toFixed(1)} L${(px-s*Math.cos(a)*6).toFixed(1)},${(py-Math.sin(a)*5).toFixed(1)}`,stroke:"var(--line)","stroke-width":.7,...NSS},gA)}
+    el("path",{d:`M${x(176)},433 q${s*3},-5 ${s*6},0 q${s*3},5 ${s*6},0 q${s*3},-5 ${s*6},0`,stroke:"var(--sn)","stroke-width":1.4,fill:"none",...NSS},gA);
+    E(x(148),420,15,36,"none",{stroke:"var(--muted)","stroke-width":.9,"stroke-dasharray":"3 2",...NSS});
+  });
+}
+function anatomy(){
+  // neuraxis column behind the slices
+  const prof=[[226,52],[270,64],[298,74],[340,78],[382,94],[428,70],[470,62],[530,58],[610,64],[692,60],[770,58],[836,14],[856,0]];
+  const right=prof.map(([y,w])=>[C+w,y]), left=prof.slice().reverse().map(([y,w])=>[C-w,y]);
+  el("path",{d:smooth(right)+" L"+left.map(p=>p.join(",")).join(" L")+" Z",fill:"var(--wm2)",opacity:.55},gA);
+  el("path",{d:smooth(right),fill:"none",...thin,opacity:.6},gA);
+  el("path",{d:smooth(left),fill:"none",...thin,opacity:.6},gA);
+  cerebellum();
+  [1,-1].forEach(s=>{const x=d=>X(d,s);
+    [300,318,336].forEach(ey=>el("path",{d:`M${x(166)},340 Q${x(196)},${(340+ey)/2-2} ${x(226)},${ey}`,stroke:"var(--line)","stroke-width":2,fill:"none"},gA));
+    el("path",{d:`M${x(142)},344 C${x(128)},350 ${x(108)},360 ${x(86)},373`,stroke:"var(--line)","stroke-width":4,fill:"none","stroke-linecap":"round"},gA);
+    el("path",{d:`M${x(141)},337 C${x(150)},332 ${x(164)},333 ${x(169)},340 C${x(164)},348 ${x(150)},350 ${x(141)},346 Z`,fill:"var(--gm)",stroke:"var(--line)","stroke-width":.9,...NSS},gA);
+  });
+  // cerebrum (coronal)
+  E(C,132,200,106,"var(--wm)",{stroke:"var(--gm)","stroke-width":11});
+  E(C,132,206,112,"none",thin);
+  el("path",{d:`M${C},20 L${C},118`,stroke:"var(--gm)","stroke-width":10},gA);
+  el("path",{d:`M${C},20 L${C},118`,...thin},gA);
+  el("path",{d:`M${C-72},138 Q${C},112 ${C+72},138`,stroke:"var(--tract)","stroke-width":7,fill:"none","stroke-linecap":"round"},gA);
+  el("path",{d:`M${C-62},144 C${C-70},170 ${C-74},200 ${C-70},228 M${C+62},144 C${C+70},170 ${C+74},200 ${C+70},228`,stroke:"var(--tract)","stroke-width":11,fill:"none",opacity:.8},gA);
+  [1,-1].forEach(s=>{
+    const x=d=>X(d,s);
+    el("path",{d:`M${x(6)},140 C${x(30)},138 ${x(44)},150 ${x(40)},168 C${x(30)},158 ${x(18)},158 ${x(6)},162 Z`,fill:"var(--csf)",...thin},gA);
+    E(x(52),152,8,12,"var(--gm)");
+    E(x(36),204,28,20,"var(--gm)");
+    E(x(44),208,10,8,"none",{stroke:"var(--line)","stroke-width":.9,"stroke-dasharray":"2 2",...NSS});
+    E(x(25),212,7,6,"none",{stroke:"var(--line)","stroke-width":.9,"stroke-dasharray":"2 2",...NSS});
+    E(x(88),198,7,16,"var(--gm2)");
+    E(x(104),192,11,24,"var(--gm)");
+  });
+  el("path",{d:`M${C},186 L${C},228`,stroke:"var(--csf)","stroke-width":4},gA);
+  // midbrain (origin C,298)
+  {const cy=298;
+  E(C,cy,72,26,"var(--slice)",{stroke:"var(--line)","stroke-width":1.2,...NSS});
+  [1,-1].forEach(s=>{const x=d=>X(d,s);
+    E(x(40),cy+14,25,9,"var(--wm2)");
+    E(x(30),cy+5,15,3,"var(--sn)",{transform:`rotate(${-20*s} ${x(30)} ${cy+5})`});
+    el("circle",{cx:x(12),cy:cy,r:6,fill:"var(--rn)"},gA);
+    E(x(12),cy-21.5,9,4,"var(--gm)");
+    E(x(32),cy-4,7,3,"var(--tract)",{transform:`rotate(${-15*s} ${x(32)} ${cy-4})`});
+    E(x(46),cy-8,4,4,"var(--tract)");
+    E(x(4),cy-6,3,2.5,"var(--gm)");
+    el("path",{d:`M${x(4)},${cy-3} C${x(6)},${cy+6} ${x(8)},${cy+14} ${x(11)},${cy+23}`,stroke:"var(--line)","stroke-width":.8,fill:"none",...NSS},gA);
+  });
+  E(C,cy-13,10,7,"var(--gm)");
+  el("circle",{cx:C,cy:cy-14,r:2.6,fill:"var(--csf)",...thin},gA);}
+  // pons (origin C,382)
+  {const cy=382;
+  E(C,cy,92,32,"var(--slice)",{stroke:"var(--line)","stroke-width":1.2,...NSS});
+  el("path",{d:`M${C-84},${cy+10} C${C-50},${cy+38} ${C+50},${cy+38} ${C+84},${cy+10} C${C+50},${cy+16} ${C-50},${cy+16} ${C-84},${cy+10}Z`,fill:"var(--wm2)"},gA);
+  [12,20,27].forEach(dy=>el("path",{d:`M${C-70},${cy+dy} Q${C},${cy+dy+6} ${C+70},${cy+dy}`,stroke:"var(--line)","stroke-width":.5,fill:"none",opacity:.7,...NSS},gA));
+  [1,-1].forEach(s=>{const x=d=>X(d,s);
+    [[30,16,7,4],[16,23,5,3.5],[44,22,5,3.5]].forEach(([a,b,rx,ry])=>E(x(a),cy+b,rx,ry,"var(--tract)",{stroke:"var(--line)","stroke-width":.5,...NSS}));
+    [[8,16],[24,26],[38,14],[52,18],[60,26],[10,28]].forEach(([a,b])=>el("circle",{cx:x(a),cy:cy+b,r:1.6,fill:"var(--gm)"},gA));
+    E(x(5),cy-14,2.5,2,"var(--tract)");
+    E(x(22),cy-18,6,4,"var(--tract)");
+    E(x(20),cy-4,14,3,"var(--tract)");
+    E(x(48),cy-10,4,4,"var(--tract)");
+    E(x(68),cy-14,3,3,"var(--tract)",{stroke:"var(--line)","stroke-width":.5,"stroke-dasharray":"1.5 1.5",...NSS});
+    E(x(60),cy-6,6,3.6,"var(--gm)",{stroke:"var(--line)","stroke-width":.6,...NSS});
+  });
+  el("path",{d:`M${C-14},${cy-26} L${C},${cy-16} L${C+14},${cy-26}`,fill:"none",stroke:"var(--csf)","stroke-width":4},gA);}
+  // medulla (origin C,470)
+  {const cy=470;
+  E(C,cy,60,30,"var(--slice)",{stroke:"var(--line)","stroke-width":1.2,...NSS});
+  [1,-1].forEach(s=>{const x=d=>X(d,s);
+    el("path",{d:`M${x(14)},${cy-13} Q${x(8)},${cy-1} ${x(0)},${cy+1} Q${x(-5)},${cy+2} ${x(-6)},${cy+5}`,stroke:"var(--line)","stroke-width":.7,fill:"none","stroke-dasharray":"2 1.5",...NSS},gA);
+    E(x(12),cy+20,9,7,"var(--wm2)",{stroke:"var(--line)","stroke-width":.6,...NSS});
+    E(x(7),cy-25,5,3.2,"var(--tract)");
+    E(x(20),cy-24,6,2.6,"var(--tract)");
+    E(x(10),cy-17,6,5,"var(--gm)");
+    E(x(24),cy-15,7,5,"var(--gm)");
+    E(x(6),cy+6,3.5,7,"var(--tract)");
+    E(x(42),cy-11,6,6,"var(--gm)");
+    E(x(50),cy-12,2.5,6,"var(--tract)");
+    E(x(44),cy+6,4,5,"var(--tract)");
+    E(x(53),cy+10,2.5,4,"var(--tract)",{stroke:"var(--line)","stroke-width":.5,"stroke-dasharray":"1.5 1.5",...NSS});
+    E(x(35),cy-20,5,3,"var(--gm)",{stroke:"var(--line)","stroke-width":.6,...NSS});
+  });
+  el("circle",{cx:C,cy:cy-5,r:2,fill:"var(--csf)",...thin},gA);}
+  // pyramidal decussation bundles
+  [1,-1].forEach(s=>{
+    el("path",{d:`M${X(12,s)},497 C${X(12,s)},520 ${X(30,-s)},545 ${X(44,-s)},576`,stroke:"var(--tract)","stroke-width":5,fill:"none",opacity:.9},gA);
+    el("path",{d:`M${X(9,s)},497 L${X(6,s)},574`,stroke:"var(--tract)","stroke-width":2,fill:"none"},gA);
+  });
+  cordSlice(610,true); cordSlice(770,false); thoracicSlice(692);
+  // level labels
+  const gl=el("g",{class:"ov"},gA);
+  [["Cerebral cortex","coronal",70],["Thalamus","VPL dashed",206],["Midbrain","",298],["Pons","",382],["Cerebellum","lateral lobes",426],["Medulla","caudal",470],["Cervical cord","C5–T1",610],["Thoracic cord","T10",692],["Lumbosacral cord","L2–S2",770]]
+  .forEach(([a,b,y])=>{el("text",{x:8,y:y,class:"lvl"},gl).textContent=a;if(b)el("text",{x:8,y:y+15,class:"lvl-t"},gl).textContent=b});
+  el("text",{x:C-120,y:886,class:"side ov","text-anchor":"middle"},gA).textContent="◀ PATIENT’S RIGHT";
+  el("text",{x:C+120,y:886,class:"side ov","text-anchor":"middle"},gA).textContent="PATIENT’S LEFT ▶";
+}
+// Detail labels. Each level has a centre set plus a half-set drawn on whichever side(s) the pathway uses there.
+const HALF={};
+function details(){
+  // cortex: homunculus on both hemispheres
+  {const g=zg.cortex, fs=7;
+  [1,-1].forEach(s=>{
+    [["Trunk",80],["Arm",60],["Hand",40],["Face",21],["Tongue",6]].forEach(([t,a])=>{
+      const r=a*Math.PI/180, px=X(200*Math.cos(r),s), py=132-106*Math.sin(r), lx=X(218*Math.cos(r),s), ly=132-124*Math.sin(r)+fs*.35;
+      el("circle",{cx:px,cy:py,r:1.6,fill:"var(--muted)"},g);
+      const tt=el("text",{x:lx,y:ly,class:"dt","font-size":fs,"stroke-width":fs*.3,"text-anchor":a>70?"middle":(s>0?"start":"end")},g);tt.textContent=t;
+    });
+    dl(g,"Leg and foot\n(medial surface)",X(16,s),60,null,null,s>0?"start":"end",fs*.85);
+    dl(g,"Corona radiata",X(118,s),126,null,null,s>0?"start":"end",fs);
+  });
+  dl(g,"Longitudinal fissure",C,4,C,26,"middle",fs);
+  dl(g,"Precentral (M1) and postcentral (S1) gyri share one plane here",C,-10,null,null,"middle",fs*.8);}
+  // [text, label x, label y, target x, target y] — x measured outward from the midline
+  const cord=cerv=>({fs:4.6,
+    half:[["Fasciculus gracilis",4,-92,5,-28],cerv&&["Fasciculus cuneatus",12,-84,13,-35],["Dorsal horn",20,-76,22,-20],
+      ["Substantia gelatinosa (II)",27,-68,26,-31],["Lissauer tract",34,-60,33,-33],["Dorsal root",58,-52,60,-43],["Dorsal root ganglion",96,-58,100,-48],
+      cerv&&["Dorsal spinocerebellar tract",70,-24,60,-14],["Lateral corticospinal tract",70,-12,50,-6],["Lateral spinothalamic tract",70,6,57,10],["Ventral spinocerebellar tract",70,18,61,8],!cerv&&["Spinal border cells (L1–S2)",70,-24,38,9],
+      cerv&&["Anterior corticospinal tract",4,84,5,37],["Ventral horn (lamina IX)",30,74,32,22],["Ventral root",60,62,64,34],["Spinal nerve",118,48,156,7]],
+    nums:[["I–II",26,-25,2.8],["V",22,-11,3],["VII",22,3,3],["IX",35,21,3],["VIII",15,23,2.6],["X",6,10,2.6]],
+    center:[["Central canal",0,-100,0,2],["Anterior white commissure",0,96,0,19]]});
+  const SPEC={
+    cervical:Object.assign({oy:610},cord(true)),
+    lumbar:Object.assign({oy:770},cord(false)),
+    medulla:{oy:470,fs:3.4,
+      half:[["Fasciculus gracilis",5,-62,7,-28],["Nucleus gracilis",12,-56,10,-21],["Fasciculus cuneatus",20,-50,20,-26],["Nucleus cuneatus",28,-44,24,-19],
+        ["Accessory cuneate nucleus",34,-38,35,-22],["Spinal trigeminal\nnucleus and tract",46,-31,42,-16],["Inferior cerebellar\npeduncle",64,-12,54,-15],["Spinothalamic tract",64,4,48,6],["Ventral spinocerebellar\ntract",64,12,53,11],["Medial lemniscus",4,58,6,13],["Pyramid",16,48,14,26]],
+      center:[["Central canal",0,-70,0,-7],["Internal arcuate fibers\n(sensory decussation)",0,74,0,2]]},
+    pyramidal:{oy:530,fs:3.4,
+      half:[["Medullary pyramid",30,-30,15,-38],["Lateral corticospinal\ntract (crossed)",50,26,42,42],["Anterior corticospinal\ntract (uncrossed)",14,62,6,42]],
+      center:[["Pyramidal decussation",0,-12,null,null]]},
+    pons:{oy:382,fs:3.4,
+      half:[["Tegmentum",96,-47,36,-24],["Superior cerebellar\npeduncle",96,-41,22,-18],["Medial longitudinal\nfasciculus",96,-31,5,-14],
+        ["Ventral spinocerebellar\ntract",96,-21,68,-15],["Spinothalamic tract",96,-11,47,-11],["Principal sensory\nnucleus (V)",96,-4,62,-6],["Medial lemniscus",96,6,26,-3],["Middle cerebellar\npeduncle",96,13,86,6],
+        ["Corticospinal fibers",96,23,32,16],["Basis pontis",96,30,52,22],["Pontine nuclei",96,37,60,26]],
+      center:[["Fourth ventricle",0,-42,0,-22],["Transverse pontine fibers",0,48,0,27]]},
+    midbrain:{oy:298,fs:3.2,
+      half:[["Superior colliculus",14,-36,12,-25],["Periaqueductal\ngray",76,-24,9,-11],["Spinothalamic\ntract",76,-13,48,-9],["Medial\nlemniscus",76,-2,34,-4],
+        ["Substantia\nnigra",76,9,32,5],["Crus cerebri\n(peduncle)",76,20,55,15],["Oculomotor nerve (III)",18,32,11,23],["Red nucleus",10,39,12,6],["Oculomotor nucleus",3,46,4,-4]],
+      center:[["Cerebral aqueduct",0,-44,0,-16]]},
+    cerebellum:{oy:0,fs:7.5,
+      half:[["Superior cerebellar peduncle",80,324,100,350],["Middle cerebellar peduncle",100,338,112,402],["Vermis and paravermis (spinocerebellum)",128,352,146,398],["Lateral hemisphere",200,366,214,404],
+        ["Dentate nucleus",176,488,185,434],["Inferior cerebellar peduncle (restiform body)",80,500,92,447]],
+      center:[["Vermis (links the lobes behind the brainstem)",0,316,null,null]]},
+    trigeminal:{oy:0,fs:6,
+      half:[["Trigeminal (semilunar) ganglion",112,316,150,334],["Sensory root of CN V",56,336,110,360]],
+      nums:[["V1",206,309,4.6],["V2",206,322,4.6],["V3",206,336,4.6]],
+      center:[]},
+    thoracic:{oy:692,fs:4,
+      half:[["Fasciculus gracilis",66,-27,4,-18],["Dorsal spinocerebellar tract",66,-20,50,-13],["Dorsal horn",66,-13,16,-13],
+        ["Clarke’s nucleus (C8–L3)",66,-6,8,-3],["Lateral horn (sympathetic)",66,1,27,-1],["Lateral corticospinal tract",66,8,40,-3],
+        ["Lateral spinothalamic tract",66,15,46,9],["Ventral horn",66,22,22,14],["Ventral spinocerebellar tract",66,29,54,9]],
+      center:[["Central canal",0,44,0,4]]},
+    thalamus:{oy:0,fs:4.6,
+      half:[["Corpus callosum",14,50,16,126],["VPM nucleus (face)",22,59,25,212],["Lateral ventricle",28,68,28,148],["VPL nucleus (body)",40,77,44,208],
+        ["Caudate nucleus",49,86,52,150],["Thalamus",56,95,58,192],["Internal capsule (posterior limb)",66,104,71,182],["Globus pallidus",82,113,87,198],
+        ["Corona radiata",90,122,92,150],["Putamen",100,131,104,186]],
+      center:[["Third ventricle",0,252,0,214]]}
+  };
+  for(const z in SPEC){const sp=SPEC[z], root=zg[z];
+    const cg=el("g",{},root);
+    sp.center.forEach(c=>dl(cg,c[0],C+c[1],sp.oy+c[2],c[3]==null?null:C+c[3],c[3]==null?null:sp.oy+c[4],"middle",sp.fs));
+    HALF[z]={};
+    [1,-1].forEach(f=>{const g=el("g",{},root);HALF[z][f]=g;
+      sp.half.filter(Boolean).forEach(h=>dl(g,h[0],C+f*h[1],sp.oy+h[2],C+f*h[3],sp.oy+h[4],f>0?"start":"end",sp.fs));
+      (sp.nums||[]).forEach(([t,x,y,s])=>dn(g,t,C+f*x,sp.oy+y,s));
+    });
+  }
+}
+// Show each level's half-labels on the side(s) the drawn neurons pass through.
+const BANDS={thalamus:[145,245],midbrain:[268,330],trigeminal:[296,372,100],pons:[346,418],cerebellum:[330,520,90],medulla:[436,504],pyramidal:[500,572],cervical:[566,656],thoracic:[664,722],lumbar:[726,814]};
+function labelSides(ns){
+  const shown=Math.max(1,state.shown), s0=state.side==="left"?1:-1;
+  for(const z in HALF){const [y0,y1,mo]=BANDS[z], need=new Set();
+    ns.slice(0,shown).forEach(n=>n.pts.forEach(p=>{if(p[1]>=y0&&p[1]<=y1&&Math.abs(p[0]-C)>(mo||2)&&Math.abs(p[0]-C)<245)need.add(p[0]>C?1:-1)}));
+    if(!need.size)need.add(s0);
+    [1,-1].forEach(f=>HALF[z][f].style.display=need.has(f)?"":"none");
+  }
+}
+anatomy(); details();
+
+/* ---------- pathway geometry, stops and text ---------- */
+function build(){
+  const {path,region,side}=state, hand=region==="hand", s=side==="left"?1:-1, o=-s, cy=CY[region], cz=hand?"cervical":"lumbar";
+  const anc=d=>d>0?"start":"end";
+  const lab=(text,x,y,anchor,to,bold)=>({text,x,y,anchor,to,bold});
+  const part=hand?"hand":"foot";
+  const R=[X(250,s),cy-6], DRG=[X(100,s),cy-40], JN=[X(138,s),cy+4];
+  const VPL=[X(44,o),208];
+  const cortexS=hand?[X(160,o),71]:[X(10,o),72], cortexM=hand?[X(156,o),66]:[X(10,o),56];
+  // neuron builder: add(point, stop?)
+  function N(role,info){const n={role,info,pts:[],stops:[],labels:[]};n.add=(p,st)=>{n.pts.push(p);if(st)n.stops.push(Object.assign({i:n.pts.length-1},st));return n};return n}
+  const periph=(n,rtext)=>{
+    n.add(R,{t:"Receptor",zone:"periph",text:rtext}).add([X(200,s),cy+8]).add(JN).add([X(124,s),cy-22])
+     .add(DRG,{t:"Dorsal root ganglion",zone:"periph",text:"Neuron 1’s cell body sits in the dorsal root ganglion, outside the cord. It is pseudounipolar: one branch runs to the "+part+", the other into the cord."})
+     .add([X(66,s),cy-45]).add([X(35,s),cy-33]);
+    n.soma=DRG; n.icon={kind:"skin",at:R,label:hand?"Skin of hand":"Skin of foot"};
+  };
+  const third=()=>{const n=N("Third-order neuron",{soma:"VPL nucleus of the thalamus",route:"Posterior limb of the internal capsule, then the corona radiata.",ends:hand?"Postcentral gyrus (S1, areas 3, 1, 2), hand area on the lateral surface":"Postcentral gyrus (S1), foot area in the paracentral lobule on the medial surface",crosses:"No"});
+    n.add(VPL).add([X(60,o),190]).add([X(72,o),166],{t:"Internal capsule",zone:"thalamus",text:"Neuron 3 leaves the VPL nucleus and runs through the posterior limb of the internal capsule, then fans out in the corona radiata."})
+     .add(hand?[X(124,o),112]:[X(38,o),112])
+     .add(cortexS,{t:"Postcentral gyrus",zone:"cortex",text:hand?"It ends in the postcentral gyrus (S1, areas 3, 1, 2), in the hand area on the lateral convexity.":"It ends in the postcentral gyrus (S1), in the foot area on the medial surface (paracentral lobule)."});
+    n.soma=VPL;
+    n.labels=[lab("Internal capsule, posterior limb",X(82,o),158,anc(o),[X(72,o),166]),
+      lab(hand?"Postcentral gyrus (S1), hand area":"Postcentral gyrus (S1), foot area",hand?X(185,o):X(80,o),-24,"middle",cortexS,true)];
+    return n};
+  if(path==="dcml"){
+    const d=hand?13:5, nuc=hand?[X(24,s),455]:[X(10,s),453], nName=hand?"Nucleus cuneatus":"Nucleus gracilis", fName=hand?"Fasciculus cuneatus":"Fasciculus gracilis";
+    const n1=N("First-order neuron",{soma:"Dorsal root ganglion",route:hand?"Enters through the dorsal root and turns up in the fasciculus cuneatus on the same side (fibers from above T6).":"Enters through the dorsal root and turns up in the fasciculus gracilis on the same side (fibers from T6 and below).",ends:nName+", caudal medulla",crosses:"No"});
+    periph(n1,"Touch, vibration or joint position excites a receptor in the "+part+" (for example a Meissner or Pacinian corpuscle, or a muscle spindle). The signal runs in a large, myelinated Aβ fiber.");
+    n1.add([X(22,s),cy-35]).add([X(d,s),cy-31],{t:"Enters the dorsal column",zone:cz,text:hand?"It enters through the medial part of the dorsal root and turns up, on the same side, in the fasciculus cuneatus. Fibers from above T6 lie lateral to the gracilis.":"It enters through the medial part of the dorsal root and turns up, on the same side, in the fasciculus gracilis. Fibers from T6 and below lie medially."})
+      .add([X(d,s),cy-62]);
+    if(!hand) n1.add([X(d,s),606],{t:"Passes the cervical cord",zone:"cervical",text:"Still on the same side, foot fibers stay in the most medial part of the dorsal column (fasciculus gracilis) as they pass the cervical cord.",hold:.8});
+    n1.add([X(d,s),528]).add(nuc,{t:nName,zone:"medulla",text:"It synapses on neuron 2 in the "+nName.toLowerCase()+" of the caudal medulla. Neuron 1 never crosses the midline."});
+    n1.labels=[lab("Dorsal root ganglion",X(100,s),cy-56,"middle",null,true),lab(fName,X(96,s),cy-88,anc(s),[X(d,s),cy-72]),lab(nName,X(96,s),440,anc(s),nuc,true)];
+    const n2=N("Second-order neuron",{soma:nName,route:"Internal arcuate fibers sweep across the midline, then ascend as the medial lemniscus through the medulla, pons and midbrain.",ends:"Ventral posterolateral (VPL) nucleus of the thalamus",crosses:"Yes, in the caudal medulla (sensory decussation)"});
+    n2.add(nuc).add([X(d*.5,s),466]).add([C,472],{t:"Sensory decussation",zone:"medulla",text:"Neuron 2’s axons arc across the midline as internal arcuate fibers. This crossing is the sensory decussation."})
+      .add([X(7,o),478],{t:"Medial lemniscus",zone:"medulla",text:"Now on the opposite side, the fibers turn up as the medial lemniscus, beside the midline and just dorsal to the pyramid.",hold:.8})
+      .add([X(22,o),378],{t:"Pons",zone:"pons",text:"In the pons the medial lemniscus lies flat, at the border between the tegmentum and the basis pontis.",hold:.8})
+      .add([X(32,o),296],{t:"Midbrain",zone:"midbrain",text:"In the midbrain it moves laterally, next to the red nucleus.",hold:.8})
+      .add([X(40,o),240]).add(VPL,{t:"VPL synapse",zone:"thalamus",text:"It synapses on neuron 3 in the ventral posterolateral (VPL) nucleus of the thalamus."});
+    n2.soma=nuc; n2.cross=[C,472];
+    n2.labels=[lab("Sensory decussation (internal arcuate fibers)",X(72,o),506,anc(o),[C,474]),lab("Medial lemniscus",X(104,o),372,anc(o),[X(22,o),378]),lab("VPL nucleus",X(84,o),232,anc(o),VPL,true)];
+    return [n1,n2,third()];
+  }
+  if(path==="als"){
+    const horn=[X(23,s),cy-25], tr=hand?52:56;
+    const n1=N("First-order neuron",{soma:"Dorsal root ganglion",route:"Enters through the dorsal root and the dorsolateral tract of Lissauer, where it may run up or down 1–2 segments.",ends:"Dorsal horn: laminae I, II (substantia gelatinosa) and V",crosses:"No"});
+    periph(n1,"Pain or temperature in the "+part+" excites free nerve endings. The signal runs in thin Aδ fibers (sharp pain, cold) and unmyelinated C fibers (dull pain, warmth).");
+    n1.add([X(33,s),cy-31]).add([X(28,s),cy-29]).add(horn,{t:"Lissauer tract → dorsal horn",zone:cz,text:"It enters through the lateral part of the dorsal root into Lissauer’s tract, may run up or down 1–2 segments, then synapses in the dorsal horn (laminae I, II and V)."});
+    n1.labels=[lab("Dorsal root ganglion",X(100,s),cy-56,"middle",null,true),lab("Lissauer tract → dorsal horn (I, II, V)",X(64,s),cy-88,anc(s),horn,true)];
+    const n2=N("Second-order neuron",{soma:"Dorsal horn (mainly laminae I and V)",route:"Crosses in the anterior white commissure within 1–2 segments, then ascends in the opposite anterolateral column as the lateral spinothalamic tract, staying lateral through the brainstem.",ends:"Ventral posterolateral (VPL) nucleus of the thalamus",crosses:"Yes, in the spinal cord (anterior white commissure)"});
+    n2.add(horn).add([X(12,s),cy-2]).add([C,cy+17],{t:"Anterior white commissure",zone:cz,text:"Neuron 2 crosses right away, in the anterior white commissure, within 1–2 segments of where neuron 1 entered."})
+      .add([X(22,o),cy+22]).add([X(tr,o),cy+14],{t:"Lateral spinothalamic tract",zone:cz,text:"It turns up in the opposite anterolateral column as the lateral spinothalamic tract. Sacral and lumbar fibers lie most lateral.",hold:.9})
+      .add([X(tr,o),cy-22]);
+    if(!hand) n2.add([X(46,o),700]).add([X(54,o),606],{t:"Passes the cervical cord",zone:"cervical",text:"Fibers from the foot keep to the outer edge of the tract as it climbs through the cervical cord, with arm fibers joining medially.",hold:.8});
+    n2.add([X(50,o),540]).add([X(44,o),476],{t:"Medulla",zone:"medulla",text:"In the medulla it stays lateral, near the spinal trigeminal nucleus. A lateral medullary (Wallenberg) lesion here removes pain and temperature from the opposite body and the same side of the face."})
+      .add([X(48,o),372],{t:"Pons",zone:"pons",text:"In the pons it runs in the lateral tegmentum.",hold:.6})
+      .add([X(46,o),290],{t:"Midbrain",zone:"midbrain",text:"In the midbrain it lies lateral to the medial lemniscus.",hold:.6})
+      .add([X(42,o),240]).add(VPL,{t:"VPL synapse",zone:"thalamus",text:"It synapses on neuron 3 in the VPL nucleus of the thalamus."});
+    n2.soma=horn; n2.cross=[C,cy+17];
+    n2.labels=[lab("Anterior white commissure",X(40,o),cy+62,anc(o),[C,cy+19]),lab("Lateral spinothalamic tract",X(62,o),cy-88,anc(o),[X(tr,o),cy-30]),lab("VPL nucleus",X(84,o),232,anc(o),VPL,true)];
+    return [n1,n2,third()];
+  }
+  if(path==="vscb"){
+    const icon={kind:"muscle",at:R,label:"Tendon organs, leg"}, border=[X(37,s),cy+9], top={cx:C,cy:384,w:420};
+    const n1=N("First-order neuron",{soma:"Dorsal root ganglion",route:"Enters through the dorsal root and synapses in the lumbosacral cord. Its input is mainly from Golgi tendon organs (Ib).",ends:"Spinal border cells and neurons of laminae V–VII, L1 to S2",crosses:"No"});
+    periph(n1,"Golgi tendon organs (Ib) in the leg sense muscle tension. The ventral route also carries a copy of what the spinal motor circuits are doing, so the cerebellum can compare plan and output.");
+    n1.icon=icon;
+    n1.add([X(28,s),cy-20]).add([X(32,s),cy-6]).add(border,{t:"Spinal border cells",zone:"lumbar",text:"It synapses on spinal border cells at the lateral edge of the ventral horn and on neurons of laminae V–VII in the lumbosacral cord."});
+    n1.labels=[lab("Dorsal root ganglion",X(100,s),cy-56,"middle",null,true),lab("Spinal border cells",X(96,s),cy-88,anc(s),border,true)];
+    const n2=N("Second-order neuron",{soma:"Spinal border cells (lumbosacral cord)",route:"Crosses in the anterior white commissure, ascends in the opposite ventral spinocerebellar tract to the upper pons, enters the cerebellum through the superior cerebellar peduncle, then crosses back inside the cerebellum.",ends:"Cerebellar cortex of the anterior-lobe vermis and paravermis on the same side as the leg (mossy fibers)",crosses:"Twice: in the anterior white commissure, then again inside the cerebellum, so it ends on the same side as the leg"});
+    n2.add(border).add([X(16,s),cy+14]).add([C,cy+17],{t:"First crossing",zone:"lumbar",text:"Neuron 2 crosses right away, in the anterior white commissure. This is the first of its two crossings."})
+      .add([X(28,o),cy+22]).add([X(61,o),cy+6],{t:"Ventral spinocerebellar tract",zone:"lumbar",text:"It turns up in the opposite ventral spinocerebellar tract, at the surface of the lateral funiculus, just outside the spinothalamic tract."})
+      .add([X(60,o),cy-24]).add([X(54,o),697],{t:"Passes the thoracic cord",zone:"thoracic",text:"It keeps to the ventrolateral surface as it climbs. It skips Clarke’s nucleus, which belongs to the dorsal route.",hold:.8})
+      .add([X(61,o),613],{t:"Passes the cervical cord",zone:"cervical",text:"It is still on the opposite side, just superficial to the lateral spinothalamic tract.",hold:.7})
+      .add([X(58,o),540]).add([X(53,o),480],{t:"Medulla",zone:"medulla",text:"In the medulla it stays at the lateral surface. Unlike the dorsal tract, it does not turn into the inferior cerebellar peduncle here.",hold:.8})
+      .add([X(68,o),368],{t:"Pons",zone:"pons",text:"It climbs through the lateral pons all the way to its upper end.",hold:.7})
+      .add([X(64,o),352]).add([X(96,o),350],{t:"Superior cerebellar peduncle",zone:top,text:"In the upper pons it loops back and enters the cerebellum through the superior cerebellar peduncle. It is one of the few inputs that use this route."})
+      .add([X(76,o),340]).add([C,334],{t:"Second crossing",zone:top,text:"Inside the cerebellum it crosses the midline again, through the anterior vermis. The second crossing returns the signal to the same side as the leg."})
+      .add([X(76,s),340]).add([X(112,s),358]).add([X(136,s),386]).add([X(148,s),410],{t:"Spinocerebellum",zone:"cblm",text:"It ends as mossy fibers in the vermis and paravermis of the anterior lobe, on the same side as the leg. A cerebellar lesion therefore gives ataxia on the same side."});
+    n2.soma=border; n2.cross=[[C,cy+17],[C,334]];
+    n2.labels=[lab("Anterior white commissure (1st crossing)",X(40,o),cy+62,anc(o),[C,cy+19]),lab("Ventral spinocerebellar tract",X(84,o),652,anc(o),[X(60,o),640]),
+      lab("Superior cerebellar peduncle",X(110,o),330,anc(o),[X(96,o),350]),lab("2nd crossing (vermis)",X(116,s),320,anc(s),[X(30,s),336]),lab("Cerebellum (spinocerebellum)",X(190,s),364,"middle",[X(148,s),410],true)];
+    return [n1,n2];
+  }
+  if(path==="scb"){
+    const tgt=[X(150,s),420], icp=[X(54,s),456], part2=hand?"hand and forearm":"leg";
+    const icon={kind:"muscle",at:R,label:hand?"Muscle spindles, hand":"Muscle spindles, leg"};
+    const rtext="Stretch and tension in the "+part2+" muscles excite muscle spindles (Ia and II fibers) and Golgi tendon organs (Ib fibers). This is unconscious proprioception: it goes to the cerebellum, not to awareness.";
+    const toCb=n=>n.add(icp).add([X(90,s),446],{t:"Inferior cerebellar peduncle",zone:"cblm",text:"It enters the cerebellum through the inferior cerebellar peduncle (restiform body), on the same side as the "+part+"."})
+      .add([X(128,s),432]).add(tgt,{t:"Spinocerebellum",zone:"cblm",text:"It ends as mossy fibers in the vermis and paravermis (the spinocerebellum), which tune posture and limb movement. The pathway never crosses, so damage gives ataxia on the same side."});
+    const endInfo="Cerebellar cortex of the vermis and paravermis (spinocerebellum) on the same side, as mossy fibers";
+    const cbLabels=[lab("Inferior cerebellar peduncle",X(96,s),508,anc(s),[X(90,s),446]),lab("Cerebellum (spinocerebellum)",X(190,s),364,"middle",tgt,true)];
+    if(hand){
+      const acn=[X(35,s),450];
+      const n1=N("First-order neuron",{soma:"Dorsal root ganglion",route:"Enters through the dorsal root and ascends in the fasciculus cuneatus on the same side.",ends:"Accessory (lateral) cuneate nucleus, caudal medulla",crosses:"No"});
+      periph(n1,rtext); n1.icon=icon;
+      n1.add([X(22,s),cy-35]).add([X(13,s),cy-31],{t:"Fasciculus cuneatus",zone:cz,text:"It enters through the dorsal root and ascends in the fasciculus cuneatus on the same side, alongside the fibers for conscious proprioception."})
+        .add([X(13,s),cy-62]).add([X(13,s),528]).add([X(24,s),486]).add(acn,{t:"Accessory cuneate nucleus",zone:"medulla",text:"It synapses in the accessory (lateral) cuneate nucleus, just lateral to the nucleus cuneatus. This nucleus is the upper-limb version of Clarke’s nucleus."});
+      n1.labels=[lab("Dorsal root ganglion",X(100,s),cy-56,"middle",null,true),lab("Fasciculus cuneatus",X(96,s),cy-88,anc(s),[X(13,s),cy-72]),lab("Accessory cuneate nucleus",X(84,s),484,anc(s),acn,true)];
+      const n2=N("Second-order neuron",{soma:"Accessory cuneate nucleus",route:"Cuneocerebellar fibers run dorsolaterally into the inferior cerebellar peduncle on the same side.",ends:endInfo,crosses:"No"});
+      n2.add(acn); toCb(n2); n2.soma=acn; n2.labels=cbLabels;
+      return [n1,n2];
+    }
+    const clarke=[X(9,s),689];
+    const n1=N("First-order neuron",{soma:"Dorsal root ganglion",route:"Enters through the medial part of the dorsal root. Leg fibers enter below Clarke’s nucleus, so they first climb in the fasciculus gracilis on the same side.",ends:"Clarke’s nucleus (nucleus dorsalis, lamina VII, C8–L3)",crosses:"No"});
+    periph(n1,rtext); n1.icon=icon;
+    n1.add([X(22,s),cy-35]).add([X(5,s),cy-31],{t:"Fasciculus gracilis",zone:"lumbar",text:"It enters through the medial part of the dorsal root. Leg fibers enter below the end of Clarke’s nucleus, so they first climb a few segments in the fasciculus gracilis."})
+      .add([X(5,s),cy-62]).add([X(5,s),714]).add(clarke,{t:"Clarke’s nucleus",zone:"thoracic",text:"It synapses in Clarke’s nucleus (nucleus dorsalis), a column of large cells at the medial base of the dorsal horn running from C8 to L3."});
+    n1.labels=[lab("Dorsal root ganglion",X(100,s),cy-56,"middle",null,true),lab("Fasciculus gracilis",X(96,s),cy-88,anc(s),[X(5,s),cy-72]),lab("Clarke’s nucleus",X(96,s),698,anc(s),clarke,true)];
+    const n2=N("Second-order neuron",{soma:"Clarke’s nucleus (C8–L3)",route:"Runs out to the dorsal spinocerebellar tract at the dorsolateral edge of the cord, ascends on the same side, and enters the cerebellum through the inferior cerebellar peduncle.",ends:endInfo,crosses:"No"});
+    n2.add(clarke).add([X(30,s),684]).add([X(50,s),680],{t:"Dorsal spinocerebellar tract",zone:"thoracic",text:"Neuron 2’s axon runs out to the dorsal spinocerebellar tract, at the dorsolateral edge of the cord on the same side."})
+      .add([X(56,s),648]).add([X(58,s),598],{t:"Passes the cervical cord",zone:"cervical",text:"It climbs along the outer edge of the lateral funiculus, just dorsal to the lateral corticospinal tract.",hold:.8})
+      .add([X(54,s),540]).add([X(54,s),468],{t:"Medulla",zone:"medulla",text:"In the medulla it lies near the lateral surface, then turns dorsally into the inferior cerebellar peduncle.",hold:.8});
+    toCb(n2); n2.soma=clarke;
+    n2.labels=[lab("Dorsal spinocerebellar tract",X(96,s),664,anc(s),[X(52,s),674]),...cbLabels];
+    return [n1,n2];
+  }
+  if(path==="tri"){
+    const pain=region==="foot", F=[X(250,s),318], G=[X(155,s),342], VPMo=[X(25,o),212], VPMs=[X(25,s),212];
+    const icon={kind:"skin",at:F,label:"Skin of face"};
+    const faceS=v=>[X(184,v),96];
+    const front=(n,txt)=>{n.add(F,{t:"Receptor",zone:"periph",text:txt}).add([X(205,s),328]).add([X(169,s),340])
+      .add(G,{t:"Trigeminal ganglion",zone:"trigeminal",text:"Neuron 1’s cell body sits in the trigeminal (semilunar) ganglion, the cranial-nerve version of a dorsal root ganglion. It is pseudounipolar, like DRG neurons."})
+      .add([X(120,s),356]).add([X(88,s),372],{t:"Enters the pons",zone:"pons",text:"Its central branch enters the lateral mid-pons with the sensory root of the trigeminal nerve."});
+      n.soma=G; n.icon=icon; n.face=true;};
+    const third=(v,vpm)=>{const n=N("Third-order neuron",{soma:"VPM nucleus of the thalamus",route:"Posterior limb of the internal capsule, then the corona radiata.",ends:"Face area of the postcentral gyrus (S1), low on the lateral surface",crosses:"No"});
+      n.add(vpm).add([X(46,v),196]).add([X(72,v),166],{t:"Internal capsule",zone:"thalamus",text:"Neuron 3 leaves VPM and runs through the posterior limb of the internal capsule, then the corona radiata."})
+       .add([X(140,v),122]).add(faceS(v),{t:"Postcentral gyrus",zone:"cortex",text:"It ends in the face area of the postcentral gyrus (S1), low on the lateral surface just above the lateral sulcus."});
+      n.soma=vpm; n.labels=[lab("Internal capsule, posterior limb",X(82,v),158,anc(v),[X(72,v),166]),lab("Postcentral gyrus (S1), face area",X(185,v),-24,"middle",faceS(v),true)];
+      return n};
+    if(pain){
+      const nuc=[X(42,s),462];
+      const n1=N("First-order neuron",{soma:"Trigeminal ganglion",route:"Enters the pons with the trigeminal root, then descends on the same side in the spinal trigeminal tract.",ends:"Spinal trigeminal nucleus, pars caudalis (caudal medulla to C2)",crosses:"No"});
+      front(n1,"Pain or temperature on the face excites free nerve endings in one of the three branches of the trigeminal nerve: V1 ophthalmic, V2 maxillary or V3 mandibular.");
+      n1.add([X(66,s),386]).add([X(56,s),420]).add([X(50,s),448],{t:"Spinal trigeminal tract",zone:"medulla",text:"Pain and temperature fibers turn down in the spinal trigeminal tract on the same side, descending through the medulla as far as C2."})
+        .add([X(46,s),458]).add(nuc,{t:"Spinal trigeminal nucleus",zone:"medulla",text:"They synapse in the spinal trigeminal nucleus, pars caudalis. A lateral medullary (Wallenberg) lesion here removes pain and temperature from the same side of the face."});
+      n1.labels=[lab("Trigeminal ganglion",X(132,s),326,"middle",null,true),lab("Spinal trigeminal tract",X(92,s),422,anc(s),[X(56,s),420]),lab("Spinal trigeminal nucleus",X(84,s),498,anc(s),nuc,true)];
+      const n2=N("Second-order neuron",{soma:"Spinal trigeminal nucleus (pars caudalis)",route:"Crosses the midline in the medulla and ascends as the ventral trigeminothalamic tract, beside the medial lemniscus.",ends:"Ventral posteromedial (VPM) nucleus of the thalamus, opposite side",crosses:"Yes, in the medulla"});
+      n2.add(nuc).add([X(22,s),468]).add([C,472],{t:"Crosses the midline",zone:"medulla",text:"Neuron 2’s axons cross the midline in the medulla."})
+        .add([X(14,o),474],{t:"Ventral trigeminothalamic tract",zone:"medulla",text:"On the opposite side they turn up as the ventral trigeminothalamic tract (trigeminal lemniscus), alongside the medial lemniscus.",hold:.9})
+        .add([X(32,o),378],{t:"Pons",zone:"pons",text:"In the pons the tract runs with the medial lemniscus in the tegmentum.",hold:.7})
+        .add([X(26,o),290],{t:"Midbrain",zone:"midbrain",text:"In the midbrain it stays beside the medial lemniscus, dorsolateral to the red nucleus.",hold:.7})
+        .add([X(26,o),240]).add(VPMo,{t:"VPM synapse",zone:"thalamus",text:"It synapses on neuron 3 in the ventral posteromedial (VPM) nucleus, the face relay just medial to VPL."});
+      n2.soma=nuc; n2.cross=[C,472];
+      n2.labels=[lab("Ventral trigeminothalamic tract",X(104,o),362,anc(o),[X(31,o),370]),lab("VPM nucleus",X(84,o),232,anc(o),VPMo,true)];
+      return [n1,n2,third(o,VPMo)];
+    }
+    const pr=[X(60,s),376];
+    const n1=N("First-order neuron",{soma:"Trigeminal ganglion",route:"Enters the lateral pons with the trigeminal root.",ends:"Principal (chief) sensory nucleus of the trigeminal, mid-pons",crosses:"No"});
+    front(n1,"Light touch and pressure on the face excite mechanoreceptors in one of the three branches of the trigeminal nerve: V1 ophthalmic, V2 maxillary or V3 mandibular. The signal runs in large Aβ fibers.");
+    n1.add([X(72,s),374]).add(pr,{t:"Principal sensory nucleus",zone:"pons",text:"It synapses in the principal (chief) sensory nucleus of the trigeminal in the mid-pons, the face version of the dorsal column nuclei."});
+    n1.labels=[lab("Trigeminal ganglion",X(132,s),326,"middle",null,true),lab("Principal sensory nucleus (V)",X(70,o),340,anc(o),pr,true)];
+    const n2=N("Second-order neuron",{soma:"Principal sensory nucleus (dorsomedial part)",route:"Ascends uncrossed as the dorsal trigeminothalamic tract in the dorsal tegmentum. Fibers from the rest of the nucleus cross and join the ventral tract.",ends:"VPM nucleus of the thalamus, same side",crosses:"No (this dorsal part stays on the same side)"});
+    n2.add(pr).add([X(44,s),368],{t:"Dorsal trigeminothalamic tract",zone:"pons",text:"Fibers from the dorsomedial part of the nucleus ascend uncrossed as the dorsal trigeminothalamic tract. Fibers from the rest of the nucleus cross and join the ventral tract instead."})
+      .add([X(30,s),350]).add([X(22,s),292],{t:"Midbrain",zone:"midbrain",text:"In the midbrain it runs in the dorsal tegmentum, near the periaqueductal gray.",hold:.7})
+      .add([X(24,s),250]).add(VPMs,{t:"VPM synapse",zone:"thalamus",text:"It synapses in the VPM nucleus on the same side as the face."});
+    n2.soma=pr; n2.labels=[lab("Dorsal trigeminothalamic tract (uncrossed)",X(84,s),268,anc(s),[X(23,s),270]),lab("VPM nucleus",X(84,s),232,anc(s),VPMs,true)];
+    return [n1,n2,third(s,VPMs)];
+  }
+  if(path==="acst"){
+    const cortexA=[X(40,o),33], vhm=[X(16,s),cy+23], MA=[X(250,s),cy+38];
+    const n1=N("Upper motor neuron",{soma:"Precentral gyrus (M1), layer V, mainly the trunk and neck areas",route:"Corona radiata → posterior limb of the internal capsule → cerebral peduncle → basis pontis → medullary pyramid → does not cross → anterior funiculus of the cord → crosses in the anterior white commissure at its target segment.",ends:"Interneurons and α motor neurons of the medial ventral horn (lamina VIII and medial IX), mostly in the cervical and upper thoracic cord",crosses:"Not at the pyramids. Most fibers cross at their target segment in the anterior white commissure; some stay on the same side"});
+    n1.add(cortexA,{t:"Precentral gyrus",zone:"cortex",text:"The upper motor neuron starts in layer V of the precentral gyrus (M1), mostly in the trunk and neck parts of the motor map, with extra input from premotor cortex."})
+      .add([X(56,o),100]).add([X(72,o),170],{t:"Internal capsule",zone:"thalamus",text:"Its axon descends through the corona radiata and the posterior limb of the internal capsule, together with the lateral corticospinal fibers."})
+      .add([X(70,o),215]).add([X(56,o),252]).add([X(40,o),310],{t:"Crus cerebri",zone:"midbrain",text:"In the midbrain it runs in the middle of the crus cerebri (cerebral peduncle).",hold:.7})
+      .add([X(30,o),396],{t:"Basis pontis",zone:"pons",text:"In the pons it runs in scattered bundles through the basis pontis.",hold:.7})
+      .add([X(12,o),488],{t:"Pyramid",zone:"medulla",text:"In the medulla it is part of the pyramid, like every corticospinal fiber.",hold:.7})
+      .add([X(9,o),508]).add([X(8,o),530],{t:"Stays uncrossed",zone:"pyramidal",text:"At the pyramidal decussation these 10–15% of fibers do not cross. They keep going down on the same side as the cortex they came from."})
+      .add([X(7,o),574]).add([X(6,o),cy+31],{t:"Anterior corticospinal tract",zone:"cervical",text:"They descend in the anterior funiculus as the anterior (ventral) corticospinal tract, right beside the anterior median fissure."})
+      .add([C,cy+17],{t:"Crosses at its segment",zone:"cervical",text:"At the level where they end, most fibers cross in the anterior white commissure. Some branches stay on the same side, so axial muscles get input from both hemispheres."})
+      .add([X(11,s),cy+20]).add(vhm,{t:"Medial ventral horn synapse",zone:"cervical",text:"They synapse on interneurons and motor neurons in the medial ventral horn (lamina VIII and medial IX), the cells that drive axial and proximal muscles."});
+    n1.soma=cortexA; n1.cross=[C,cy+17];
+    n1.labels=[lab("Precentral gyrus (M1), trunk and neck area",X(80,o),-24,"middle",cortexA,true),
+      lab("Medullary pyramid",X(80,o),500,anc(o),[X(14,o),492]),lab("Uncrossed at the pyramids",X(64,o),546,anc(o),[X(8,o),530]),
+      lab("Anterior corticospinal tract",X(84,o),cy+62,anc(o),[X(6,o),cy+33]),lab("Anterior white commissure",X(40,o),cy+82,anc(o),[C,cy+19]),
+      lab("Medial ventral horn (VIII)",X(30,s),cy+84,anc(s),vhm,true)];
+    const n2=N("Lower motor neuron",{soma:"α motor neuron in the medial ventral horn",route:"Leaves through the ventral root into the spinal nerve.",ends:"Neck, trunk and shoulder-girdle (axial and proximal) muscles",crosses:"No"});
+    n2.add(vhm).add([X(30,s),cy+30]).add([X(40,s),cy+31],{t:"Ventral root",zone:"cervical",text:"The lower motor neuron sits in the medial ventral horn. Its axon leaves through the ventral root."})
+      .add([X(80,s),cy+32]).add(JN).add([X(196,s),cy+14])
+      .add(MA,{t:"Axial muscles",zone:"periph",text:"It ends on neck, trunk and shoulder-girdle muscles. Because these muscles get input from both hemispheres, a one-sided cortical lesion barely weakens them."});
+    n2.soma=vhm; n2.icon={kind:"muscle",at:MA,label:"Neck and shoulder muscles",end:true};
+    return [n1,n2];
+  }
+  // lateral corticospinal
+  const vh=[X(30,s),cy+18], M=[X(250,s),cy+38];
+  const n1=N("Upper motor neuron",{soma:hand?"Precentral gyrus (M1), layer V pyramidal cells, hand area on the lateral surface":"Precentral gyrus (M1), layer V pyramidal cells, leg area in the paracentral lobule",route:"Corona radiata → posterior limb of the internal capsule → middle of the cerebral peduncle → basis pontis → medullary pyramid → crosses → lateral corticospinal tract.",ends:"Ventral horn α motor neurons (lamina IX) and interneurons",crosses:"Yes, at the pyramidal decussation (cervicomedullary junction), about 85–90% of fibers"});
+  n1.add(cortexM,{t:"Precentral gyrus",zone:"cortex",text:hand?"The upper motor neuron’s cell body is a layer V pyramidal cell (including giant Betz cells) in the precentral gyrus (M1), hand area.":"The upper motor neuron’s cell body is a layer V pyramidal cell in the precentral gyrus (M1), leg area on the medial surface (paracentral lobule)."})
+    .add(hand?[X(120,o),112]:[X(34,o),108]).add([X(72,o),170],{t:"Internal capsule",zone:"thalamus",text:"Its axon descends through the corona radiata and the posterior limb of the internal capsule, between the thalamus and the lentiform nucleus."})
+    .add([X(70,o),215]).add([X(56,o),252]).add([X(40,o),310],{t:"Crus cerebri",zone:"midbrain",text:"In the midbrain it runs in the middle three-fifths of the crus cerebri (cerebral peduncle).",hold:.8})
+    .add([X(30,o),396],{t:"Basis pontis",zone:"pons",text:"In the pons it breaks into scattered bundles among the pontine nuclei of the basis pontis.",hold:.8})
+    .add([X(12,o),488],{t:"Pyramid",zone:"medulla",text:"In the medulla the fibers gather again to form the pyramid on the ventral surface.",hold:.8})
+    .add([X(9,o),506]).add([C,528],{t:"Pyramidal decussation",zone:"pyramidal",text:"About 85–90% of the fibers cross at the pyramidal decussation, where the medulla meets the spinal cord. The rest descend uncrossed as the anterior corticospinal tract (see the Anterior corticospinal pathway)."})
+    .add([X(30,s),548]).add([X(44,s),584]);
+  if(!hand) n1.add([X(46,s),640],{t:"Passes the cervical cord",zone:"cervical",text:"Now on the same side as the muscles it controls, it descends in the lateral corticospinal tract. Leg fibers lie most lateral.",hold:.8}).add([X(40,s),688]).add([X(44,s),730]);
+  n1.add([X(44,s),cy-6],{t:"Lateral corticospinal tract",zone:cz,text:"It runs in the lateral corticospinal tract, in the lateral funiculus, on the same side as the muscles it controls."})
+    .add(vh,{t:"Ventral horn synapse",zone:cz,text:"It synapses on α motor neurons in the ventral horn (lamina IX), directly or through interneurons. Damage above this point gives upper motor neuron signs."});
+  n1.soma=cortexM; n1.cross=[C,528];
+  n1.labels=[lab(hand?"Precentral gyrus (M1), hand area":"Precentral gyrus (M1), leg area",hand?X(150,o):X(80,o),-24,"middle",cortexM,true),
+    lab("Cerebral peduncle",X(104,o),328,anc(o),[X(44,o),314]),lab("Basis pontis",X(118,o),410,anc(o),[X(32,o),400]),
+    lab("Medullary pyramid",X(80,o),500,anc(o),[X(14,o),492]),lab("Pyramidal decussation",X(60,s),536,anc(s),[C,530]),
+    lab("Lateral corticospinal tract",X(84,s),cy-60,anc(s),[X(44,s),cy-20]),lab("Ventral horn (lamina IX)",X(44,s),cy+62,anc(s),vh,true)];
+  const n2=N("Lower motor neuron",{soma:"Ventral horn α motor neuron (lamina IX)",route:"Leaves through the ventral root into the spinal nerve and peripheral nerve.",ends:hand?"Neuromuscular junctions on intrinsic hand muscles":"Neuromuscular junctions on foot muscles",crosses:"No"});
+  n2.add(vh).add([X(38,s),cy+27]).add([X(40,s),cy+31],{t:"Ventral root",zone:cz,text:"The lower motor neuron’s cell body sits in the ventral horn. Its axon leaves the cord through the ventral root."})
+    .add([X(80,s),cy+32]).add(JN).add([X(196,s),cy+14])
+    .add(M,{t:"Neuromuscular junction",zone:"periph",text:"It ends at neuromuscular junctions on the "+(hand?"intrinsic hand":"foot")+" muscles. Damage to this neuron gives lower motor neuron signs on the same side."});
+  n2.soma=vh; n2.icon={kind:"muscle",at:M,label:hand?"Hand muscles":"Foot muscles",end:true};
+  return [n1,n2];
+}
+
+const FACTS={
+  tri:{h:"Trigeminothalamic pathways",items:["Carry sensation from the face, mouth and teeth through the three branches of the trigeminal nerve (V1, V2, V3).","Neuron 1’s cell body is in the trigeminal ganglion, not a dorsal root ganglion.","Pain and temperature: spinal trigeminal tract and nucleus (down to C2) → crosses in the medulla → ventral trigeminothalamic tract → opposite VPM.","Fine touch: principal sensory nucleus in the pons. Most fibers cross and join the ventral tract; the dorsomedial part ascends uncrossed as the dorsal trigeminothalamic tract to the same-side VPM.","Lateral medullary (Wallenberg) syndrome: loss of pain and temperature on the same side of the face and the opposite side of the body."]},
+  acst:{h:"Anterior corticospinal tract",items:["Carries voluntary control of axial and proximal muscles: neck, trunk and shoulder girdle.","Made of the 10–15% of corticospinal fibers that do not cross at the pyramidal decussation.","Descends in the anterior funiculus beside the anterior median fissure and mostly ends in the cervical and upper thoracic cord.","Most fibers cross in the anterior white commissure at the level where they end, and some branch to both sides, so axial muscles get input from both hemispheres.","That bilateral control is why a one-sided stroke weakens the opposite limbs but largely spares the trunk and neck."]},
+  vscb:{h:"Ventral spinocerebellar tract",items:["Carries unconscious proprioception from the leg, mainly Golgi tendon organ (Ib) input, plus a copy of activity in spinal motor circuits.","Crosses twice: in the anterior white commissure, then again inside the cerebellum. It ends on the same side as the leg.","Enters through the superior cerebellar peduncle. The dorsal route uses the inferior peduncle and never crosses.","Leg only. Its arm counterpart, the rostral spinocerebellar tract, does not cross and is not drawn.","Both routes end on the same side as the limb, so a cerebellar lesion gives ataxia on the same side."]},
+  scb:{h:"Spinocerebellar pathways",items:["Carry unconscious proprioception from muscle spindles and Golgi tendon organs to the cerebellum, to coordinate posture and limb movement.","Two neurons, no thalamic relay, and no crossing: the signal stays on the same side and enters through the inferior cerebellar peduncle.","Leg: dorsal spinocerebellar tract from Clarke’s nucleus (C8–L3). Arm: cuneocerebellar tract from the accessory cuneate nucleus.","Compare the ventral route: it crosses twice and enters through the superior cerebellar peduncle. The arm’s rostral spinocerebellar tract is not drawn.","Damage gives ataxia on the same side without weakness. Friedreich ataxia degenerates these tracts together with the dorsal columns and corticospinal tracts."]},
+  dcml:{h:"Dorsal column–medial lemniscus",items:["Carries fine touch, vibration, two-point discrimination and conscious proprioception.","Crosses in the caudal medulla, after the first synapse.","A cord lesion causes loss on the same side, below the lesion. A lesion above the medulla causes loss on the opposite side."]},
+  als:{h:"Spinothalamic (anterolateral system)",items:["Carries pain and temperature (lateral tract) and crude touch and pressure (anterior tract).","Crosses in the cord, in the anterior white commissure, within 1–2 segments of entry.","A cord hemisection causes loss on the opposite side, starting 1–2 segments below the lesion. A central lesion at the commissure (syringomyelia) causes bilateral, cape-like loss."]},
+  cst:{h:"Lateral corticospinal tract",items:["Carries voluntary movement, especially fine control of distal limb muscles.","Crosses at the pyramidal decussation, at the cervicomedullary junction.","Upper motor neuron lesion: spastic weakness, hyperreflexia, Babinski sign. Opposite side if above the decussation, same side if in the cord.","Lower motor neuron lesion: flaccid weakness, atrophy, fasciculations, hyporeflexia, on the same side."]}
+};
+
+/* ---------- camera ---------- */
+const FULL={x:0,y:-44,w:760,h:940}, AR=940/760, KMAX=7;
+let view={...FULL}, K=1, camTok=0, playing=false;
+const badge=document.getElementById("badge");
+function clampV(cx,cy,w){w=Math.min(760,Math.max(760/KMAX,w));const h=w*AR;
+  const m=w<759?h*.22:0; cx=Math.min(760-w/2,Math.max(w/2,cx)); cy=Math.min(896+m-h/2,Math.max(-44-m+h/2,cy)); return {x:cx-w/2,y:cy-h/2,w,h}}
+function setView(cx,cy,w){view=clampV(cx,cy,w);svg.setAttribute("viewBox",`${view.x.toFixed(2)} ${view.y.toFixed(2)} ${view.w.toFixed(2)} ${view.h.toFixed(2)}`);K=760/view.w;onCam()}
+function onCam(){
+  const s=1/K;
+  svg.querySelectorAll(".mk").forEach(m=>m.setAttribute("transform",`translate(${m.dataset.x},${m.dataset.y}) scale(${s})`));
+  svg.classList.toggle("zoomed",K>1.3);
+  const vcx=view.x+view.w/2, vcy=view.y+view.h/2; let best=null,bd=1e9;
+  for(const k in ZONES){const z=ZONES[k]; if(K<z.kmin)continue; const d=Math.hypot((z.cx-vcx)*.4,z.cy-vcy); if(d<bd&&Math.abs(z.cy-vcy)<view.h*.45){bd=d;best=k}}
+  for(const k in zg) zg[k].classList.toggle("on",k===best);
+  badge.hidden=!best; if(best)badge.textContent=ZONES[best].title;
+  document.querySelectorAll("#chips .chip").forEach(c=>c.classList.toggle("on",c.dataset.z===best));
+  svg.style.touchAction=K>1.02?"none":"pan-y";
+}
+function tweenTo(t,dur){
+  const my=++camTok, f={cx:view.x+view.w/2,cy:view.y+view.h/2,w:view.w};
+  if(reduce||!dur){setView(t.cx,t.cy,t.w);return Promise.resolve()}
+  const t0=performance.now(), lw0=Math.log(f.w), lw1=Math.log(t.w);
+  return new Promise(res=>{(function step(now){
+    if(my!==camTok){res();return}
+    const p=Math.min(1,(now-t0)/dur), e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+    setView(f.cx+(t.cx-f.cx)*e,f.cy+(t.cy-f.cy)*e,Math.exp(lw0+(lw1-lw0)*e));
+    if(p<1)requestAnimationFrame(step);else res();
+  })(performance.now())});
+}
+function fitView(){return tweenTo({cx:380,cy:426,w:760},650)}
+function scaleInfo(){const r=svg.getBoundingClientRect(), sc=Math.min(r.width/view.w,r.height/view.h);
+  return {r,sc,ox:(r.width-view.w*sc)/2,oy:(r.height-view.h*sc)/2}}
+function toUser(px,py){const {r,sc,ox,oy}=scaleInfo();return [view.x+(px-r.left-ox)/sc,view.y+(py-r.top-oy)/sc]}
+function zoomAt(px,py,f){const [ux,uy]=toUser(px,py), w=Math.min(760,Math.max(760/KMAX,view.w*f)), q=w/view.w;
+  const nx=ux-(ux-view.x)*q, ny=uy-(uy-view.y)*q; camTok++; setView(nx+w/2,ny+w*AR/2,w)}
+function zoneTarget(z){return z==="periph"?null:ZONES[z]}
+
+/* manual zoom: wheel, drag, pinch, double-click */
+const ptrs=new Map(); let drag=null, pinch=null;
+svg.addEventListener("wheel",e=>{if(playing)return;e.preventDefault();zoomAt(e.clientX,e.clientY,Math.exp(e.deltaY*(e.ctrlKey?.01:.0018)))},{passive:false});
+svg.addEventListener("pointerdown",e=>{if(playing)return;ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+  if(ptrs.size===1){if(K<=1.02&&e.pointerType==="touch")return;drag={x:e.clientX,y:e.clientY,v:{...view}};svg.setPointerCapture(e.pointerId);svg.classList.add("dragging")}
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),w:view.w};drag=null}});
+svg.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId)||playing)return;ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+  if(pinch&&ptrs.size>=2){const [a,b]=[...ptrs.values()], d=Math.hypot(a[0]-b[0],a[1]-b[1]), mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
+    zoomAt(mx,my,(pinch.w*pinch.d/d)/view.w);return}
+  if(drag){const {sc}=scaleInfo();camTok++;setView(drag.v.x+drag.v.w/2-(e.clientX-drag.x)/sc,drag.v.y+drag.v.h/2-(e.clientY-drag.y)/sc,drag.v.w)}});
+function endPtr(e){ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size){drag=null;svg.classList.remove("dragging")}}
+svg.addEventListener("pointerup",endPtr);svg.addEventListener("pointercancel",endPtr);
+svg.addEventListener("dblclick",e=>{if(playing)return;e.preventDefault();
+  if(K<1.3){const [,uy]=toUser(e.clientX,e.clientY);let best="cortex",bd=1e9;for(const k in ZONES){const d=Math.abs(ZONES[k].cy-uy);if(d<bd){bd=d;best=k}}tweenTo(ZONES[best],650)}
+  else{const [ux,uy]=toUser(e.clientX,e.clientY);tweenTo({cx:ux,cy:uy,w:view.w*.55},450)}});
+const chips=document.getElementById("chips");
+for(const k in ZONES){const b=document.createElement("button");b.className="chip";b.dataset.z=k;b.textContent=ZONES[k].chip;b.onclick=()=>{if(!playing)tweenTo(ZONES[k],650)};chips.appendChild(b)}
+document.getElementById("z-in").onclick=()=>{if(!playing)tweenTo({cx:view.x+view.w/2,cy:view.y+view.h/2,w:view.w*.66},300)};
+document.getElementById("z-out").onclick=()=>{if(!playing)tweenTo({cx:view.x+view.w/2,cy:view.y+view.h/2,w:view.w/.66},300)};
+document.getElementById("z-fit").onclick=()=>{if(!playing)fitView()};
+
+/* ---------- drawing ---------- */
+let token=0;
+function mk(g,x,y,fn){const m=el("g",{class:"mk","data-x":x,"data-y":y,transform:`translate(${x},${y}) scale(${1/K})`},g);fn(m);return m}
+function icon(ic,color,g){
+  const [x,y]=ic.at;
+  if(ic.kind==="skin"){
+    el("path",{d:`M${x-22},${y+10} L${x-22},${y-4} C${x-14},${y-12} ${x-6},${y+4} ${x},${y-4} C${x+6},${y-12} ${x+14},${y+4} ${x+22},${y-4} L${x+22},${y+10} Z`,fill:"var(--gm)",...thin},g);
+    [-12,0,12].forEach(dx=>el("path",{d:`M${x+dx},${y-1} l-3,-7 m3,7 l3,-7`,stroke:color,"stroke-width":1.6,fill:"none","stroke-linecap":"round"},g));
+  }else{
+    E(x,y,26,11,"var(--gm)",thin,g);
+    for(let dx=-16;dx<=16;dx+=6)el("path",{d:`M${x+dx},${y-8} L${x+dx},${y+8}`,stroke:"var(--line)","stroke-width":.8},g);
+  }
+  const t=el("text",{x,y:y+28,class:"lab ov","text-anchor":"middle"},g);t.textContent=ic.label;
+}
+function labels(n,g){
+  const lg=el("g",{class:"ov"},g);
+  n.labels.forEach(L=>{
+    if(L.to){const ex=L.anchor==="start"?L.x-4:L.anchor==="end"?L.x+4:L.x, ey=L.anchor==="middle"?L.y+5:L.y-4;
+      el("path",{d:`M${ex},${ey} L${L.to[0]},${L.to[1]}`,stroke:"var(--muted)","stroke-width":.8,"stroke-dasharray":"2 2",fill:"none",...NSS},lg)}
+    const t=el("text",{x:L.x,y:L.y,class:"lab"+(L.bold?" b":""),"text-anchor":L.anchor},lg);t.textContent=L.text;
+  });
+}
+function soma(n,color,g){mk(g,n.soma[0],n.soma[1],m=>el("circle",{r:6,fill:color,stroke:"var(--panel)","stroke-width":1.5},m))}
+function ends(n,color,g){
+  const e=n.pts[n.pts.length-1];
+  if(!(n.icon&&n.icon.end))mk(g,e[0],e[1],m=>el("circle",{r:4.5,fill:"var(--panel)",stroke:color,"stroke-width":2.4},m));
+  const cs=n.cross?(Array.isArray(n.cross[0])?n.cross:[n.cross]):[];
+  cs.forEach(c=>mk(g,c[0],c[1],m=>{el("circle",{r:7,fill:"var(--panel)",stroke:"var(--ink)","stroke-width":1.4},m);
+    el("path",{d:"M-3.2,-3.2 L3.2,3.2 M3.2,-3.2 L-3.2,3.2",stroke:"var(--ink)","stroke-width":1.6},m)}));
+}
+function sampled(d){
+  const p=el("path",{d,fill:"none",stroke:"none"},gD), L=p.getTotalLength(), n=Math.max(2,Math.ceil(L/1.2)), out=[];
+  for(let i=0;i<=n;i++){const q=p.getPointAtLength(L*i/n);out.push([q.x,q.y])}
+  p.remove(); return out;
+}
+function nearestIdx(S,pt,from){let bi=from,bd=1e9;for(let i=from;i<S.length;i++){const d=(S[i][0]-pt[0])**2+(S[i][1]-pt[1])**2;if(d<bd){bd=d;bi=i}}return bi}
+const partD=(S,j)=>"M"+S.slice(0,j+1).map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" L");
+// creates the neuron's drawing scaffold; returns controls to grow it
+function scaffold(n,i){
+  const color=COLORS[i], g=el("g",{},gD);
+  if(n.icon&&!n.icon.end)icon(n.icon,color,g);
+  const halo=el("path",{fill:"none",stroke:"var(--panel)","stroke-width":8,"stroke-linecap":"round","stroke-linejoin":"round",...NSS},g);
+  const p=el("path",{fill:"none",stroke:color,"stroke-width":4,"stroke-linecap":"round","stroke-linejoin":"round",...NSS},g);
+  const top=el("g",{},g), S=sampled(smooth(n.pts)), somaIdx=nearestIdx(S,n.soma,0);
+  let somaShown=false, at=0;
+  const set=j=>{at=j;const d=partD(S,j);halo.setAttribute("d",d);p.setAttribute("d",d);if(!somaShown&&j>=somaIdx){somaShown=true;soma(n,color,top)}};
+  const finish=()=>{if(n.icon&&n.icon.end)icon(n.icon,color,top);ends(n,color,top);const lg=el("g",{class:"fade"},top);labels(n,lg)};
+  return {g,S,set,finish,color,get at(){return at}};
+}
+function drawStatic(n,i){const sc=scaffold(n,i);sc.set(sc.S.length-1);sc.finish()}
+// grow from current index to j over dur, with a travelling pulse
+function grow(sc,j,dur,my){
+  const from=sc.at; if(j<=from||reduce||dur<=0){sc.set(Math.max(j,from));return Promise.resolve()}
+  const pulse=mk(sc.g,sc.S[from][0],sc.S[from][1],m=>el("circle",{r:6,fill:sc.color,stroke:"var(--panel)","stroke-width":2},m));
+  const t0=performance.now();
+  return new Promise(res=>{(function f(now){
+    if(my!==token){pulse.remove();res();return}
+    const t=Math.min(1,(now-t0)/dur), e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, k=Math.round(from+(j-from)*e);
+    sc.set(k); pulse.dataset.x=sc.S[k][0]; pulse.dataset.y=sc.S[k][1]; pulse.setAttribute("transform",`translate(${sc.S[k][0]},${sc.S[k][1]}) scale(${1/K})`);
+    if(t<1)requestAnimationFrame(f);else{pulse.remove();res()}
+  })(performance.now())});
+}
+function render(){
+  gD.textContent=""; const ns=build();
+  for(let i=0;i<state.shown;i++) drawStatic(ns[i],i);
+  panel(ns);
+}
+
+/* ---------- stages: guided play and manual stepping share one animation ---------- */
+const cap=document.getElementById("cap"), capH=document.getElementById("cap-h"), capS=document.getElementById("cap-s"), capT=document.getElementById("cap-t");
+let stg=-1;
+function stagesOf(ns){const L=[];ns.forEach((n,i)=>n.stops.forEach((st,j)=>L.push({i,j})));return L}
+function caption(i,n,st,k,total){cap.hidden=false;cap.style.setProperty("--c",COLORS[i]);
+  capH.textContent=`Neuron ${i+1} · ${n.role}`;capS.textContent=`Stage ${k+1} of ${total} · ${st.t}`;capT.textContent=st.text;
+  document.getElementById("cap-prev").disabled=k===0;document.getElementById("cap-next").disabled=k===total-1}
+function zoneFor(st,n){if(st.zone==="periph"){const ic=n.icon.at;if(n.face)return {cx:C+(ic[0]>C?1:-1)*160,cy:336,w:300};return {cx:C+(ic[0]>C?1:-1)*165,cy:ic[1]-8,w:270}}
+  if(typeof st.zone==="object")return st.zone;
+  if(st.zone==="cblm"){const e=n.pts[n.pts.length-1];return {cx:C+(e[0]>C?1:-1)*140,cy:436,w:330}}return ZONES[st.zone]}
+function holdFor(st){return (st.hold||1)*Math.max(1700,st.text.length*26)/(+state.speed)}
+// Shows stage k. With animate, the pulse travels from the previous stage while the camera zooms in.
+async function enterStage(k,animate){
+  token++; const my=token;
+  const ns=build(), L=stagesOf(ns); k=Math.max(0,Math.min(L.length-1,k)); stg=k;
+  const {i,j}=L[k], n=ns[i], st=n.stops[j], sp=+state.speed;
+  gD.textContent=""; for(let a=0;a<i;a++)drawStatic(ns[a],a);
+  const sc=scaffold(n,i);
+  let from=0; const idx=n.stops.map(s=>{const q=nearestIdx(sc.S,n.pts[s.i],from);from=q;return q});
+  const start=j>0?idx[j-1]:0; if(start>0)sc.set(start);
+  state.shown=i+1; state.cur=i; panel(ns);
+  caption(i,n,st,k,L.length);
+  const z=zoneFor(st,n), dist=idx[j]-start, dur=dist>0?Math.min(2800,Math.max(700,dist*7))/sp:0;
+  if(animate) await Promise.all([tweenTo(z,Math.max(dur,750/sp)),grow(sc,idx[j],dur,my)]);
+  else{tweenTo(z,0);sc.set(idx[j])}
+  if(my!==token)return false;
+  if(j===n.stops.length-1){sc.set(sc.S.length-1);sc.finish()}
+  return true;
+}
+const playBtn=document.getElementById("b-play");
+function setPlaying(on){playing=on;stage.classList.toggle("playing",on);
+  playBtn.textContent=on?"Pause":(stg>=0&&stg<stagesOf(build()).length-1?"Play from here":"Play neuron by neuron");
+  document.querySelectorAll("#tools button").forEach(b=>b.disabled=on);}
+async function play(){
+  if(playing){pause();return}
+  const total=stagesOf(build()).length;
+  let k=(stg<0||stg>=total-1)?0:stg+1;
+  setPlaying(true);
+  for(;k<total;k++){
+    if(!playing)return;
+    const ok=await enterStage(k,true); if(!ok||!playing)return;
+    const L=stagesOf(build()), n=build()[L[k].i], my=token;
+    await sleep(holdFor(n.stops[L[k].j])); if(my!==token||!playing)return;
+  }
+  cap.hidden=true; await fitView(); if(!playing)return;
+  setPlaying(false); showAll();
+}
+// Pausing keeps the current stage on screen, fully drawn.
+function pause(){if(!playing)return;setPlaying(false);if(stg>=0)enterStage(stg,false)}
+function stepTo(k){if(playing)setPlaying(false);enterStage(k,true);setPlaying(false)}
+function nextStage(){const total=stagesOf(build()).length;stepTo(stg<0?0:Math.min(total-1,stg+1))}
+function prevStage(){const total=stagesOf(build()).length;stepTo(stg<0?total-1:Math.max(0,stg-1))}
+
+/* ---------- panel ---------- */
+let listKey="";
+function panel(ns){
+  const {path,region,side}=state, opp=side==="left"?"right":"left", Side=side[0].toUpperCase()+side.slice(1);
+  const key=path+region+side, L=stagesOf(ns);
+  if(key!==listKey){listKey=key;
+  document.getElementById("summary").textContent=
+    path==="dcml"?`${Side} ${region}: crosses in the medulla and ends in the ${opp} postcentral gyrus.`:
+    path==="als"?`${Side} ${region}: crosses in the cord near entry and ends in the ${opp} postcentral gyrus.`:
+    path==="tri"?(region==="foot"?`${Side} face, pain and temperature: descends to the spinal trigeminal nucleus, crosses in the medulla and ends in the ${opp} VPM and postcentral gyrus.`:`${Side} face, fine touch: synapses in the principal sensory nucleus and ascends uncrossed in the dorsal trigeminothalamic tract to the ${side} VPM and postcentral gyrus.`):
+    path==="acst"?`${Side} neck and shoulder muscles: driven from the ${opp} precentral gyrus. The tract skips the pyramidal decussation and crosses in the cord at the level where it ends.`:
+    path==="vscb"?`${Side} leg: crosses in the cord, climbs to the upper pons, enters through the superior cerebellar peduncle, then crosses back to end in the ${side} cerebellum.`:
+    path==="scb"?`${Side} ${region}: stays on the ${side} side the whole way and ends in the ${side} cerebellum, with no thalamic relay.`:
+    `${Side} ${region} muscles: driven from the ${opp} precentral gyrus, crossing at the pyramidal decussation.`;
+  const ol=document.getElementById("steps"); ol.textContent="";
+  let k=0;
+  ns.forEach((n,i)=>{
+    const li=document.createElement("li"); li.style.setProperty("--c",COLORS[i]);
+    const first=k;
+    li.innerHTML=`<button class="sh" type="button"><span class="num">${i+1}</span><span class="st">Neuron ${i+1}<small>${n.role}</small></span></button>
+      <dl><dt>Cell body</dt><dd>${n.info.soma}</dd><dt>Axon</dt><dd>${n.info.route}</dd><dt>Synapses on</dt><dd>${n.info.ends}</dd><dt>Crosses</dt><dd>${n.info.crosses}</dd></dl>
+      <ol class="sub">${n.stops.map((st,j)=>`<li><button type="button" data-k="${k+j}"><span class="sk">${i+1}${String.fromCharCode(97+j)}</span>${st.t}</button></li>`).join("")}</ol>`;
+    k+=n.stops.length;
+    li.querySelector(".sh").addEventListener("click",()=>stepTo(first));
+    li.querySelectorAll(".sub button").forEach(b=>b.addEventListener("click",()=>stepTo(+b.dataset.k)));
+    ol.appendChild(li);
+  });
+  const f=FACTS[path]; document.getElementById("facts").innerHTML=`<h2>${f.h}</h2><ul>${f.items.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+  document.getElementById("legend").innerHTML=ns.map((n,i)=>`<span><i class="sw" style="background:${COLORS[i]}"></i>Neuron ${i+1} · ${n.role.replace(" neuron","")}</span>`).join("")+
+    `<span><svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="var(--muted)"/></svg>cell body</span>`+
+    `<span><svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="4" fill="none" stroke="var(--muted)" stroke-width="2"/></svg>synapse</span>`+
+    `<span><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="var(--ink)" stroke-width="1.3"/><path d="M5,5 L11,11 M11,5 L5,11" stroke="var(--ink)" stroke-width="1.5"/></svg>crosses midline</span>`;
+  }
+  document.querySelectorAll("#steps > li").forEach((li,i)=>{li.classList.toggle("dim",i>=state.shown);li.classList.toggle("cur",i===state.cur)});
+  document.querySelectorAll("#steps .sub button").forEach(b=>{const k=+b.dataset.k;b.classList.toggle("now",k===stg);b.classList.toggle("done",stg>=0&&k<stg);b.setAttribute("aria-current",k===stg?"step":"false")});
+  labelSides(ns); keepVisible();
+  document.getElementById("b-prev").disabled=stg===0;
+  document.getElementById("b-next").disabled=stg===L.length-1;
+  document.getElementById("stage-ct").textContent=stg>=0?`Stage ${stg+1} of ${L.length}`:`${L.length} stages`;
+  if(!playing)playBtn.textContent=stg>=0&&stg<L.length-1?"Play from here":"Play neuron by neuron";
+}
+// Keep the current neuron card (and its active stage) in view inside the scroll box.
+function keepVisible(){
+  const box=document.getElementById("scrollbox"), li=document.querySelector("#steps > li.cur"); if(!li)return;
+  const chip=li.querySelector(".sub button.now"), pad=8;
+  let top=li.offsetTop-pad;
+  if(li.offsetHeight+pad*2>box.clientHeight&&chip){const want=chip.offsetTop+chip.offsetHeight+pad-box.clientHeight;top=Math.max(top,want)}
+  const vis=top>=box.scrollTop-1&&top+Math.min(li.offsetHeight,box.clientHeight)<=box.scrollTop+box.clientHeight+1;
+  if(!vis||Math.abs(box.scrollTop-top)>2)box.scrollTo({top,behavior:reduce?"auto":"smooth"});
+}
+function count(){return build().length}
+function showAll(){token++;stg=-1;cap.hidden=true;state.shown=count();state.cur=-1;render();if(playing)setPlaying(false)}
+function seg(id,key,after){
+  const g=document.getElementById(id);
+  const sync=()=>g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===state[key])));
+  g.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state[key]=b.dataset.v;sync();after()});
+  sync();
+}
+const LOCK={vscb:["foot","The ventral spinocerebellar tract carries the leg only"],acst:["hand","The anterior corticospinal tract ends in the cervical and upper thoracic cord, so it is shown at the cervical level"]};
+function regionLock(){const L=LOCK[state.path], tri=state.path==="tri";
+  document.getElementById("region-label").textContent=tri?"Modality":"Body region";
+  document.getElementById("r-hand").textContent=tri?"Fine touch":"Hand";
+  document.getElementById("r-foot").textContent=tri?"Pain & temperature":"Foot";
+  document.querySelectorAll("#g-region button").forEach(b=>{const off=!!L&&b.dataset.v!==L[0];b.disabled=off;b.title=off?L[1]:""});
+  if(L&&state.region!==L[0]){state.region=L[0];document.querySelectorAll("#g-region button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===L[0])))}}
+const reset=()=>{if(playing)setPlaying(false);regionLock();showAll()};
+seg("g-path","path",reset);seg("g-region","region",reset);seg("g-side","side",reset);seg("g-speed","speed",()=>{});
+playBtn.onclick=play;
+document.getElementById("b-all").onclick=()=>{showAll();fitView()};
+document.getElementById("b-next").onclick=nextStage;
+document.getElementById("b-prev").onclick=prevStage;
+document.getElementById("cap-next").onclick=nextStage;
+document.getElementById("cap-prev").onclick=prevStage;
+document.addEventListener("keydown",e=>{if(e.target.closest&&e.target.closest("input,textarea,select"))return;
+  if(e.key==="ArrowRight"){e.preventDefault();nextStage()}else if(e.key==="ArrowLeft"){e.preventDefault();prevStage()}});
+/* light / night mode */
+const tb=document.getElementById("theme-btn"), root=document.documentElement, mq=matchMedia("(prefers-color-scheme: dark)");
+const eff=()=>root.dataset.theme||(mq.matches?"dark":"light");
+const paintTB=()=>{tb.textContent=eff()==="dark"?"☀ Light mode":"☾ Night mode"};
+try{const t=localStorage.getItem("not-theme");if(t==="dark"||t==="light")root.dataset.theme=t}catch(e){}
+tb.onclick=()=>{const t=eff()==="dark"?"light":"dark";root.dataset.theme=t;try{localStorage.setItem("not-theme",t)}catch(e){}paintTB()};
+mq.addEventListener&&mq.addEventListener("change",paintTB);
+new MutationObserver(paintTB).observe(root,{attributes:true,attributeFilter:["data-theme"]});
+paintTB();
+setView(380,426,760);
+showAll();
+})();
+</script>
+
+</body></html>
