@@ -1,0 +1,1131 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Permanent Dentition Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+<style>
+/* Layout: orbitable 3D mouth (left) | odontogram or tooth anatomy panel (right); stacks on phones.
+   Tissue colors are the only strong colors; the interface stays in quiet greens and greys. */
+:root{
+  --bg:#eef1f0; --panel:#f9fbfa; --stage:#dde4e2; --ink:#18201f; --muted:#5a6664; --rule:#cfd7d5; --line:#98a4a1; --focus:#b07d10;
+  --enamel:#f2ecdc; --dentin:#e6c98a; --pulp:#d8707a; --odonto:#b04f5c; --cementum:#cdb07a; --pdl:#e8a59c; --lamina:#f1eadc;
+  --bone:#dccdb0; --cortical:#ebe1cc; --marrow:#9d8473; --gum:#de878d; --nerve:#e9b417; --artery:#cf3434; --vein:#3466c9;
+  --sinus:#a9bfcf; --tongue:#cf7a80; --palate:#d98c90;
+  --display:"Source Serif 4",Georgia,serif; --body:"Atkinson Hyperlegible",-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111716; --panel:#172020; --stage:#0c1211; --ink:#e3e9e7; --muted:#9aa8a5; --rule:#2c3735; --line:#62706d; --focus:#e0b44a;
+  --enamel:#e8e3d4; --dentin:#cdb073; --pulp:#c9636e; --odonto:#9c4552; --cementum:#b39766; --pdl:#c6877f; --lamina:#d3cbbb;
+  --bone:#aa9b80; --cortical:#c2b59d; --marrow:#6f5d51; --gum:#bb6c73; --nerve:#f2c63e; --artery:#e5504f; --vein:#5d91f2;
+  --sinus:#5e7788; --tongue:#a65d63; --palate:#b06e72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111716; --panel:#172020; --stage:#0c1211; --ink:#e3e9e7; --muted:#9aa8a5; --rule:#2c3735; --line:#62706d; --focus:#e0b44a;
+  --enamel:#e8e3d4; --dentin:#cdb073; --pulp:#c9636e; --odonto:#9c4552; --cementum:#b39766; --pdl:#c6877f; --lamina:#d3cbbb;
+  --bone:#aa9b80; --cortical:#c2b59d; --marrow:#6f5d51; --gum:#bb6c73; --nerve:#f2c63e; --artery:#e5504f; --vein:#5d91f2;
+  --sinus:#5e7788; --tongue:#a65d63; --palate:#b06e72; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;background:var(--panel);color:var(--ink)}
+body{font:15px/1.5 var(--body);padding-inline:16px;padding-block:10px 0;display:flex;flex-direction:column;margin:0}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin:0 0 8px;flex:none}
+.hgrow{flex:1 1 auto}
+h1{font:600 26px/1.15 var(--display);margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted);font-size:14px}
+.themebtn{font:600 13px/1 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:8px 13px;cursor:pointer}
+.themebtn:hover{border-color:var(--line)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:18px;flex:1 1 auto;min-height:0}
+.stage{display:flex;flex-direction:column;min-width:0;min-height:0}
+.tools{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:0 0 6px;flex:none}
+.tools .tl{font:700 11px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 2px 0 8px}
+.tools .tl:first-child{margin-left:0}
+.chip{font:13px/1 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:6px 10px;cursor:pointer}
+.chip:hover{border-color:var(--line)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.back{font-weight:700;border-color:var(--line)}
+.viewport{position:relative;flex:1 1 auto;min-height:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--stage)}
+#gl{display:block;width:100%;height:100%;cursor:grab;touch-action:none;outline:none}
+#gl.dragging{cursor:grabbing}
+#gl.pointing{cursor:pointer}
+#leaders{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#leaders line{stroke:var(--line);stroke-width:1}
+#leaders line.sel{stroke:var(--focus);stroke-width:2}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;left:0;top:0;white-space:nowrap;font:12px/1.2 var(--body);color:var(--ink);background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--rule);border-radius:5px;padding:2px 6px}
+.lb.num{font:500 10.5px/1 var(--mono);padding:2px 4px;border-radius:4px;color:var(--muted)}
+.lb.nv{border-color:color-mix(in srgb,var(--nerve) 70%,var(--rule));font-size:11.5px}
+.fl{position:absolute;left:0;top:0;max-width:190px;font:12px/1.25 var(--body);color:var(--ink);background:color-mix(in srgb,var(--panel) 90%,transparent);border:1px solid var(--rule);border-radius:5px;padding:2px 6px;pointer-events:auto;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fl b{font:500 10.5px/1 var(--mono);color:var(--muted);margin-right:4px}
+.fl.sel{border-color:var(--focus);box-shadow:0 0 0 1px var(--focus);font-weight:700;z-index:3}
+.dot{position:absolute;left:0;top:0;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--panel);border:1.5px solid var(--ink);font:500 9.5px/13px var(--mono);text-align:center;color:var(--ink);pointer-events:auto;cursor:pointer}
+.dot.sel{background:var(--focus);border-color:var(--focus);color:var(--panel);z-index:3;transform:scale(1.2)}
+.badge{position:absolute;left:8px;top:8px;max-width:calc(100% - 140px);background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:5px 9px;font:600 13px/1.3 var(--display);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.badge small{display:block;font:12px/1.3 var(--body);color:var(--muted)}
+.zbtns{position:absolute;right:8px;top:8px;display:flex;gap:4px}
+.zbtns button{font:600 14px/1 var(--body);min-width:32px;height:30px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:6px;cursor:pointer}
+.tip{position:absolute;left:0;top:0;pointer-events:none;background:var(--ink);color:var(--bg);font:13px/1.3 var(--body);padding:5px 8px;border-radius:6px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+.tip small{display:block;opacity:.75;font-size:11.5px}
+.legend{flex:none;display:flex;flex-wrap:wrap;gap:5px 14px;padding:6px 8px 0;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid color-mix(in srgb,var(--ink) 25%,transparent)}
+.sw.ln{height:5px;width:22px;border:0;border-radius:3px}
+.panel{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
+.pane{display:flex;flex-direction:column;gap:12px;min-height:0;flex:1 1 auto}
+.glabel{font:700 11.5px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.odo{display:flex;flex-direction:column;gap:3px}
+.odo .row{display:grid;grid-template-columns:repeat(16,1fr);gap:2px}
+.odo button{font:500 11px/1 var(--mono);height:30px;padding:0;color:var(--ink);background:var(--panel);border:1px solid var(--rule);border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.odo button i{display:block;width:60%;height:5px;border-radius:2px;background:var(--rule)}
+.odo button.cl-incisor i{background:color-mix(in srgb,var(--dentin) 70%,var(--rule))}
+.odo button.cl-canine i{background:var(--cementum)}
+.odo button.cl-premolar i{background:color-mix(in srgb,var(--pulp) 55%,var(--rule))}
+.odo button.cl-molar i{background:color-mix(in srgb,var(--vein) 45%,var(--rule))}
+.odo button:hover,.odo button.hov{border-color:var(--ink)}
+.odo .mid{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);padding:1px 2px}
+.clkey{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--muted)}
+.clkey span{display:inline-flex;align-items:center;gap:5px}
+.clkey i{width:14px;height:5px;border-radius:2px;display:inline-block}
+.scrollbox{position:relative;flex:1 1 auto;min-height:240px;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;padding:10px;border:1px solid var(--rule);border-radius:10px;background:color-mix(in srgb,var(--rule) 22%,var(--bg))}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:13.5px}
+.card h2{font:600 16px/1.3 var(--display);margin:0 0 6px;text-wrap:balance}
+.card h3{font:700 11.5px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.card p{margin:0 0 6px}.card p:last-child{margin:0}
+.card dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px}
+.card dt{color:var(--muted)}
+.card dd{margin:0;font-variant-numeric:tabular-nums}
+.card ul{margin:0;padding-left:18px}.card li{margin:2px 0}
+.thead h2{font:600 21px/1.2 var(--display);margin:0;text-wrap:balance}
+.thead p{margin:2px 0 0;color:var(--muted);font:13px/1.3 var(--body)}
+.thead .nums{font:500 12px/1 var(--mono);color:var(--muted)}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup>h3{font:700 11.5px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:4px 0 2px}
+.feat{background:var(--panel);border:1px solid var(--rule);border-left:5px solid var(--c,var(--line));border-radius:7px;padding:7px 10px;cursor:pointer;font-size:13.5px}
+.feat:hover{border-color:var(--line);border-left-color:var(--c,var(--line))}
+.feat .fh{display:flex;align-items:baseline;gap:8px}
+.feat .fn{font:500 11px/1 var(--mono);color:var(--muted);min-width:18px}
+.feat .ft{font-weight:700;flex:1}
+.feat .fx{font-size:11.5px;color:var(--muted)}
+.feat p{margin:3px 0 0 26px;color:var(--ink);font-size:13px;display:none}
+.feat.sel{box-shadow:0 0 0 2px var(--focus)}
+.feat.sel p{display:block}
+.feat.off{opacity:.6}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+footer.credit{flex:none;text-align:center;font-size:12.5px;color:var(--muted);padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule);margin-top:8px}
+footer.credit b{color:var(--ink);font-weight:700}
+.err{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:var(--muted)}
+button:focus-visible,.feat:focus-visible,#gl:focus-visible,.dot:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media (max-width:980px){html,body{height:auto}main{grid-template-columns:1fr}.viewport{flex:none;height:70vh;min-height:420px}.scrollbox{flex:none;max-height:70vh}}
+@media (max-width:520px){h1{font-size:22px}.odo button{height:26px;font-size:9.5px}.odo .row{gap:1px}}
+</style>
+
+<header>
+  <h1>Permanent Dentition Explorer</h1>
+  <p class="hgrow">All 32 adult teeth in 3D. Click a tooth to zoom in and open a cut section with every layer, nerve and vessel labeled.</p>
+  <button class="themebtn" id="theme-btn" type="button" aria-label="Switch color mode"></button>
+</header>
+<main>
+  <div class="stage">
+    <div class="tools" id="tools-arch">
+      <span class="tl">View</span>
+      <button class="chip" data-view="front" id="v-front">Front</button>
+      <button class="chip" data-view="side" id="v-side">Left side</button>
+      <button class="chip" data-view="upper" id="v-upper">Upper arch</button>
+      <button class="chip" data-view="lower" id="v-lower">Lower arch</button>
+      <span class="tl">Show</span>
+      <button class="chip" data-layer="U" id="l-U" aria-pressed="true">Upper jaw</button>
+      <button class="chip" data-layer="L" id="l-L" aria-pressed="true">Lower jaw</button>
+      <button class="chip" data-layer="gum" id="l-gum" aria-pressed="true">Gums</button>
+      <button class="chip" data-layer="soft" id="l-soft" aria-pressed="true">Palate &amp; tongue</button>
+      <button class="chip" data-layer="bone" id="l-bone" aria-pressed="false">Jaw bones</button>
+      <button class="chip" data-layer="nerve" id="l-nerve" aria-pressed="false">Nerves &amp; vessels</button>
+      <button class="chip" data-layer="nums" id="l-nums" aria-pressed="true">Tooth numbers</button>
+    </div>
+    <div class="tools" id="tools-tooth" hidden>
+      <button class="chip back" id="t-back">← Whole mouth</button>
+      <button class="chip" id="t-prev" aria-label="Previous tooth">◀</button>
+      <button class="chip" id="t-next" aria-label="Next tooth">▶</button>
+      <span class="tl">Display</span>
+      <button class="chip" data-mode="section" id="m-section" aria-pressed="true">Cut section</button>
+      <button class="chip" data-mode="xray" id="m-xray" aria-pressed="false">X-ray</button>
+      <button class="chip" data-mode="surface" id="m-surface" aria-pressed="false">Surface</button>
+      <span class="tl">Cut</span>
+      <button class="chip" data-cut="bl" id="c-bl" aria-pressed="true">Buccolingual</button>
+      <button class="chip" data-cut="md" id="c-md" aria-pressed="false">Mesiodistal</button>
+      <span class="tl">Show</span>
+      <button class="chip" data-tl="support" id="s-support" aria-pressed="true">Bone &amp; gum</button>
+      <button class="chip" data-tl="vessels" id="s-vessels" aria-pressed="true">Nerves &amp; vessels</button>
+      <button class="chip" data-tl="labels" id="s-labels" aria-pressed="true">Labels</button>
+    </div>
+    <div class="viewport" id="vp">
+      <canvas id="gl" tabindex="0" aria-label="3D model of the mouth with all 32 permanent teeth. Click a tooth to open its anatomy."></canvas>
+      <svg id="leaders" aria-hidden="true"></svg>
+      <div id="labels"></div>
+      <div class="badge" id="badge"></div>
+      <div class="zbtns">
+        <button id="z-in" aria-label="Zoom in">+</button>
+        <button id="z-out" aria-label="Zoom out">−</button>
+        <button id="z-fit" aria-label="Fit to view">Fit</button>
+      </div>
+      <div class="tip" id="tip" hidden></div>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="panel">
+    <div class="pane" id="pane-arch">
+      <div class="odo" id="odo" aria-label="Tooth chart"></div>
+      <div class="clkey"><span><i style="background:color-mix(in srgb,var(--dentin) 70%,var(--rule))"></i>Incisors</span><span><i style="background:var(--cementum)"></i>Canines</span><span><i style="background:color-mix(in srgb,var(--pulp) 55%,var(--rule))"></i>Premolars</span><span><i style="background:color-mix(in srgb,var(--vein) 45%,var(--rule))"></i>Molars</span></div>
+      <div class="scrollbox">
+        <div class="card">
+          <h2>The adult dentition</h2>
+          <p>32 permanent teeth, 16 in each jaw. Each quadrant holds the same sequence from the midline back: two incisors, one canine, two premolars and three molars (dental formula 2-1-2-3).</p>
+          <dl>
+            <dt>Cut and tear</dt><dd>Incisors (8) and canines (4), single-rooted</dd>
+            <dt>Crush and grind</dt><dd>Premolars (8) and molars (12), with cusps</dd>
+            <dt>First to erupt</dt><dd>First molars and lower central incisors, about age 6</dd>
+            <dt>Last to erupt</dt><dd>Third molars, age 17–25, often impacted or absent</dd>
+            <dt>Upper teeth</dt><dd>Maxillary nerve (V2) through the superior alveolar nerves</dd>
+            <dt>Lower teeth</dt><dd>Mandibular nerve (V3) through the inferior alveolar nerve</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h3>Numbering</h3>
+          <p><b>Universal</b> (used in the US): 1 is the upper right third molar, counting across to 16 at the upper left, then down to 17 at the lower left third molar and across to 32 at the lower right.</p>
+          <p><b>FDI</b> (international): the first digit is the quadrant, 1 upper right, 2 upper left, 3 lower left, 4 lower right. The second digit counts from the midline, 1 for the central incisor to 8 for the third molar. Tap a number badge in the chart to switch systems.</p>
+        </div>
+        <p class="note">Drag to rotate, scroll or pinch to zoom, right-drag (or Shift-drag, or two fingers) to pan. Hover a tooth to name it; click it, or a button in the chart, to zoom in. Turn on Nerves &amp; vessels to see the inferior alveolar, superior alveolar and palatal nerves with their arteries and veins; the gums turn see-through so the roots show.</p>
+        <p class="note">Schematic model built from average crown and root dimensions. Sizes are to scale in millimetres, but shapes are simplified.</p>
+      </div>
+    </div>
+    <div class="pane" id="pane-tooth" hidden>
+      <div class="thead"><h2 id="t-name"></h2><p id="t-nums" class="nums"></p></div>
+      <div class="scrollbox" id="t-box">
+        <div class="card" id="t-facts"></div>
+        <div class="card" id="t-notes"></div>
+        <div id="t-feats"></div>
+        <p class="note" id="t-help"></p>
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="credit">Created by <b>Minh</b></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(()=>{
+"use strict";
+/* Units are millimetres. World: +x = patient's left, +y = up, +z = anterior. Occlusal gap of 2*GAP between the arches.
+   Tooth local frame: origin at the CEJ, +y toward the crown, +x buccal/labial, +z mesial. */
+const $=id=>document.getElementById(id);
+const vp=$("vp"),canvas=$("gl"),root=document.documentElement;
+const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fail=m=>vp.insertAdjacentHTML("beforeend",`<div class="err">${m}</div>`);
+if(!window.THREE){fail("The 3D library did not load. Check your connection and reload the page.");return}
+let renderer;
+try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,stencil:true})}catch(e){fail("This browser could not start 3D graphics (WebGL). Try another browser or turn on hardware acceleration.");return}
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+renderer.localClippingEnabled=true;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(34,1,.5,2000);
+scene.add(camera);
+const amb=new THREE.AmbientLight(0xffffff,.2);scene.add(amb);
+const hemi=new THREE.HemisphereLight(0xffffff,0x75685a,.3);scene.add(hemi);
+const key=new THREE.DirectionalLight(0xffffff,.62);key.position.set(5,6,7);camera.add(key);
+const fillL=new THREE.DirectionalLight(0xffffff,.16);fillL.position.set(-6,-3,2);camera.add(fillL);
+const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
+const GAP=5;
+
+/* ---------- theme-aware materials ---------- */
+const cssVar=n=>getComputedStyle(root).getPropertyValue(n).trim();
+const colOf=t=>new THREE.Color(cssVar(t)||"#999");
+const themed=[];
+function phong(token,op,extra){const m=new THREE.MeshPhongMaterial(Object.assign({color:colOf(token),shininess:28,specular:0x222222,transparent:op<1,opacity:op,depthWrite:op>=1},extra||{}));themed.push({m,token});return m}
+function basic(token,extra){const m=new THREE.MeshBasicMaterial(Object.assign({color:colOf(token)},extra||{}));themed.push({m,token});return m}
+
+/* ---------- tooth data ---------- */
+const CLS={
+ incisor:{tab:[[0,0,0,0],[.14,1,-1,.9],[.3,.97,-.85,.96],[.55,.8,-.42,.99],[.8,.52,-.15,1],[1,.2,.02,.97]],p:2.3,eMax:1.0,eOcc:1.9,pk:.62,kx:.34,kz:.44,ring:0},
+ canine:{tab:[[0,0,0,0],[.16,1,-1,.86],[.34,.97,-.9,.95],[.6,.84,-.62,1],[.82,.56,-.34,.74],[1,.22,-.08,.28]],p:2.3,eMax:1.1,eOcc:2.2,pk:.58,kx:.34,kz:.4,ring:0},
+ premolar:{tab:[[0,0,0,0],[.2,1,-1,.85],[.45,.98,-.98,.97],[.7,.92,-.92,1],[1,.84,-.84,.95]],p:2.4,eMax:1.3,eOcc:1.9,pk:.42,kx:.45,kz:.4,ring:.35},
+ molar:{tab:[[0,0,0,0],[.22,1,-1,.9],[.5,.98,-.98,.98],[.75,.94,-.94,1],[1,.88,-.88,.96]],p:2.9,eMax:1.5,eOcc:2.2,pk:.36,kx:.48,kz:.52,ring:.35}
+};
+const TT={
+ U1:{name:"central incisor",cls:"incisor",H:10.5,R:13,MD:8.5,MDc:7,BL:7,BLc:6,tilt:.2},
+ U2:{name:"lateral incisor",cls:"incisor",H:9,R:13,MD:6.5,MDc:5,BL:6,BLc:5,tilt:.2},
+ U3:{name:"canine",cls:"canine",H:10,R:17,MD:7.5,MDc:5.5,BL:8,BLc:7,tilt:.12},
+ U4:{name:"first premolar",cls:"premolar",H:8.5,R:14,MD:7,MDc:5,BL:9,BLc:8,tilt:.04},
+ U5:{name:"second premolar",cls:"premolar",H:8.5,R:14,MD:7,MDc:5,BL:9,BLc:8,tilt:.03},
+ U6:{name:"first molar",cls:"molar",H:7.5,R:13,MD:10,MDc:8,BL:11,BLc:10},
+ U7:{name:"second molar",cls:"molar",H:7,R:12,MD:9,MDc:7,BL:11,BLc:10},
+ U8:{name:"third molar",cls:"molar",H:6.5,R:11,MD:8.5,MDc:6.5,BL:10,BLc:9.5},
+ L1:{name:"central incisor",cls:"incisor",H:9,R:12.5,MD:5,MDc:3.5,BL:6,BLc:5.3,tilt:.12},
+ L2:{name:"lateral incisor",cls:"incisor",H:9.5,R:14,MD:5.5,MDc:4,BL:6.5,BLc:5.8,tilt:.12},
+ L3:{name:"canine",cls:"canine",H:11,R:16,MD:7,MDc:5.5,BL:7.5,BLc:7,tilt:.06},
+ L4:{name:"first premolar",cls:"premolar",H:8.5,R:14,MD:7,MDc:5,BL:7.5,BLc:6.5,lean:-.4},
+ L5:{name:"second premolar",cls:"premolar",H:8,R:14.5,MD:7,MDc:5,BL:8,BLc:7,lean:-.4},
+ L6:{name:"first molar",cls:"molar",H:7.5,R:14,MD:11,MDc:9,BL:10.5,BLc:9,lean:-.6},
+ L7:{name:"second molar",cls:"molar",H:7,R:13,MD:10.5,MDc:8,BL:10,BLc:9,lean:-.6},
+ L8:{name:"third molar",cls:"molar",H:7,R:11,MD:10,MDc:7.5,BL:9.5,BLc:9,lean:-.5}
+};
+/* Occlusal shape: gaussian bumps in normalized crown coordinates (X buccal+, Z mesial+). cusp:true marks a named cusp. */
+const MR=[{n:"Mesial marginal ridge",lm:1,x:0,z:.82},{n:"Distal marginal ridge",lm:1,x:0,z:-.82}];
+const SHAPES={
+ U3:[{n:"Cusp tip",cusp:1,x:0,z:0,h:1.3,s:.7}],
+ L3:[{n:"Cusp tip",cusp:1,x:0,z:0,h:1.2,s:.7}],
+ U4:[{n:"Buccal cusp",cusp:1,x:.42,z:-.08,h:2,s:.45},{n:"Lingual cusp",cusp:1,x:-.45,z:.08,h:1.2,s:.42},{n:"Central groove",lm:1,x:0,z:0,h:-.6,sx:.18,sz:.6}],
+ U5:[{n:"Buccal cusp",cusp:1,x:.42,z:0,h:1.8,s:.45},{n:"Lingual cusp",cusp:1,x:-.42,z:0,h:1.55,s:.43},{n:"Central groove",lm:1,x:0,z:0,h:-.5,sx:.18,sz:.45}],
+ L4:[{n:"Buccal cusp",cusp:1,x:.3,z:0,h:2.4,s:.5},{n:"Lingual cusp",cusp:1,x:-.55,z:.05,h:.6,s:.3},{n:"Transverse ridge",lm:1,x:-.1,z:0,h:.6,sx:.4,sz:.15},{n:"Mesial fossa",lm:1,x:-.22,z:.45,h:-.4,s:.18},{x:-.22,z:-.45,h:-.4,s:.18}],
+ L5:[{n:"Buccal cusp",cusp:1,x:.35,z:0,h:1.8,s:.48},{n:"Mesiolingual cusp",cusp:1,x:-.45,z:.35,h:1.3,s:.33},{n:"Distolingual cusp",cusp:1,x:-.48,z:-.4,h:1,s:.3},{n:"Central pit",lm:1,x:-.05,z:-.05,h:-.6,s:.2}],
+ U6:[{n:"Mesiobuccal cusp",cusp:1,x:.5,z:.45,h:1.7,s:.42},{n:"Distobuccal cusp",cusp:1,x:.52,z:-.45,h:1.5,s:.4},{n:"Mesiopalatal cusp",cusp:1,x:-.45,z:.35,h:2,s:.5},{n:"Distopalatal cusp",cusp:1,x:-.5,z:-.55,h:1.1,s:.35},
+     {n:"Oblique ridge",lm:1,x:.03,z:-.05,h:.8,sx:.55,sz:.14,rot:-.69},{n:"Central fossa",lm:1,x:.12,z:.15,h:-.6,s:.18},{x:-.12,z:-.5,h:-.5,s:.16}],
+ U7:[{n:"Mesiobuccal cusp",cusp:1,x:.5,z:.42,h:1.6,s:.42},{n:"Distobuccal cusp",cusp:1,x:.5,z:-.45,h:1.3,s:.38},{n:"Mesiopalatal cusp",cusp:1,x:-.45,z:.3,h:1.9,s:.5},{n:"Distopalatal cusp",cusp:1,x:-.5,z:-.55,h:.8,s:.3},
+     {n:"Oblique ridge",lm:1,x:.02,z:-.08,h:.5,sx:.55,sz:.14,rot:-.7},{n:"Central fossa",lm:1,x:.12,z:.12,h:-.6,s:.18}],
+ U8:[{n:"Mesiobuccal cusp",cusp:1,x:.48,z:.35,h:1.4,s:.42},{n:"Distobuccal cusp",cusp:1,x:.5,z:-.45,h:1,s:.36},{n:"Mesiopalatal cusp",cusp:1,x:-.45,z:.15,h:1.6,s:.55},{n:"Central fossa",lm:1,x:.1,z:0,h:-.6,s:.2}],
+ L6:[{n:"Mesiobuccal cusp",cusp:1,x:.52,z:.55,h:1.5,s:.38},{n:"Distobuccal cusp",cusp:1,x:.56,z:-.05,h:1.4,s:.36},{n:"Distal cusp",cusp:1,x:.45,z:-.62,h:1,s:.3},{n:"Mesiolingual cusp",cusp:1,x:-.5,z:.5,h:1.9,s:.4},{n:"Distolingual cusp",cusp:1,x:-.5,z:-.4,h:1.7,s:.38},{n:"Central fossa",lm:1,x:0,z:0,h:-.6,s:.22}],
+ L7:[{n:"Mesiobuccal cusp",cusp:1,x:.5,z:.45,h:1.4,s:.4},{n:"Distobuccal cusp",cusp:1,x:.5,z:-.45,h:1.3,s:.38},{n:"Mesiolingual cusp",cusp:1,x:-.5,z:.45,h:1.8,s:.4},{n:"Distolingual cusp",cusp:1,x:-.5,z:-.45,h:1.6,s:.38},{n:"Central fossa",lm:1,x:0,z:0,h:-.6,s:.22}],
+ L8:[{n:"Mesiobuccal cusp",cusp:1,x:.5,z:.4,h:1.3,s:.4},{n:"Distobuccal cusp",cusp:1,x:.5,z:-.3,h:1.1,s:.36},{n:"Mesiolingual cusp",cusp:1,x:-.5,z:.4,h:1.6,s:.4},{n:"Distolingual cusp",cusp:1,x:-.5,z:-.35,h:1.3,s:.36},{n:"Distal cusp",cusp:1,x:.15,z:-.66,h:.8,s:.28},{n:"Central fossa",lm:1,x:0,z:0,h:-.6,s:.22}]
+};
+/* Roots: c0 cervical centre [x,z], c1 apex centre, bend = extra apical curve, a0/b0 cervical half-widths (BL, MD), L = depth of apex below CEJ. */
+function oneRoot(T,o){o=o||{};return{trunk:0,roots:[{n:"Root",c0:[0,0],c1:[0,o.z1==null?-.7:o.z1],bend:[0,o.bz==null?-.5:o.bz],a0:T.BLc/2*.97,b0:T.MDc/2*.97,L:T.R,canals:[{}]}]}}
+const ROOTS={
+ U1:T=>oneRoot(T,{z1:-.5,bz:-.3}),U2:T=>oneRoot(T,{z1:-.8,bz:-.7}),U3:T=>oneRoot(T,{z1:-.8,bz:-.6}),U5:T=>oneRoot(T,{z1:-.6,bz:-.4}),
+ L1:T=>oneRoot(T,{z1:-.2,bz:-.2}),L2:T=>oneRoot(T,{z1:-.4,bz:-.3}),L3:T=>oneRoot(T,{z1:-.6,bz:-.4}),L4:T=>oneRoot(T,{z1:-.5,bz:-.4}),L5:T=>oneRoot(T,{z1:-.6,bz:-.5}),
+ U4:T=>({trunk:7,roots:[
+   {n:"Buccal root",c0:[.2*T.BLc,0],c1:[.26*T.BLc,-.3],bend:[0,-.3],a0:.22*T.BLc,b0:.4*T.MDc,L:14,canals:[{}]},
+   {n:"Lingual root",c0:[-.2*T.BLc,0],c1:[-.26*T.BLc,-.2],bend:[0,-.2],a0:.2*T.BLc,b0:.38*T.MDc,L:13,canals:[{}]}]}),
+ U6:T=>({trunk:4,roots:[
+   {n:"Mesiobuccal root",c0:[.25*T.BLc,.2*T.MDc],c1:[.3*T.BLc,.2*T.MDc],bend:[0,-.4],a0:.2*T.BLc,b0:.16*T.MDc,L:12.5,canals:[{dx:.22},{dx:-.22,short:3}]},
+   {n:"Distobuccal root",c0:[.25*T.BLc,-.27*T.MDc],c1:[.29*T.BLc,-.32*T.MDc],bend:[0,-.2],a0:.15*T.BLc,b0:.14*T.MDc,L:11.5,canals:[{}]},
+   {n:"Palatal root",c0:[-.25*T.BLc,.14*T.MDc],c1:[-.46*T.BLc,.14*T.MDc],bend:[-.4,0],a0:.18*T.BLc,b0:.2*T.MDc,L:13,canals:[{}]}]}),
+ U7:T=>({trunk:4.5,roots:[
+   {n:"Mesiobuccal root",c0:[.23*T.BLc,.2*T.MDc],c1:[.25*T.BLc,.19*T.MDc],bend:[0,-.4],a0:.19*T.BLc,b0:.17*T.MDc,L:11.5,canals:[{dx:.22},{dx:-.22,short:3}]},
+   {n:"Distobuccal root",c0:[.23*T.BLc,-.24*T.MDc],c1:[.22*T.BLc,-.24*T.MDc],bend:[0,-.2],a0:.15*T.BLc,b0:.15*T.MDc,L:10.5,canals:[{}]},
+   {n:"Palatal root",c0:[-.23*T.BLc,.12*T.MDc],c1:[-.36*T.BLc,.12*T.MDc],bend:[-.3,0],a0:.18*T.BLc,b0:.21*T.MDc,L:12,canals:[{}]}]}),
+ U8:T=>({trunk:5,roots:[
+   {n:"Mesiobuccal root",c0:[.2*T.BLc,.17*T.MDc],c1:[.14*T.BLc,0],bend:[0,-.8],a0:.2*T.BLc,b0:.19*T.MDc,L:10,canals:[{}]},
+   {n:"Distobuccal root",c0:[.2*T.BLc,-.2*T.MDc],c1:[.1*T.BLc,-.12*T.MDc],bend:[0,-.3],a0:.16*T.BLc,b0:.17*T.MDc,L:9.5,canals:[{}]},
+   {n:"Palatal root",c0:[-.2*T.BLc,.1*T.MDc],c1:[-.15*T.BLc,.05*T.MDc],bend:[0,-.2],a0:.2*T.BLc,b0:.22*T.MDc,L:10.5,canals:[{}]}]}),
+ L6:T=>({trunk:3,roots:[
+   {n:"Mesial root",c0:[0,.24*T.MDc],c1:[0,.23*T.MDc],bend:[0,-.15],a0:.42*T.BLc,b0:.17*T.MDc,L:14,canals:[{dx:-.17},{dx:.17}]},
+   {n:"Distal root",c0:[0,-.3*T.MDc],c1:[0,-.38*T.MDc],bend:[0,-.3],a0:.38*T.BLc,b0:.16*T.MDc,L:13,canals:[{}]}]}),
+ L7:T=>({trunk:3.5,roots:[
+   {n:"Mesial root",c0:[0,.22*T.MDc],c1:[0,.21*T.MDc],bend:[0,-.2],a0:.42*T.BLc,b0:.18*T.MDc,L:13,canals:[{dx:-.17},{dx:.17}]},
+   {n:"Distal root",c0:[0,-.27*T.MDc],c1:[0,-.28*T.MDc],bend:[0,-.3],a0:.38*T.BLc,b0:.17*T.MDc,L:12.5,canals:[{}]}]}),
+ L8:T=>({trunk:4,roots:[
+   {n:"Mesial root",c0:[0,.2*T.MDc],c1:[0,.18*T.MDc],bend:[0,-.3],a0:.4*T.BLc,b0:.2*T.MDc,L:11,canals:[{}]},
+   {n:"Distal root",c0:[0,-.24*T.MDc],c1:[0,-.12*T.MDc],bend:[0,-.4],a0:.36*T.BLc,b0:.19*T.MDc,L:10.5,canals:[{}]}]})
+};
+/* Cut-plane offsets: buccolingual cut sits at local z = bl*MDc, mesiodistal cut at local x = md*BLc. */
+const CUT={U4:{bl:0,md:.19},U6:{bl:.17,md:.22},U7:{bl:.16,md:.205},U8:{bl:.13,md:.2},L6:{bl:.23,md:-.033},L7:{bl:.21,md:-.033},L8:{bl:.18,md:0}};
+const DEFAULT_CUT=k=>/^L[678]$/.test(k)?"md":"bl";
+const FACTS={
+ U1:{erupt:"7–8 years",calc:"3–4 months",crown:"4–5 years",root:"10 years",canals:"1",notes:["Widest incisor in the mouth; crown is longer than it is wide.","Mesioincisal angle nearly square, distoincisal angle rounded.","Shovel-shaped lingual fossa with a clear cingulum and marginal ridges.","Three mamelons on the incisal edge of newly erupted teeth wear away with use."]},
+ U2:{erupt:"8–9 years",calc:"10–12 months",crown:"4–5 years",root:"11 years",canals:"1",notes:["Smaller copy of the central incisor with more rounded incisal angles.","After third molars, the most variable tooth: peg-shaped or congenitally missing laterals are common.","A lingual pit or palatogingival groove often sits above the cingulum, a trap for decay and plaque."]},
+ U3:{erupt:"11–12 years",calc:"4–5 months",crown:"6–7 years",root:"13–15 years",canals:"1",notes:["Longest root of any tooth (about 17 mm), anchoring the 'corner' of the arch.","Single pointed cusp; the mesial cusp ridge is shorter than the distal.","Prominent labial ridge, lingual ridge and cingulum.","The canine eminence over the root shapes the face; it is often the last tooth to align in the arch."]},
+ U4:{erupt:"10–11 years",calc:"1.5–1.75 years",crown:"5–6 years",root:"12–13 years",canals:"2 (buccal and lingual)",notes:["Usually two roots, buccal and lingual (about 60%), splitting in the apical half.","Buccal cusp about 1 mm longer than the lingual cusp, tip slightly distal.","Mesial developmental depression on the crown and root makes the mesial surface concave.","Long central groove crossed by a mesial marginal groove."]},
+ U5:{erupt:"10–12 years",calc:"2–2.25 years",crown:"6–7 years",root:"12–14 years",canals:"1 (2 in about 40%)",notes:["Single root, usually one canal.","Buccal and lingual cusps nearly the same height.","Short central groove with many supplemental grooves, giving a wrinkled look.","No mesial crown depression, unlike the first premolar."]},
+ U6:{erupt:"6 years",calc:"At birth",crown:"3–4 years",root:"9–10 years",canals:"4 common (MB1, MB2, DB, P)",notes:["Largest tooth in the upper arch and the first permanent tooth to erupt with the lower first molar.","Three roots: mesiobuccal, distobuccal and the longest, palatal root. The second canal in the mesiobuccal root (MB2) is present in most teeth.","Four main cusps; the mesiopalatal is the largest. A fifth cusp of Carabelli often sits on the mesiopalatal surface.","Oblique ridge links the mesiopalatal and distobuccal cusps.","Root tips lie close to the floor of the maxillary sinus."]},
+ U7:{erupt:"12–13 years",calc:"2.5–3 years",crown:"7–8 years",root:"14–16 years",canals:"3–4",notes:["Smaller than the first molar with roots closer together and more distally inclined.","Distopalatal cusp smaller or absent; cusp of Carabelli rare.","Oblique ridge less prominent."]},
+ U8:{erupt:"17–21 years",calc:"7–9 years",crown:"12–16 years",root:"18–25 years",canals:"Variable, often 3",notes:["Most variable tooth in the mouth; often missing or impacted.","Heart-shaped crown with three main cusps when the distopalatal cusp is absent.","Roots are short and often fused into a single conical mass."]},
+ L1:{erupt:"6–7 years",calc:"3–4 months",crown:"4–5 years",root:"9 years",canals:"1 (2 in about 30%)",notes:["Smallest tooth in the mouth and the most symmetrical.","Incisal edge straight, at right angles to the labiolingual axis.","Root is ribbon-shaped: narrow mesiodistally and wide labiolingually, so a second (lingual) canal is easy to miss."]},
+ L2:{erupt:"7–8 years",calc:"3–4 months",crown:"4–5 years",root:"10 years",canals:"1 (2 in about 30%)",notes:["Slightly larger than the central incisor.","Distoincisal angle more rounded, and the crown looks twisted distally on its root.","Root is long and ribbon-shaped, like the central incisor."]},
+ L3:{erupt:"9–10 years",calc:"4–5 months",crown:"6–7 years",root:"12–14 years",canals:"1 (2 occasionally)",notes:["Longer, narrower crown than the upper canine with a less developed cingulum.","Mesial crown outline is almost in line with the root.","The root is sometimes split into labial and lingual parts near the apex."]},
+ L4:{erupt:"10–12 years",calc:"1.75–2 years",crown:"5–6 years",root:"12–13 years",canals:"1",notes:["Looks like a small canine from the side.","Large pointed buccal cusp and a tiny, non-functional lingual cusp.","A transverse ridge joins the two cusps; a mesiolingual groove is common.","Crown tilts lingually over the root."]},
+ L5:{erupt:"11–12 years",calc:"2.25–2.5 years",crown:"6–7 years",root:"13–14 years",canals:"1",notes:["Usually a three-cusp (Y) form: one buccal and two lingual cusps.","A two-cusp (H or U groove) form also occurs.","The mental foramen usually lies below its apex, or between the two premolars."]},
+ L6:{erupt:"6–7 years",calc:"At birth",crown:"2.5–3 years",root:"9–10 years",canals:"3 common (MB, ML, D); 4 in about a third",notes:["First permanent tooth to erupt, about age 6.","Five cusps: mesiobuccal, distobuccal, distal, mesiolingual and distolingual.","Two roots, mesial and distal; the mesial root is broad and carries two canals.","Lingual cusps are taller and sharper than the buccal cusps, which are the supporting cusps."]},
+ L7:{erupt:"11–13 years",calc:"2.5–3 years",crown:"7–8 years",root:"14–15 years",canals:"3",notes:["Four cusps of similar size with a cross-shaped groove pattern.","Two roots, closer together and more distally inclined than in the first molar.","No distal cusp."]},
+ L8:{erupt:"18–25 years",calc:"8–10 years",crown:"12–16 years",root:"18–25 years",canals:"Variable",notes:["Very variable; often impacted against the second molar or the ramus.","Short, often fused, curved roots.","Root tips are frequently close to, or grooved by, the mandibular canal, so extraction risks numbing the lip."]}
+};
+
+/* ---------- interpolation & geometry helpers ---------- */
+function interp(tab,u,c){
+  const n=tab.length;if(u<=tab[0][0])return tab[0][c];if(u>=tab[n-1][0])return tab[n-1][c];
+  let i=0;while(u>tab[i+1][0])i++;
+  const u0=tab[i][0],u1=tab[i+1][0],t=(u-u0)/(u1-u0),p0=tab[i][c],p1=tab[i+1][c],du=u1-u0;
+  const m0=i>0?(tab[i+1][c]-tab[i-1][c])/(tab[i+1][0]-tab[i-1][0])*du:p1-p0;
+  const m1=i<n-2?(tab[i+2][c]-tab[i][c])/(tab[i+2][0]-tab[i][0])*du:p1-p0;
+  const t2=t*t,t3=t2*t;return(2*t3-3*t2+1)*p0+(t3-2*t2+t)*m0+(-2*t3+3*t2)*p1+(t3-t2)*m1;
+}
+const sxp=(c,p)=>Math.sign(c)*Math.pow(Math.abs(c),2/p);
+const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
+function finishGeo(pos,idx){const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();g.computeBoundingSphere();return g}
+/* closed solid from stacked superellipse rings, bottom to top */
+function levelSolid(L,p,N,bot,top){
+  const pos=[],idx=[],M=L.length;
+  for(const l of L)for(let i=0;i<N;i++){const t=i/N*Math.PI*2;pos.push(l.cx+l.a*sxp(Math.cos(t),p),l.y,l.cz+l.b*sxp(Math.sin(t),p))}
+  for(let j=0;j<M-1;j++)for(let i=0;i<N;i++){const i2=(i+1)%N,A=j*N+i,B=j*N+i2,C=(j+1)*N+i,D=(j+1)*N+i2;idx.push(A,C,B,B,C,D)}
+  const bc=pos.length/3;pos.push(...(bot||[L[0].cx,L[0].y,L[0].cz]));for(let i=0;i<N;i++)idx.push(i,(i+1)%N,bc);
+  const tc=pos.length/3;pos.push(...(top||[L[M-1].cx,L[M-1].y,L[M-1].cz]));const o=(M-1)*N;for(let i=0;i<N;i++)idx.push(o+i,tc,o+(i+1)%N);
+  return finishGeo(pos,idx);
+}
+/* crown-like solid: superellipse side wall from h0 to h1, closed by a height-field occlusal cap */
+function crownLike(o){
+  const{N,S,C,p}=o,pos=[],idx=[],cs=[],sn=[];
+  for(let i=0;i<N;i++){const t=i/N*Math.PI*2;cs.push(sxp(Math.cos(t),p));sn.push(sxp(Math.sin(t),p))}
+  for(let j=0;j<=S;j++){const h=o.h0+(o.h1-o.h0)*j/S,s=o.sec(h);for(let i=0;i<N;i++)pos.push(s.cx+s.a*cs[i],h,s.cz+s.b*sn[i])}
+  const st=o.sec(o.h1);
+  for(let k=1;k<C;k++){const r=1-k/C;for(let i=0;i<N;i++){const X=r*cs[i],Z=r*sn[i];pos.push(st.cx+st.a*X,o.h1+o.top(X,Z,r),st.cz+st.b*Z)}}
+  const rows=S+C;
+  for(let j=0;j<rows-1;j++)for(let i=0;i<N;i++){const i2=(i+1)%N,A=j*N+i,B=j*N+i2,Cc=(j+1)*N+i,D=(j+1)*N+i2;idx.push(A,Cc,B,B,Cc,D)}
+  const tc=pos.length/3;pos.push(st.cx,o.h1+o.top(0,0,0),st.cz);const o2=(rows-1)*N;for(let i=0;i<N;i++)idx.push(o2+i,tc,o2+(i+1)%N);
+  const s0=o.sec(o.h0),bc=pos.length/3;pos.push(s0.cx,o.h0-(o.botDip||0),s0.cz);for(let i=0;i<N;i++)idx.push(i,(i+1)%N,bc);
+  return finishGeo(pos,idx);
+}
+/* closed tube along points (end discs) */
+function closedTube(pts,r,radial,perLen){
+  const curve=new THREE.CatmullRomCurve3(pts,false,"centripetal");
+  const len=curve.getLength(),seg=Math.max(4,Math.round(len*(perLen||2))),fr=curve.computeFrenetFrames(seg,false);
+  const pos=[],idx=[],R=radial||8;
+  for(let j=0;j<=seg;j++){const P=curve.getPointAt(j/seg),n=fr.normals[j],b=fr.binormals[j];const rr=typeof r==="function"?r(j/seg):r;
+    for(let i=0;i<R;i++){const a=i/R*Math.PI*2,c=Math.cos(a),s=Math.sin(a);pos.push(P.x+rr*(c*n.x+s*b.x),P.y+rr*(c*n.y+s*b.y),P.z+rr*(c*n.z+s*b.z))}}
+  for(let j=0;j<seg;j++)for(let i=0;i<R;i++){const i2=(i+1)%R,A=j*R+i,B=j*R+i2,C=(j+1)*R+i,D=(j+1)*R+i2;idx.push(A,B,C,B,D,C)}
+  const P0=curve.getPointAt(0),P1=curve.getPointAt(1);
+  const c0=pos.length/3;pos.push(P0.x,P0.y,P0.z);for(let i=0;i<R;i++)idx.push(c0,(i+1)%R,i);
+  const c1=pos.length/3;pos.push(P1.x,P1.y,P1.z);const o=seg*R;for(let i=0;i<R;i++)idx.push(c1,o+i,o+(i+1)%R);
+  const g=finishGeo(pos,idx);g.userData={curve};return g;
+}
+
+/* ---------- per-tooth shape functions ---------- */
+function prepType(key){
+  const T=Object.assign({key},TT[key]),C=CLS[T.cls];T.C=C;T.p=C.p;
+  T.tab=C.tab.map(r=>r.slice());T.tab[0]=[0,T.BLc/T.BL,-T.BLc/T.BL,T.MDc/T.MD];
+  T.shapes=SHAPES[key]||[];
+  T.bumps=T.shapes.filter(s=>s.h!=null);
+  T.maxh=Math.max(0,...T.bumps.map(s=>s.h));
+  T.Hs=T.H-T.maxh;
+  const rr=ROOTS[key](T);T.trunk=rr.trunk;T.roots=rr.roots;
+  for(const r of T.roots)r.yTop=T.trunk?-T.trunk+1.2:.8;
+  T.Lmax=Math.max(...T.roots.map(r=>r.L));
+  T.hp1=T.Hs*C.pk;T.hp0=T.trunk?-1.7:-.6;
+  T.horns=T.cls==="incisor"?[{x:0,z:-.55,h:.9,s:.22},{x:0,z:0,h:.55,s:.25},{x:0,z:.55,h:.9,s:.22}]
+         :T.cls==="canine"?[{x:0,z:0,h:1.5,s:.42}]
+         :T.bumps.filter(s=>s.cusp).map(s=>({x:s.x*.95,z:s.z*.95,h:.5*s.h+.55,s:(s.s||.4)*.75}));
+  T.h1d=T.cls==="incisor"?T.H-C.eOcc:T.Hs-.45;
+  T.kd=T.maxh>0?Math.max(0,(T.H-C.eOcc-T.h1d)/T.maxh):0;
+  const cut=CUT[key]||{bl:0,md:0};T.cut={bl:cut.bl*T.MDc,md:cut.md*T.BLc};
+  T.facts=FACTS[key];
+  return T;
+}
+function crownSec(T,h){const u=Math.max(0,Math.min(1,h/T.Hs));const xab=interp(T.tab,u,1)*T.BL/2,xin=interp(T.tab,u,2)*T.BL/2,b=interp(T.tab,u,3)*T.MD/2;return{cx:(xab+xin)/2+(T.lean||0)*u,cz:0,a:(xab-xin)/2,b}}
+const enamelT=(T,h)=>h<=0?0:T.C.eMax*smooth(h/(.42*T.Hs));
+function dentinSec(T,h){const s=crownSec(T,h),e=enamelT(T,h);return{cx:s.cx,cz:0,a:Math.max(.14,s.a-e),b:Math.max(.14,s.b-e)}}
+function pulpSec(T,h,inf){const hm=Math.max(0,Math.min(T.Hs,h*(.72*T.Hs)/T.hp1)),s=crownSec(T,hm);return{cx:s.cx*.6,cz:0,a:s.a*T.C.kx+(inf||0),b:s.b*T.C.kz+(inf||0)}}
+function gsum(list,X,Z,k){let v=0;for(const s of list){if(s.h==null)continue;let dx=X-s.x,dz=Z-s.z;if(s.rot){const c=Math.cos(s.rot),n=Math.sin(s.rot),a=dx*c+dz*n,b=-dx*n+dz*c;dx=a;dz=b}const sx=s.sx||s.s,sz=s.sz||s.s;v+=s.h*Math.exp(-(dx*dx/(sx*sx)+dz*dz/(sz*sz)))}return v*k}
+const post=T=>T.cls==="molar"||T.cls==="premolar";
+function topFn(T,layer,inf){
+  const ring=T.C.ring,rg=r=>Math.exp(-Math.pow((r-.8)/.11,2));
+  if(layer==="enamel")return(X,Z,r)=>Math.max(-.35,(1-Math.pow(r,8))*(gsum(T.bumps,X,Z,1)+ring*rg(r)+(post(T)?.25*(1-r*r):0)));
+  if(layer==="dentin")return(X,Z,r)=>Math.max(-.3,(1-Math.pow(r,8))*(gsum(T.bumps,X,Z,T.kd)+ring*.5*rg(r)+(post(T)?.15*(1-r*r):0)));
+  return(X,Z,r)=>(1-Math.pow(r,6))*(gsum(T.horns,X,Z,1)+.25*(1-r*r))+(inf||0);
+}
+const crownTop=(T,X,Z)=>{const p=T.p,r=Math.min(1,Math.pow(Math.pow(Math.abs(X),p)+Math.pow(Math.abs(Z),p),1/p));const s=crownSec(T,T.Hs);return V3(s.cx+s.a*X,T.Hs+topFn(T,"enamel")(X,Z,r),s.b*Z)};
+const crownSide=(T,h,th)=>{const s=crownSec(T,h);return V3(s.cx+s.a*sxp(Math.cos(th),T.p),h,s.b*sxp(Math.sin(th),T.p))};
+const taper=t=>(1-.62*t)*Math.sqrt(Math.max(0,1-Math.pow(t,6)));
+function rootAt(r,y){const t=Math.max(0,Math.min(1,(r.yTop-y)/(r.yTop+r.L))),t3=t*t*t;return{t,cx:r.c0[0]+(r.c1[0]-r.c0[0])*t+r.bend[0]*t3,cz:r.c0[1]+(r.c1[1]-r.c0[1])*t+r.bend[1]*t3,a:r.a0*taper(t),b:r.b0*taper(t)}}
+function canalAt(r,c,y){const s=rootAt(r,y),two=r.canals.length>1;return{t:s.t,cx:s.cx+(c.dx||0)*r.a0*(1-.4*s.t),cz:s.cz,a:Math.max(.12,(two?.2:.24)*r.a0*(1-.72*s.t)),b:Math.max(.12,.28*r.b0*(1-.72*s.t))}}
+const canalEnd=(r,c)=>-(r.L-(c.short||0)-.55);
+function rootGeo(r,inf,yStart,M,N){
+  const yB=r.yTop-.985*(r.yTop+r.L),lv=[];
+  for(let j=0;j<=M;j++){const f=j/M,y=yB+(yStart-yB)*(1-Math.pow(1-f,1.4));const s=rootAt(r,y);lv.push({y,cx:s.cx,cz:s.cz,a:s.a+inf,b:s.b+inf})}
+  const ap=rootAt(r,-r.L);return levelSolid(lv,2.3,N,[ap.cx,-r.L-inf*.9,ap.cz]);
+}
+function trunkGeo(T,inf,yStart,N){const yb=-T.trunk-.5,lv=[];for(let j=0;j<=8;j++){const y=yb+(yStart-yb)*j/8,f=(yStart-y)/(yStart-yb);lv.push({y,cx:0,cz:0,a:T.BLc/2*(1-.07*f)+inf,b:T.MDc/2*(1-.1*f)+inf})}return levelSolid(lv,2.6,N,[0,yb-.5-inf,0])}
+function canalGeo(r,c,inf,yTop,M,N){const yE=canalEnd(r,c),lv=[];for(let j=0;j<=M;j++){const y=yE+(yTop-yE)*j/M,s=canalAt(r,c,y);lv.push({y,cx:s.cx,cz:s.cz,a:s.a+inf,b:s.b+inf})}const e=canalAt(r,c,yE);return levelSolid(lv,2,N,[e.cx,yE-.2-inf,e.cz])}
+/* geometry sets for one tooth; res 'arch' = light, 'detail' = full */
+function toothGeos(T,res){
+  const D=res==="detail",N=D?64:30,S=D?18:9,Cn=D?14:7,RN=D?40:18,RM=D?24:10;
+  const crown=(sec,h0,h1,top,botDip)=>crownLike({N,S,C:Cn,p:T.p,h0,h1,sec,top,botDip});
+  const out={enamel:[crown(h=>crownSec(T,h),0,T.Hs,topFn(T,"enamel"))]};
+  const rootSet=(inf,yStart)=>{const a=[];if(T.trunk)a.push(trunkGeo(T,inf,yStart,RN));for(const r of T.roots)a.push(rootGeo(r,inf,Math.min(yStart,T.trunk?r.yTop:yStart+.8),RM,RN));return a};
+  out.cementum=rootSet(.12,0);
+  if(!D)return out;
+  out.dentin=[crown(h=>dentinSec(T,h),0,T.h1d,topFn(T,"dentin"))].concat(rootSet(0,.8));
+  const pulp=inf=>{const a=[crown(h=>pulpSec(T,h,inf),T.hp0-inf,T.hp1,topFn(T,"pulp",inf))];for(const r of T.roots)for(const c of r.canals)a.push(canalGeo(r,c,inf,T.trunk?-1.2:.4,20,24));return a};
+  out.pulp=pulp(0);out.odonto=pulp(.14);
+  out.pdl=rootSet(.32,-1.5);out.lamina=rootSet(.66,-1.6);
+  return out;
+}
+
+/* ---------- arch layout ---------- */
+function archCurve(pts){const a=[];for(let i=pts.length-1;i>0;i--)a.push(V3(-pts[i][0],0,pts[i][1]));for(const p of pts)a.push(V3(p[0],0,p[1]));return new THREE.CatmullRomCurve3(a,false,"centripetal")}
+const ARCH={
+  U:{curve:archCurve([[0,28],[9,26],[16,20],[20,12],[23,3],[25.5,-7],[27,-17],[28,-27],[28.6,-34]])},
+  L:{curve:archCurve([[0,25.5],[7,24],[13,19],[17.5,12],[21,3],[24,-7],[26,-17],[27,-27],[27.6,-34],[27.4,-44]])}
+};
+for(const k in ARCH)ARCH[k].len=ARCH[k].curve.getLength();
+const TYPES={};for(const k in TT)TYPES[k]=prepType(k);
+const SIDE_NAME={L:"left",R:"right"},ARCH_NAME={U:"Maxillary",L:"Mandibular"},ARCH_PLAIN={U:"upper",L:"lower"};
+const TEETH=[];
+function frameAt(arch,s){const A=ARCH[arch],u=.5+s/A.len,P=A.curve.getPointAt(u),tg=A.curve.getTangentAt(u);return{u,P,tg,N:V3(-tg.z,0,tg.x).normalize()}}
+for(const arch of["U","L"]){
+  for(const sd of[1,-1]){
+    let s=0;
+    for(let pos=1;pos<=8;pos++){
+      const T=TYPES[arch+pos];const sc=s+T.MD/2+.05;s+=T.MD+.1;
+      const F=frameAt(arch,sd*sc);
+      const side=sd>0?"L":"R";
+      const uni=arch==="U"?(side==="R"?9-pos:8+pos):(side==="L"?17+8-pos:24+pos);
+      const fdi=(arch==="U"?(side==="R"?1:2):(side==="L"?3:4))*10+pos;
+      const Y=V3(0,arch==="L"?1:-1,0),al=T.tilt||0;
+      const Xt=F.N.clone().multiplyScalar(Math.cos(al)).addScaledVector(Y,-Math.sin(al));
+      const Yt=Y.clone().multiplyScalar(Math.cos(al)).addScaledVector(F.N,Math.sin(al));
+      const mt=F.tg.clone().multiplyScalar(-sd);
+      const Z=V3().crossVectors(Xt,Yt);const ms=Math.sign(Z.dot(mt))||1;Z.multiplyScalar(ms);
+      const cej=arch==="L"?-(GAP+T.H):(GAP+T.H);
+      const M=new THREE.Matrix4().makeBasis(Xt,Yt,Z).setPosition(F.P.x,cej,F.P.z);
+      TEETH.push({uni,fdi,arch,side,pos,T,sArc:sd*sc,u:F.u,N:F.N,tg:F.tg,M,ms,cej,
+        name:`${ARCH_NAME[arch]} ${SIDE_NAME[side]} ${T.name}`});
+    }
+  }
+}
+TEETH.sort((a,b)=>a.uni-b.uni);
+const byUni=n=>TEETH.find(t=>t.uni===n);
+
+/* ---------- scene groups ---------- */
+const G={};
+for(const j of["U","L"]){G[j]={};for(const l of["teeth","gum","soft","bone","nerve"]){const g=new THREE.Group();g.name=j+l;scene.add(g);G[j][l]=g}}
+const detailRoot=new THREE.Group();scene.add(detailRoot);
+
+/* arch teeth */
+const toothMeshes=[];
+for(const t of TEETH){
+  const gs=toothGeos(t.T,"arch");
+  const g=new THREE.Group();g.matrixAutoUpdate=false;g.matrix.copy(t.M);
+  const em=phong("--enamel",1,{shininess:70,specular:0x444444,emissive:0x000000});
+  const cm=phong("--cementum",1,{emissive:0x000000});
+  for(const geo of gs.enamel){const m=new THREE.Mesh(geo,em);m.userData.tooth=t;g.add(m);toothMeshes.push(m)}
+  for(const geo of gs.cementum){const m=new THREE.Mesh(geo,cm);m.userData.tooth=t;g.add(m);toothMeshes.push(m)}
+  t.group=g;t.em=em;t.cm=cm;G[t.arch].teeth.add(g);
+  t.apexLocal=(()=>{const r=t.T.roots[t.T.roots.length>2?2:0];return V3(r.c1[0]+r.bend[0],-r.L,r.c1[1]+r.bend[1])})();
+  t.apex=t.apexLocal.clone().applyMatrix4(t.M);
+  t.tipW=V3(0,t.T.H+1.4,0).applyMatrix4(t.M);
+}
+
+/* ---------- arch soft tissue & bone (swept along the arch) ---------- */
+function archProps(arch,s){
+  const list=TEETH.filter(t=>t.arch===arch).sort((a,b)=>a.sArc-b.sArc);
+  let i=0;while(i<list.length-1&&list[i+1].sArc<s)i++;
+  const a=list[i],b=list[Math.min(i+1,list.length-1)];
+  let f=b===a?0:(s-a.sArc)/(b.sArc-a.sArc);f=Math.max(0,Math.min(1,f));
+  const mix=(k)=>a.T[k]+(b.T[k]-a.T[k])*f;
+  let pap=0;for(const t of list){for(const e of[t.sArc-t.T.MD/2,t.sArc+t.T.MD/2]){const d=Math.abs(s-e);pap=Math.max(pap,Math.exp(-d*d/2.2))}}
+  const ends=[list[0].sArc-list[0].T.MD/2,list[list.length-1].sArc+list[list.length-1].T.MD/2];
+  if(s<ends[0]+.6||s>ends[1]-.6)pap*=.25;
+  return{BLc:mix("BLc"),H:mix("H"),R:mix("R"),pap};
+}
+function archSweep(arch,s0,s1,K,secFn,closeEnds){
+  const pos=[],idx=[];let P0=null;
+  const rd=arch==="L"?-1:1;let ringN=0;
+  for(let k=0;k<=K;k++){
+    const s=s0+(s1-s0)*k/K,F=frameAt(arch,s),pr=archProps(arch,s),cej=rd*-(GAP+pr.H)*-1;
+    const cejY=arch==="L"?-(GAP+pr.H):(GAP+pr.H);
+    const sec=secFn(pr,s);ringN=sec.length;
+    for(const[n,v]of sec)pos.push(F.P.x+F.N.x*n,cejY+rd*v,F.P.z+F.N.z*n);
+  }
+  for(let k=0;k<K;k++)for(let i=0;i<ringN;i++){const i2=(i+1)%ringN,A=k*ringN+i,B=k*ringN+i2,C=(k+1)*ringN+i,D=(k+1)*ringN+i2;idx.push(A,B,C,B,D,C)}
+  if(closeEnds){for(const k of[0,K]){let cx=0,cy=0,cz=0;for(let i=0;i<ringN;i++){cx+=pos[(k*ringN+i)*3];cy+=pos[(k*ringN+i)*3+1];cz+=pos[(k*ringN+i)*3+2]}const c=pos.length/3;pos.push(cx/ringN,cy/ringN,cz/ringN);for(let i=0;i<ringN;i++)idx.push(c,k*ringN+i,k*ringN+(i+1)%ringN)}}
+  return finishGeo(pos,idx);
+}
+const archEnds=arch=>{const l=TEETH.filter(t=>t.arch===arch);const mx=Math.max(...l.map(t=>Math.abs(t.sArc)+t.T.MD/2));return mx};
+const gumMat=phong("--gum",1,{side:THREE.DoubleSide,shininess:10,specular:0x181010});
+const palMat=phong("--palate",1,{side:THREE.DoubleSide,shininess:16});
+const tongueMat=phong("--tongue",1,{side:THREE.DoubleSide,shininess:22});
+const boneMat=phong("--bone",.2,{side:THREE.DoubleSide});
+const sinusMat=phong("--sinus",.22,{side:THREE.DoubleSide});
+for(const arch of["U","L"]){
+  const e=archEnds(arch)+3.5;
+  const gumSec=(pr)=>{const wB=pr.BLc/2+.35,wL=pr.BLc/2+.35,mH=.8+2.6*pr.pap,D=arch==="L"?pr.R+1.5:pr.R+.5;
+    return[[wB,-mH],[wB+.55,1.5],[wB+1.0,7],[wB+.9,D-2],[wB*.4,D],[-wL*.4,D],[-wL-.9,D-2],[-wL-1.2,7],[-wL-.6,1.5],[-wL,-mH],[-wL*.3,-mH+.9],[wB*.3,-mH+.9]]};
+  G[arch].gum.add(new THREE.Mesh(archSweep(arch,-e,e,220,gumSec,true),gumMat));
+  const boneSec=(pr)=>{const wB=pr.BLc/2+.35,wL=pr.BLc/2+.35,D=arch==="L"?pr.R+13:pr.R+9;
+    return arch==="L"?[[wB+.3,1.8],[wB+1.6,8],[wB+2.2,16],[wB+1.4,D-3],[0,D],[-wL-1.6,D-3],[-wL-2.2,16],[-wL-1.6,8],[-wL-.1,1.8],[0,1.4]]
+                     :[[wB+.3,1.8],[wB+1.8,9],[wB+2.6,D-3],[wB*.3,D],[-wL-1.4,D-4],[-wL-1.6,9],[-wL-.1,1.8],[0,1.4]]};
+  const eb=arch==="L"?Math.min(ARCH.L.len/2-.2,e+9):e+1.5;
+  G[arch].bone.add(new THREE.Mesh(archSweep(arch,-eb,eb,200,boneSec,true),boneMat));
+}
+/* palate: dome over the upper arch */
+const palateRef={};
+{
+  const e=archEnds("U")+1.5,K=60,ring=[];
+  for(let k=0;k<=K;k++){const s=-e+2*e*k/K,F=frameAt("U",s),pr=archProps("U",s),wL=pr.BLc/2+.35;ring.push(V3(F.P.x-F.N.x*(wL+1.5),GAP+pr.H+6,F.P.z-F.N.z*(wL+1.5)))}
+  const a=ring[ring.length-1],b=ring[0],nT=ring.length;const C=V3(0,GAP+23,-6);for(let k=1;k<12;k++){const q=a.clone().lerp(b,k/12);q.y+= (C.y-q.y)*Math.sin(Math.PI*k/12)*.85;ring.push(q)}
+  const R=20,pos=[],idx=[],n=ring.length;
+  const py=(B,r)=>B.y+(C.y-B.y)*Math.pow(1-r*r,.7);
+  for(let j=0;j<R;j++){const r=1-j/R;for(const B of ring)pos.push(C.x+(B.x-C.x)*r,py(B,r),C.z+(B.z-C.z)*r)}
+  for(let j=0;j<R-1;j++)for(let i=0;i<n;i++){const i2=(i+1)%n,A=j*n+i,B=j*n+i2,Cc=(j+1)*n+i,D=(j+1)*n+i2;idx.push(A,B,Cc,B,D,Cc)}
+  const c=pos.length/3;pos.push(C.x,C.y,C.z);const o=(R-1)*n;for(let i=0;i<n;i++)idx.push(o+i,o+(i+1)%n,c);
+  G.U.soft.add(new THREE.Mesh(finishGeo(pos,idx),palMat));
+  palateRef.pt=(s,r)=>{const F=frameAt("U",s),pr=archProps("U",s),wL=pr.BLc/2+.35,B=V3(F.P.x-F.N.x*(wL+1.5),GAP+pr.H+6,F.P.z-F.N.z*(wL+1.5));return V3(C.x+(B.x-C.x)*r,py(B,r)-.6,C.z+(B.z-C.z)*r)};
+}
+/* tongue */
+{
+  const g=new THREE.SphereGeometry(1,48,28),p=g.attributes.position;
+  for(let i=0;i<p.count;i++){let x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(y<0)y*=.55;if(z>0)x*=1-.33*z*z;if(y>0)y-=.16*Math.exp(-x*x/.012)*y;p.setXYZ(i,x*17,y*7.5,z*22)}
+  g.computeVertexNormals();const m=new THREE.Mesh(g,tongueMat);m.position.set(0,-GAP-10.5,-4.5);G.L.soft.add(m);
+}
+/* mandibular rami and maxillary sinuses */
+const RAMUS={};
+{
+  const sh=new THREE.Shape(),P=[[-1,-36],[-12,-38.5],[-19,-35],[-21.5,-25],[-21,-2],[-19.5,15],[-20.5,21],[-19,26.5],[-15.5,28.5],[-12.2,26.5],[-12.8,20],[-9,12.5],[-4.5,17],[-1.2,25],[1,22],[2,9],[1.5,-5],[.3,-16],[.4,-30]];
+  sh.moveTo(P[0][0],P[0][1]);sh.splineThru(P.slice(1).map(q=>new THREE.Vector2(q[0],q[1])));sh.closePath();
+  const geo=new THREE.ExtrudeGeometry(sh,{depth:4.5,bevelEnabled:true,bevelThickness:1,bevelSize:1,bevelSegments:2,curveSegments:40});
+  geo.rotateY(-Math.PI/2);
+  for(const sd of[1,-1]){const m=new THREE.Mesh(geo,boneMat);const grp=new THREE.Group();grp.position.set(sd*35.5,0,-31);grp.rotation.y=sd*-.16;if(sd<0)grp.scale.x=-1;grp.add(m);m.position.x=4.5;G.L.bone.add(grp)}
+  RAMUS.foramen=sd=>V3(sd*35.2,-3,-42.3);
+  for(const sd of[1,-1]){const m=new THREE.Mesh(new THREE.SphereGeometry(1,32,20),sinusMat);m.scale.set(9,10,14);m.position.set(sd*22,GAP+33,-9);G.U.bone.add(m)}
+}
+
+/* ---------- arch nerves & vessels ---------- */
+const NV_R={n:1,a:.55,v:.65};
+const nvMat={n:phong("--nerve",1,{shininess:40}),a:phong("--artery",1,{shininess:40}),v:phong("--vein",1,{shininess:40})};
+const archLabels=[];
+function sidePerp(pts,i){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)],t=b.clone().sub(a).normalize();let p=V3().crossVectors(t,V3(0,1,0));if(p.lengthSq()<.01)p=V3().crossVectors(t,V3(1,0,0));return p.normalize()}
+function bundle(grp,pts,r,kinds,off){
+  kinds=kinds||"nav";off=off==null?r*1.15:off;
+  const dirs={n:0,a:1,v:-1};
+  for(const k of kinds){const d=dirs[k];const pp=pts.map((p,i)=>d?p.clone().addScaledVector(sidePerp(pts,i),d*off).add(V3(0,d>0?r*.4:-r*.2,0)):p.clone());
+    grp.add(new THREE.Mesh(closedTube(pp,r*NV_R[k],8,1),nvMat[k]))}
+}
+const nearestOn=(pts,p)=>{let best=null,bd=1e9;const c=new THREE.CatmullRomCurve3(pts);for(let i=0;i<=200;i++){const q=c.getPointAt(i/200),d=q.distanceToSquared(p);if(d<bd){bd=d;best=q}}return best};
+for(const sd of[1,-1]){
+  const sideL=sd>0?"L":"R";
+  const T=(arch,pos)=>TEETH.find(t=>t.arch===arch&&t.side===sideL&&t.pos===pos);
+  /* mandible */
+  const F=RAMUS.foramen(sd);
+  const under=(t,dy)=>t.apex.clone().add(V3(0,-(dy==null?3.2:dy),0)).addScaledVector(t.N,-.6);
+  const ian=[V3(sd*33.5,22,-47.5),V3(sd*35,5,-44.5),F,V3(sd*33.2,-14,-37.5),under(T("L",8)),under(T("L",7)),under(T("L",6)),under(T("L",5))];
+  bundle(G.L.nerve,ian,1.15);
+  const inc=[under(T("L",5)),under(T("L",4),2.8),under(T("L",3),2.6),under(T("L",2),2.4),under(T("L",1),2.4),V3(sd*.8,under(T("L",1),2.4).y,under(T("L",1),2.4).z-.2)];
+  bundle(G.L.nerve,inc,.55);
+  const t5=T("L",5),Fm=frameAt("L",t5.sArc),mf=V3(Fm.P.x,0,Fm.P.z).addScaledVector(Fm.N,t5.T.BLc/2+2.4);mf.y=t5.cej-.55*t5.T.R;
+  const mental=[under(t5),mf,mf.clone().addScaledVector(Fm.N,2.6).add(V3(0,2.5,0)),mf.clone().addScaledVector(Fm.N,4).add(V3(-sd*3,9,2))];
+  bundle(G.L.nerve,mental,.75);
+  const t8=T("L",8),F8=frameAt("L",t8.sArc);
+  const lingual=[V3(sd*31.5,22,-49),V3(sd*30,4,-40),V3(F8.P.x,0,F8.P.z).addScaledVector(F8.N,-(t8.T.BLc/2+3.5)).add(V3(0,t8.cej-7,0)),V3(sd*17,-GAP-13.5,-12),V3(sd*10,-GAP-6.5,5)];
+  bundle(G.L.nerve,lingual,.85,"n");
+  for(let p=1;p<=8;p++){const t=T("L",p),path=p>=5?ian:inc,q=nearestOn(path,t.apex);bundle(G.L.nerve,[q,q.clone().lerp(t.apex,.5),t.apex.clone().add(V3(0,-.4,0))],.24,"nav",.32)}
+  if(sd>0){
+    archLabels.push({t:"Inferior alveolar n., a., v.",p:ian[4],L:"L"},{t:"Mandibular foramen",p:F,L:"L"},{t:"Mental foramen & nerve",p:mf,L:"L"},{t:"Incisive branch",p:inc[3],L:"L"},{t:"Lingual nerve",p:lingual[3],L:"L"});
+  }
+  /* maxilla */
+  const over=(t,dy)=>t.apex.clone().add(V3(0,dy==null?3:dy,0)).addScaledVector(t.N,.3);
+  const sdp=[];for(let p=8;p>=1;p--)sdp.push(over(T("U",p)));sdp.push(V3(sd*.8,sdp[sdp.length-1].y,sdp[sdp.length-1].z-.3));
+  bundle(G.U.nerve,sdp,.42);
+  const psa=[V3(sd*27,46,-41),V3(sd*31,35,-33),over(T("U",8),3.4)];bundle(G.U.nerve,psa,.6);
+  const io=[V3(sd*25,50,-32),V3(sd*24,49,-5),V3(sd*21,46,17),V3(sd*23.5,41.5,24)];bundle(G.U.nerve,io,1.05);
+  const msa=[V3(sd*24,48.6,-6),V3(sd*25.5,38,-1),over(T("U",5),3.2)];bundle(G.U.nerve,msa,.45);
+  const asa=[V3(sd*22,47.4,9),V3(sd*19.5,39,17.5),over(T("U",3),3.2)];bundle(G.U.nerve,asa,.5);
+  const t8u=T("U",8);const gp=[];for(const p of[8,7,6,5,4,3]){const t=T("U",p);gp.push(palateRef.pt(t.sArc,.82))}gp.unshift(gp[0].clone().add(V3(0,8,-4)));
+  bundle(G.U.nerve,gp,.62);
+  const ifo=palateRef.pt(0,.9).clone();const np=[V3(sd*.6,44,15),ifo.clone().add(V3(sd*.4,0,0)),palateRef.pt(sd*6,.86)];bundle(G.U.nerve,np,.42);
+  for(let p=1;p<=8;p++){const t=T("U",p),q=nearestOn(sdp,t.apex);bundle(G.U.nerve,[t.apex.clone().add(V3(0,.4,0)),t.apex.clone().lerp(q,.5),q],.22,"nav",.3)}
+  if(sd>0){
+    archLabels.push({t:"Posterior superior alveolar n., a., v.",p:psa[1],L:"U"},{t:"Middle superior alveolar n.",p:msa[1],L:"U"},{t:"Anterior superior alveolar n., a., v.",p:asa[1],L:"U"},
+      {t:"Infraorbital n., a., v.",p:io[2],L:"U"},{t:"Superior dental plexus",p:sdp[3],L:"U"},{t:"Greater palatine n., a., v.",p:gp[3],L:"U"},{t:"Nasopalatine n.",p:np[1],L:"U"},{t:"Maxillary sinus",p:V3(22,GAP+43,-9),L:"U",bone:1});
+  }
+}
+
+/* ---------- labels: arch ---------- */
+const labelsEl=$("labels"),leadersEl=$("leaders");
+const numEls=new Map();
+for(const t of TEETH){const d=document.createElement("div");d.className="lb num";labelsEl.appendChild(d);numEls.set(t,d)}
+for(const l of archLabels){const d=document.createElement("div");d.className="lb nv";d.textContent=l.t;labelsEl.appendChild(d);l.el=d}
+let numbering="uni";
+const tnum=t=>numbering==="uni"?String(t.uni):String(t.fdi);
+
+/* ---------- state ---------- */
+const S={mode:"arch",layers:{U:true,L:true,gum:true,soft:true,bone:false,nerve:false,nums:true},view:"front",
+  tooth:null,disp:"section",cut:"bl",tl:{support:true,vessels:true,labels:true},sel:-1,hover:null};
+
+/* ---------- camera ---------- */
+const cam={t:V3(0,0,0),d:190,az:.42,el:.2};let tw=null;
+function placeCam(){const ce=Math.cos(cam.el);camera.position.set(cam.t.x+cam.d*ce*Math.sin(cam.az),cam.t.y+cam.d*Math.sin(cam.el),cam.t.z+cam.d*ce*Math.cos(cam.az));camera.lookAt(cam.t)}
+function tweenTo(t,d,az,el,dur,done){
+  const from={t:cam.t.clone(),d:cam.d,az:cam.az,el:cam.el};
+  if(az!=null){let da=az-from.az;da=Math.atan2(Math.sin(da),Math.cos(da));az=from.az+da}
+  tw={from,to:{t:t?t.clone():from.t,d:d||from.d,az:az==null?from.az:az,el:el==null?from.el:el},t0:performance.now(),dur:reduceMotion?1:(dur||800),done};
+}
+function stepTween(now){if(!tw)return;const k=Math.min(1,(now-tw.t0)/tw.dur),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+  cam.t.lerpVectors(tw.from.t,tw.to.t,e);cam.d=tw.from.d+(tw.to.d-tw.from.d)*e;cam.az=tw.from.az+(tw.to.az-tw.from.az)*e;cam.el=tw.from.el+(tw.to.el-tw.from.el)*e;
+  if(k>=1){const d=tw.done;tw=null;if(d)d()}}
+function fitDist(pts,pad){const box=new THREE.Box3().setFromPoints(pts),sp=new THREE.Sphere();box.getBoundingSphere(sp);const fov=camera.fov*Math.PI/180,fit=Math.min(fov,2*Math.atan(Math.tan(fov/2)*camera.aspect));return{c:sp.center,d:sp.radius/Math.sin(fit/2)*(pad||1.05)}}
+const ptrs=new Map();let lastPinch=0,dragMode=null,down=null;
+canvas.addEventListener("contextmenu",e=>e.preventDefault());
+canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});dragMode=(e.button===2||e.shiftKey||ptrs.size>1)?"pan":"rot";canvas.classList.add("dragging");down={x:e.clientX,y:e.clientY,t:performance.now(),moved:0};if(ptrs.size===2){const a=[...ptrs.values()];lastPinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)}});
+canvas.addEventListener("pointermove",e=>{
+  const p=ptrs.get(e.pointerId);
+  if(!p){hoverAt(e);return}
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;if(down)down.moved+=Math.abs(dx)+Math.abs(dy);
+  if(tw&&down&&down.moved>4)tw=null;
+  if(ptrs.size===2){const a=[...ptrs.values()],sp=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(lastPinch)cam.d=Math.min(420,Math.max(6,cam.d*lastPinch/sp));lastPinch=sp;pan(dx/2,dy/2);return}
+  if(dragMode==="pan")pan(dx,dy);else{cam.az-=dx*.008;cam.el=Math.max(-1.45,Math.min(1.45,cam.el+dy*.008))}
+});
+const endPtr=e=>{const wasClick=down&&down.moved<6&&performance.now()-down.t<500&&ptrs.size===1;ptrs.delete(e.pointerId);if(!ptrs.size){canvas.classList.remove("dragging");dragMode=null}lastPinch=0;if(wasClick&&e.type==="pointerup")clickAt(e);down=null};
+canvas.addEventListener("pointerup",endPtr);canvas.addEventListener("pointercancel",endPtr);
+canvas.addEventListener("pointerleave",()=>{if(!ptrs.size)setHover(null)});
+canvas.addEventListener("wheel",e=>{e.preventDefault();tw=null;cam.d=Math.min(420,Math.max(6,cam.d*Math.exp(e.deltaY*.0012)))},{passive:false});
+function pan(dx,dy){const k=cam.d*.0016,r=V3(),u=V3();camera.matrixWorld.extractBasis(r,u,V3());cam.t.addScaledVector(r,-dx*k).addScaledVector(u,dy*k)}
+$("z-in").onclick=()=>tweenTo(null,cam.d/1.35,null,null,300);
+$("z-out").onclick=()=>tweenTo(null,cam.d*1.35,null,null,300);
+$("z-fit").onclick=()=>S.mode==="arch"?setView(S.view):fitTooth();
+canvas.addEventListener("keydown",e=>{const st=.12;if(e.key==="ArrowLeft"){cam.az+=st;e.preventDefault()}else if(e.key==="ArrowRight"){cam.az-=st;e.preventDefault()}else if(e.key==="ArrowUp"){cam.el=Math.min(1.45,cam.el+st);e.preventDefault()}else if(e.key==="ArrowDown"){cam.el=Math.max(-1.45,cam.el-st);e.preventDefault()}else if(e.key==="+"||e.key==="="){cam.d/=1.2}else if(e.key==="-"){cam.d*=1.2}else if(e.key==="Escape"&&S.mode==="tooth"){exitTooth()}});
+
+/* ---------- picking ---------- */
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
+function pickTooth(e){const r=canvas.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mouse,camera);
+  const vis=toothMeshes.filter(m=>m.parent.parent.visible&&S.layers[m.userData.tooth.arch]);const h=ray.intersectObjects(vis,false);return h.length?h[0].object.userData.tooth:null}
+let hoverRAF=0;
+function hoverAt(e){if(S.mode!=="arch")return;if(hoverRAF)return;hoverRAF=requestAnimationFrame(()=>{hoverRAF=0;const t=pickTooth(e);setHover(t,e)})}
+const tip=$("tip");
+function setHover(t,e){
+  if(S.hover&&S.hover!==t){S.hover.em.emissive.setHex(0);S.hover.cm.emissive.setHex(0);odoBtn(S.hover).classList.remove("hov")}
+  S.hover=t;canvas.classList.toggle("pointing",!!t);
+  if(!t){tip.hidden=true;return}
+  const dk=themeName()==="dark";t.em.emissive.setHex(dk?0x3a2a00:0x5a3d00);t.cm.emissive.setHex(dk?0x3a2a00:0x4a3200);odoBtn(t).classList.add("hov");
+  if(e){const r=vp.getBoundingClientRect();tip.innerHTML="";const b=document.createElement("b");b.textContent=cap1(t.name);const sm=document.createElement("small");sm.textContent=`Universal #${t.uni} · FDI ${t.fdi} · click to open`;tip.append(b,sm);tip.hidden=false;
+    const x=Math.min(r.width-tip.offsetWidth-6,e.clientX-r.left+14),y=Math.max(4,e.clientY-r.top-tip.offsetHeight-10);tip.style.transform=`translate(${x}px,${y}px)`}
+}
+function clickAt(e){if(S.mode!=="arch")return;const t=pickTooth(e);if(t)enterTooth(t,true)}
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+/* ---------- arch views & layers ---------- */
+const VIEWS={front:{az:0,el:.06,t:V3(0,0,0)},side:{az:Math.PI/2,el:.06,t:V3(0,0,-4)},upper:{az:0,el:-1.38,t:V3(0,8,-4)},lower:{az:0,el:1.38,t:V3(0,-8,-4)}};
+function archFitD(){const pts=[];for(const t of TEETH)if(S.layers[t.arch]){pts.push(t.tipW,t.apex)}return pts.length?fitDist(pts,1.12).d:180}
+function setView(v,dur){S.view=v;
+  if(v==="upper"){S.layers.U=true;S.layers.L=false}else if(v==="lower"){S.layers.U=false;S.layers.L=true}else{S.layers.U=true;S.layers.L=true}
+  applyLayers();const V=VIEWS[v];tweenTo(V.t,archFitD(),V.az,V.el,dur==null?800:dur);
+  document.querySelectorAll("[data-view]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.view===v));
+}
+function applyLayers(){
+  for(const j of["U","L"]){const on=S.layers[j];G[j].teeth.visible=on&&S.mode==="arch";G[j].gum.visible=on&&S.layers.gum&&S.mode==="arch";G[j].soft.visible=on&&S.layers.soft&&S.mode==="arch";G[j].bone.visible=on&&S.layers.bone&&S.mode==="arch";G[j].nerve.visible=on&&S.layers.nerve&&S.mode==="arch"}
+  const see=S.layers.nerve||S.layers.bone;
+  for(const m of[gumMat,palMat,tongueMat]){const op=see?.36:1;if(m.opacity!==op){m.opacity=op;m.transparent=op<1;m.depthWrite=op>=1;m.needsUpdate=true}}
+  document.querySelectorAll("[data-layer]").forEach(b=>b.setAttribute("aria-pressed",!!S.layers[b.dataset.layer]));
+}
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>setView(b.dataset.view));
+document.querySelectorAll("[data-layer]").forEach(b=>b.onclick=()=>{const k=b.dataset.layer;S.layers[k]=!S.layers[k];if((k==="U"||k==="L")&&!S.layers.U&&!S.layers.L)S.layers[k==="U"?"L":"U"]=true;applyLayers()});
+
+/* ---------- odontogram ---------- */
+const odo=$("odo");const odoMap=new Map();
+{
+  const mk=(list)=>{const row=document.createElement("div");row.className="row";for(const n of list){const t=byUni(n);const b=document.createElement("button");b.className="cl-"+t.T.cls;b.type="button";b.setAttribute("aria-label",cap1(t.name));b.innerHTML=`<span></span><i></i>`;b.onclick=()=>enterTooth(t,true);b.onmouseenter=()=>{if(S.mode==="arch")setHover(t)};b.onmouseleave=()=>{if(S.mode==="arch")setHover(null)};row.appendChild(b);odoMap.set(t,b)}return row};
+  const up=[],lo=[];for(let i=1;i<=16;i++)up.push(i);for(let i=32;i>=17;i--)lo.push(i);
+  const hdr=document.createElement("div");hdr.className="mid";hdr.innerHTML='<span>Patient’s right</span><span class="glabel" style="letter-spacing:.06em">Upper</span><span>Patient’s left</span>';
+  const mid=document.createElement("div");mid.className="mid";mid.innerHTML='<button type="button" class="chip" id="numsys" style="font-size:12px;padding:4px 9px"></button><span class="glabel" style="letter-spacing:.06em;align-self:center">Lower</span><span></span>';
+  odo.append(hdr,mk(up),mk(lo),mid);
+}
+const odoBtn=t=>odoMap.get(t);
+function paintNums(){for(const[t,b]of odoMap)b.querySelector("span").textContent=tnum(t);$("numsys").textContent=numbering==="uni"?"Numbering: Universal":"Numbering: FDI";for(const[t,d]of numEls)d.textContent=tnum(t)}
+$("numsys").onclick=()=>{numbering=numbering==="uni"?"fdi":"uni";paintNums();if(S.mode==="tooth")renderToothPanel()};
+
+/* ---------- detail (zoomed tooth) ---------- */
+let D=null;
+const LAYERS=[
+  {k:"gum",tok:"--gum",o:1,sup:1},{k:"cortical",tok:"--cortical",o:2,sup:1},{k:"trab",tok:"--bone",o:3,sup:1,tex:1},{k:"marrow",tok:"--marrow",o:4,sup:1},
+  {k:"lamina",tok:"--lamina",o:5,sup:1},{k:"pdl",tok:"--pdl",o:6,sup:1},{k:"cementum",tok:"--cementum",o:7},{k:"enamel",tok:"--enamel",o:8},{k:"dentin",tok:"--dentin",o:9},
+  {k:"odonto",tok:"--odonto",o:10},{k:"pulp",tok:"--pulp",o:11},{k:"v",tok:"--vein",o:12,nv:1},{k:"a",tok:"--artery",o:13,nv:1},{k:"n",tok:"--nerve",o:14,nv:1}
+];
+const trabTex=(()=>{const c=document.createElement("canvas");c.width=c.height=256;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,256,256);
+  let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  for(let i=0;i<150;i++){const px=rnd()*256,py=rnd()*256,r=3+rnd()*9;x.fillStyle="rgba(120,95,70,.28)";x.beginPath();x.ellipse(px,py,r,r*(.6+rnd()*.6),rnd()*3,0,Math.PI*2);x.fill();
+    for(const[dx,dy]of[[-256,0],[256,0],[0,-256],[0,256]]){x.beginPath();x.ellipse(px+dx,py+dy,r,r*(.6+rnd()*0),0,0,Math.PI*2);x.fill()}}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(14,14);return t})();
+function disposeDetail(){if(!D)return;D.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&!o.material.shared){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{const i=themed.findIndex(e=>e.m===m);if(i>=0)themed.splice(i,1);m.dispose()})}});detailRoot.remove(D.group);D=null}
+function supply(t){
+  const p=t.pos;
+  if(t.arch==="L"){const inc=p<=3;return{
+    pulp:inc?"Incisive nerve, the terminal branch of the inferior alveolar nerve (V3)":"Inferior alveolar nerve (V3), through the inferior dental plexus",
+    parent:inc?{n:"Incisive nerve",a:"Incisive artery",v:"Incisive vein",canal:"Incisive canal"}:{n:"Inferior alveolar nerve",a:"Inferior alveolar artery",v:"Inferior alveolar vein",canal:"Mandibular canal"},
+    buccal:p>=6?"Long buccal nerve":p>=4?"Mental nerve, overlapping with the long buccal nerve":"Mental nerve",lingual:"Lingual nerve",
+    artery:"Inferior alveolar artery (from the maxillary artery)"+(inc?", through its incisive branch":""),vein:"Inferior alveolar vein → pterygoid venous plexus",
+    lymph:p<=2?"Submental nodes, then deep cervical nodes":"Submandibular nodes, then deep cervical nodes",
+    extra:p<=2?"Fibres from the opposite side cross the midline, and the mylohyoid nerve can add accessory supply, so one-sided nerve blocks may not fully numb these teeth.":p>=6?"The mylohyoid nerve sometimes adds accessory supply to the molars.":""}}
+  const ant=p<=3,mid=p===4||p===5;
+  return{
+    pulp:ant?"Anterior superior alveolar nerve, from the infraorbital nerve (V2)":mid?"Middle superior alveolar nerve when present; otherwise the anterior or posterior superior alveolar nerve (V2)":p===6?"Posterior superior alveolar nerve (V2); the mesiobuccal root may be supplied by the middle superior alveolar nerve":"Posterior superior alveolar nerve (V2)",
+    parent:ant?{n:"Anterior superior alveolar nerve",a:"Anterior superior alveolar artery",v:"Anterior superior alveolar vein",canal:"Canalis sinuosus (anterior alveolar canal)"}:mid?{n:"Middle superior alveolar nerve",a:"Middle superior alveolar artery",v:"Superior alveolar vein",canal:"Middle alveolar canal"}:{n:"Posterior superior alveolar nerve",a:"Posterior superior alveolar artery",v:"Posterior superior alveolar vein",canal:"Posterior alveolar canal"},
+    buccal:ant?"Anterior superior alveolar nerve and superior labial branches of the infraorbital nerve":mid?"Middle or anterior superior alveolar nerve":"Posterior superior alveolar nerve",
+    lingual:p<=2?"Nasopalatine nerve":p===3?"Nasopalatine nerve, overlapping with the greater palatine nerve":"Greater palatine nerve",
+    artery:ant?"Anterior superior alveolar artery (from the infraorbital artery)":mid?"Middle superior alveolar artery when present, or the anterior and posterior superior alveolar arteries":"Posterior superior alveolar artery (from the maxillary artery)",
+    vein:ant?"Superior alveolar veins → facial vein or pterygoid plexus":"Superior alveolar veins → pterygoid venous plexus",lymph:"Submandibular nodes, then deep cervical nodes",
+    extra:p>=6?"Root tips lie close to the floor of the maxillary sinus, so sinus inflammation can feel like toothache.":""};
+}
+const PARENT_DESC={
+  "Inferior alveolar nerve":"Branch of the mandibular nerve (V3). It enters the mandibular foramen on the inner surface of the ramus, runs forward in the mandibular canal below the roots and sends dental branches up to each tooth. At the mental foramen it splits into the mental nerve (lower lip and chin) and the incisive nerve.",
+  "Incisive nerve":"Continuation of the inferior alveolar nerve beyond the mental foramen. It runs in the incisive canal and supplies the canine, the incisors and their labial bone and periodontium.",
+  "Anterior superior alveolar nerve":"Leaves the infraorbital nerve (V2) inside the infraorbital canal and runs down the front wall of the maxillary sinus in a small canal (canalis sinuosus) to the canine and incisors.",
+  "Middle superior alveolar nerve":"Present in only some people (estimates range from about 30% to 70%). It leaves the infraorbital nerve and runs down the side wall of the maxillary sinus to the premolars and often the mesiobuccal root of the first molar.",
+  "Posterior superior alveolar nerve":"Leaves the maxillary nerve (V2) in the pterygopalatine fossa, enters small foramina on the maxillary tuberosity and runs forward in the sinus wall to the molars."
+};
+function buildDetail(t){
+  disposeDetail();
+  const T=t.T,gs=toothGeos(T,"detail"),cutAxis=S.cut==="bl"?"z":"x",off=S.cut==="bl"?T.cut.bl:T.cut.md,U=t.arch==="U";
+  const group=new THREE.Group();group.matrixAutoUpdate=false;group.matrix.copy(t.M);group.updateMatrixWorld(true);detailRoot.add(group);
+  /* support blocks */
+  let xR=0,zR=0;for(const r of T.roots){xR=Math.max(xR,Math.abs(r.c0[0])+r.a0,Math.abs(r.c1[0]+r.bend[0])+r.a0*.4);zR=Math.max(zR,Math.abs(r.c0[1])+r.b0,Math.abs(r.c1[1]+r.bend[1])+r.b0*.4)}
+  const Xb=Math.max(T.BLc/2,xR)+2.6,Zb=Math.max(T.MD/2+.6,zR+2.4),yBot=-(T.Lmax+7.5);
+  const box=(a,b,y0,y1,p)=>{const lv=[];const ys=[y0,y0+.9,y0+2,y1-.6,y1];const k=[.86,.97,1,1,.99];ys.forEach((y,i)=>lv.push({y,cx:0,cz:0,a:a*k[i],b:b*k[i]}));return levelSolid(lv,p||6,56)};
+  gs.cortical=[box(Xb,Zb,yBot,-1.6)];
+  gs.trab=[box(Xb-1.1,Zb-1.1,yBot+1.1,-2.5)];
+  const cs=h=>crownSec(T,h);
+  const gl=[{y:-9,a:Xb+1.1,b:Zb},{y:-2.2,a:Xb+1.1,b:Zb},{y:-.8,a:T.BLc/2+1.9,b:Zb-.4},{y:.6,a:cs(.6).a+1,b:cs(.6).b+.9},{y:1.5,a:cs(1.5).a+.45,b:cs(1.5).b+.4},{y:2,a:cs(2).a+.12,b:cs(2).b+.12}].map(l=>Object.assign({cx:l.y>0?cs(l.y).cx:0,cz:0},l));
+  gs.gum=[levelSolid(gl,3,64,null,[cs(2).cx,2.05,0])];
+  /* neurovascular parent bundle along the mesiodistal axis */
+  const sc=U?.62:1,canalR=U?1.0:1.55,xp=T.cut.md,yp=-(T.Lmax+3.4);
+  const zA=-Zb+.35,zB=Zb-.35;
+  const line=(x,y)=>[V3(x,y,zA),V3(x,y,(zA+zB)/2),V3(x,y,zB)];
+  const PV={n:{x:xp,y:yp-.3*sc,r:.62*sc},a:{x:xp-.22,y:yp+.78*sc,r:.32*sc},v:{x:xp+.26,y:yp+.86*sc,r:.4*sc}};
+  gs.marrow=[closedTube(line(xp,yp+.15),canalR,24,1)];
+  const nv={n:[],a:[],v:[]};
+  for(const k of"nav")nv[k].push(closedTube(line(PV[k].x,PV[k].y),PV[k].r,14,1));
+  /* strands through every canal */
+  const nAx=cutAxis,uAx=cutAxis==="z"?"x":"z";
+  const getN=p=>nAx==="z"?p.z:p.x,setN=(p,v)=>{if(nAx==="z")p.z=v;else p.x=v},setU=(p,v)=>{if(uAx==="x")p.x=v;else p.z=v},getU=p=>uAx==="x"?p.x:p.z;
+  const strandOffs={a:-1,n:0,v:1},strandR={n:.1,a:.075,v:.09};
+  const chamberC=V3(pulpSec(T,T.hp1*.35).cx,T.hp1*.35,0);
+  const clampN=(c,ext)=>Math.max(c-ext*.8,Math.min(c+ext*.8,off));
+  for(const r of T.roots)for(const c of r.canals){
+    const yE=canalEnd(r,c),ap=canalAt(r,c,yE);
+    for(const k of"nav"){
+      const pts=[];const o=strandOffs[k];
+      const startY=PV[k].y+(k==="n"?.2:0);
+      const pz=nAx==="z"?ap.cz:ap.cx;
+      const p0=V3(0,startY+.5,0);if(nAx==="z"){p0.x=PV[k].x;p0.z=ap.cz}else{p0.z=ap.cz;p0.x=PV[k].x}
+      pts.push(p0);
+      const pa=V3(ap.cx,-r.L-.9,ap.cz);setU(pa,getU(pa)+o*.25);pts.push(pa);
+      const yTop=T.trunk?-1.2:.4;
+      for(let j=0;j<=14;j++){const y=yE+(yTop-yE)*j/14,s=canalAt(r,c,y);const p=V3(s.cx,y,s.cz);const extN=nAx==="z"?s.b:s.a,extU=uAx==="x"?s.a:s.b;
+        setN(p,clampN(nAx==="z"?s.cz:s.cx,extN));setU(p,getU(p)+o*Math.min(.32,extU*.5));pts.push(p)}
+      const ps=pulpSec(T,chamberC.y);const cc=chamberC.clone();setN(cc,clampN(nAx==="z"?0:ps.cx,nAx==="z"?ps.b:ps.a));setU(cc,getU(cc)+o*.35);pts.push(cc);
+      nv[k].push(closedTube(pts,strandR[k],8,3));
+    }
+  }
+  /* branches to pulp horns and the subodontoblastic plexus */
+  const pTop=topFn(T,"pulp"),pst=pulpSec(T,T.hp1);
+  for(const h of T.horns){
+    const tipP=V3(pst.cx+pst.a*h.x,0,pst.b*h.z);const r0=Math.min(1,Math.pow(Math.pow(Math.abs(h.x),T.p)+Math.pow(Math.abs(h.z),T.p),1/T.p));tipP.y=T.hp1+pTop(h.x,h.z,r0)-.35;
+    const extN=nAx==="z"?pst.b:pst.a;setN(tipP,clampN(nAx==="z"?0:pst.cx,extN));
+    for(const k of"nav"){const a=chamberC.clone();setN(a,getN(tipP));setU(a,getU(a)+strandOffs[k]*.35);const b=tipP.clone();setU(b,getU(b)+strandOffs[k]*.12);const m=a.clone().lerp(b,.5);m.y+=.2;nv[k].push(closedTube([a,m,b],strandR[k]*.75,8,3))}
+  }
+  /* plexus of Raschkow in the cut plane, following the pulp outline */
+  const pulpExtentU=(y)=>{const s=pulpSec(T,y);const cN=nAx==="z"?0:s.cx,eN=nAx==="z"?s.b:s.a,cU=uAx==="x"?s.cx:0,eU=uAx==="x"?s.a:s.b;const q=Math.abs(off-cN)/eN;if(q>=.98)return null;const w=eU*Math.pow(1-Math.pow(q,T.p),1/T.p);return[cU-w,cU+w]};
+  {
+    const pl=[];const y0=Math.max(T.hp0+.6,0),y1=T.hp1;
+    const L0=[],R0=[];for(let j=0;j<=6;j++){const y=y0+(y1-y0)*j/6,e=pulpExtentU(y);if(!e)continue;const pL=V3(0,y,0),pR=V3(0,y,0);setN(pL,off);setN(pR,off);setU(pL,e[0]+.32);setU(pR,e[1]-.32);L0.push(pL);R0.push(pR)}
+    if(L0.length>2){
+      const e=pulpExtentU(y1);const roof=[];
+      if(e)for(let j=1;j<8;j++){const u=e[0]+(e[1]-e[0])*j/8;const p=V3(0,0,0);setU(p,u);setN(p,off);const X=uAx==="x"?(u-pst.cx)/pst.a:0,Z=uAx==="z"?u/pst.b:(off)/pst.b,XX=uAx==="x"?X:(off-pst.cx)/pst.a,ZZ=uAx==="z"?u/pst.b:Z;
+        const rr=Math.min(1,Math.pow(Math.pow(Math.abs(XX),T.p)+Math.pow(Math.abs(ZZ),T.p),1/T.p));p.y=T.hp1+pTop(XX,ZZ,rr)-.38;roof.push(p)}
+      const loop=L0.concat(roof,R0.reverse());
+      nv.n.push(closedTube(loop,.055,6,4));D_plexus=loop[Math.floor(L0.length+roof.length/2)]||loop[0];
+    }
+  }
+  /* periodontal branches on the -u side of the root in the plane */
+  const rootExtentU=(r,y)=>{const s=rootAt(r,y);const cN=nAx==="z"?s.cz:s.cx,eN=nAx==="z"?s.b:s.a,cU=uAx==="x"?s.cx:s.cz,eU=uAx==="x"?s.a:s.b;const q=Math.abs(off-cN)/eN;if(q>=.95||eN<.05)return null;const w=eU*Math.pow(1-Math.pow(q,2.3),1/2.3);return[cU-w,cU+w]};
+  const planeRoots=T.roots.filter(r=>rootExtentU(r,r.yTop-1)&&rootExtentU(r,-r.L*.6));
+  const prRoot=planeRoots.slice().sort((a,b)=>rootExtentU(a,-a.L*.5)[0]-rootExtentU(b,-b.L*.5)[0])[0];
+  let perioPt=null;
+  if(prRoot){const pts=[];for(let j=0;j<=10;j++){const y=-prRoot.L*.92+(prRoot.L*.92-1.9)*j/10,e=rootExtentU(prRoot,y)||rootExtentU(T.roots[0],y);if(!e)continue;const p=V3(0,y,0);setN(p,off);setU(p,e[0]-.18);pts.push(p)}
+    if(pts.length>3){const st=pts[0].clone();st.y=yp+.9;pts.unshift(st);const top=pts[pts.length-1].clone();top.y=.6;setU(top,getU(top)-1.1);pts.push(top);
+      nv.n.push(closedTube(pts,.06,6,3));const pa=pts.map(p=>{const q=p.clone();setU(q,getU(q)-.16);return q});nv.a.push(closedTube(pa,.055,6,3));perioPt=pts[Math.floor(pts.length/2)]}}
+  /* tissue layers: stencil-capped section, visible shells */
+  const plane=new THREE.Plane();
+  const nW=V3(nAx==="z"?0:1,0,nAx==="z"?1:0).transformDirection(group.matrixWorld);
+  const pW=V3(nAx==="x"?off:0,0,nAx==="z"?off:0).applyMatrix4(group.matrixWorld);
+  plane.setFromNormalAndCoplanarPoint(nW.clone().negate(),pW);
+  const layers={};
+  for(const L of LAYERS){
+    const geos=L.nv?nv[L.k]:gs[L.k];if(!geos||!geos.length)continue;
+    const lg=new THREE.Group();group.add(lg);
+    const st=new THREE.Group();lg.add(st);
+    for(const geo of geos){
+      const m0=new THREE.MeshBasicMaterial({depthWrite:false,depthTest:false,colorWrite:false,stencilWrite:true,stencilFunc:THREE.AlwaysStencilFunc,side:THREE.BackSide,clippingPlanes:[plane],
+        stencilFail:THREE.IncrementWrapStencilOp,stencilZFail:THREE.IncrementWrapStencilOp,stencilZPass:THREE.IncrementWrapStencilOp});
+      const m1=m0.clone();m1.side=THREE.FrontSide;m1.clippingPlanes=[plane];m1.stencilFail=m1.stencilZFail=m1.stencilZPass=THREE.DecrementWrapStencilOp;
+      const a=new THREE.Mesh(geo,m0),b=new THREE.Mesh(geo,m1);a.renderOrder=b.renderOrder=L.o;st.add(a,b);
+    }
+    const capM=basic(L.tok,{side:THREE.DoubleSide,stencilWrite:true,stencilRef:0,stencilFunc:THREE.NotEqualStencilFunc,stencilFail:THREE.ReplaceStencilOp,stencilZFail:THREE.ReplaceStencilOp,stencilZPass:THREE.ReplaceStencilOp,map:L.tex?trabTex:null});
+    const cap=new THREE.Mesh(new THREE.PlaneGeometry(140,140),capM);cap.renderOrder=L.o+.5;
+    if(nAx==="x"){cap.rotation.y=Math.PI/2;cap.position.x=off}else cap.position.z=off;
+    cap.position.y=-10;cap.onAfterRender=r=>r.clearStencil();lg.add(cap);
+    const visTok={gum:"--gum",cortical:"--cortical",cementum:"--cementum",enamel:"--enamel",dentin:"--dentin",pulp:"--pulp",n:"--nerve",a:"--artery",v:"--vein"}[L.k];
+    let vis=null;
+    if(visTok){vis=new THREE.Group();lg.add(vis);const vm=phong(visTok,1,{shininess:L.k==="enamel"?80:L.nv?40:24,specular:L.k==="enamel"?0x555555:0x222222,clippingPlanes:[plane],emissive:0x000000});
+      for(const geo of geos)vis.add(new THREE.Mesh(geo,vm));vis.userData.mat=vm}
+    layers[L.k]={def:L,group:lg,stencil:st,cap,capM,vis};
+  }
+  D={t,T,group,layers,plane,cutAxis:nAx,uAx,off,PV,xp,yp,canalR,Xb,Zb,yBot,setN,setU,getU,getN,planeRoots,rootExtentU,pulpExtentU,perioPt,plexusPt:D_plexus,chamberC};
+  D_plexus=null;
+  D.feats=buildFeatures(t,D);
+  applyDisplay();
+}
+let D_plexus=null;
+function setVisMat(m,op,clip){const tr=op<1;if(m.opacity!==op||m.transparent!==tr||(m.clippingPlanes&&m.clippingPlanes.length?1:0)!==(clip?1:0)){m.opacity=op;m.transparent=tr;m.depthWrite=!tr;m.clippingPlanes=clip?[D.plane]:[];m.needsUpdate=true}}
+function applyDisplay(){
+  if(!D)return;const sec=S.disp==="section",xr=S.disp==="xray",sup=S.tl.support,ves=S.tl.vessels;
+  const OP={xray:{gum:.12,cortical:.1,enamel:.28,cementum:.32,dentin:.4,pulp:1,n:1,a:1,v:1},surface:{gum:.3,cortical:.2,enamel:1,cementum:1,dentin:0,pulp:0,n:1,a:1,v:1},section:{gum:1,cortical:1,enamel:1,cementum:1,dentin:0,pulp:0,n:1,a:1,v:1}}[S.disp];
+  const RO={gum:30,cortical:29,enamel:28,cementum:27,dentin:26};
+  for(const k in D.layers){const L=D.layers[k],d=L.def;
+    let on=true;if(d.sup&&!sup)on=false;if(d.nv&&!ves)on=false;
+    L.group.visible=on;L.stencil.visible=sec;L.cap.visible=sec;
+    if(L.vis){const op=OP[k]==null?1:OP[k];L.vis.visible=op>0&&!(sec&&(k==="dentin"||k==="pulp"));setVisMat(L.vis.userData.mat,op,sec);L.vis.children.forEach(m=>m.renderOrder=op<1?(RO[k]||25):0)}
+  }
+  document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===S.disp));
+  document.querySelectorAll("[data-cut]").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.cut===S.cut);b.disabled=!sec});
+  document.querySelectorAll("[data-tl]").forEach(b=>b.setAttribute("aria-pressed",!!S.tl[b.dataset.tl]));
+  if(D)renderFeatures();
+}
+/* ---------- features ---------- */
+const GROUPS=[{k:"tooth",n:"Tooth tissues"},{k:"support",n:"Supporting tissues"},{k:"vessels",n:"Nerves and vessels"},{k:"crown",n:"Crown landmarks"}];
+const FCOL={enamel:"--enamel",dentin:"--dentin",pulp:"--pulp",odonto:"--odonto",cementum:"--cementum",pdl:"--pdl",lamina:"--lamina",trab:"--bone",cortical:"--cortical",gum:"--gum",marrow:"--marrow",n:"--nerve",a:"--artery",v:"--vein"};
+function buildFeatures(t,D){
+  const T=t.T,sup=supply(t),F=[],U=t.arch==="U",P=(u,y)=>{const p=V3(0,y,0);D.setU(p,u);D.setN(p,D.off);return p};
+  const add=(g,n,desc,p,layer,o)=>{if(p)F.push(Object.assign({g,n,desc,p,layer,inPlane:true},o||{}))};
+  const ext=(sec,h)=>{const s=sec(T,h);const cN=D.cutAxis==="z"?0:s.cx,eN=D.cutAxis==="z"?s.b:s.a,cU=D.uAx==="x"?s.cx:0,eU=D.uAx==="x"?s.a:s.b;const q=Math.min(.97,Math.abs(D.off-cN)/eN);const w=eU*Math.pow(1-Math.pow(q,T.p),1/T.p);return[cU-w,cU+w]};
+  const cls=T.cls,cuspy=post(T)||cls==="canine";
+  const hE=.62*T.Hs,eE=enamelT(T,hE),ce=ext(crownSec,hE);
+  add("tooth","Enamel",`Hardest tissue in the body, about 96% mineral (hydroxyapatite) by weight. It is thickest over the ${cuspy?"cusps":"incisal edge"} (about ${(T.C.eOcc+.3).toFixed(1)} mm here) and thins to a knife edge at the cementoenamel junction. Enamel has no cells, nerves or blood supply, so it cannot repair itself.`,P(ce[1]-eE*.45,hE),"enamel");
+  const de=ext(dentinSec,.5*T.Hs);
+  add("tooth","Dentinoenamel junction (DEJ)","Scalloped boundary where enamel meets dentin. The scallops lock the two tissues together and stop cracks in enamel from running into dentin. Decay spreads sideways along this junction once it gets through enamel.",P(de[0],.5*T.Hs),"enamel");
+  const hD=.28*T.Hs,dd=ext(dentinSec,hD),pp=D.pulpExtentU(hD);
+  add("tooth","Dentin","Bulk of the tooth, about 70% mineral, so it is softer and more yellow than enamel. Dentinal tubules run from the pulp out to the DEJ. Fluid moving in exposed tubules triggers pulp nerves, which is why exposed dentin feels sensitive (hydrodynamic theory).",P(pp?(dd[1]+pp[1])/2:dd[1]-1.2,hD),"dentin");
+  const hP=Math.max(T.hp0+.8,.45*T.hp1),pe=D.pulpExtentU(hP);
+  if(pe){add("tooth","Odontoblast layer and predentin","A single row of odontoblasts lines the pulp and keeps adding dentin for life: secondary dentin slowly narrows the pulp, and tertiary dentin forms under decay or wear. Each cell sends a process into a tubule; a thin band of unmineralized predentin lies just outside the cells.",P(pe[0]-.07,hP),"odonto");
+    add("tooth","Pulp chamber","Soft connective tissue in the crown part of the pulp cavity: fibroblasts, stem cells, immune cells, blood vessels and nerves. The chamber shrinks with age as secondary dentin is laid down.",P((pe[0]+pe[1])/2,hP),"pulp")}
+  {const pst=pulpSec(T,T.hp1),pTop=topFn(T,"pulp");let best=null;
+    for(const h of T.horns){const p=V3(pst.cx+pst.a*h.x,0,pst.b*h.z);const nC=D.cutAxis==="z"?p.z:p.x;if(Math.abs(nC-D.off)>(D.cutAxis==="z"?pst.b:pst.a)*.6)continue;const r0=Math.min(1,Math.pow(Math.pow(Math.abs(h.x),T.p)+Math.pow(Math.abs(h.z),T.p),1/T.p));p.y=T.hp1+pTop(h.x,h.z,r0)-.25;D.setN(p,D.off);if(!best||p.y>best.y)best=p}
+    add("tooth","Pulp horn",`Extension of the pulp toward ${cls==="incisor"?"the mesial and distal incisal corners":cls==="canine"?"the cusp tip":"each cusp"}. Pulp horns are where a deep cavity or crown preparation is most likely to expose the pulp; they are highest in young teeth.`,best,"pulp")}
+  const pr=D.planeRoots[0];
+  if(pr){const c=pr.canals[0],y=-.45*pr.L,s=canalAt(pr,c,y);const p=V3(s.cx,y,s.cz);D.setN(p,D.off);
+    add("tooth","Root canal",`Pulp tissue continuing through the root to the apex. This tooth usually has ${T.facts.canals} canal${T.facts.canals.trim().startsWith("1 ")||T.facts.canals==="1"?"":"s"}${T.roots.length>1?` across its ${T.roots.length} roots`:""}. Accessory and lateral canals can link the pulp to the periodontal ligament.`,p,"pulp");
+    const yE=canalEnd(pr,c),e=canalAt(pr,c,yE),pa=V3(e.cx,yE-.1,e.cz);D.setN(pa,D.off);
+    add("tooth","Apical foramen","Opening near the root tip where the nerve, artery and vein enter the pulp. It usually sits 0.5–1 mm short of the anatomical apex, which is why root canal fillings stop slightly short of the apex seen on an X-ray.",pa,"pulp");
+    const ra=rootAt(pr,-pr.L),pr2=V3(ra.cx,-pr.L-.1,ra.cz);D.setN(pr2,D.off);
+    add("tooth",T.roots.length>1?`Root apex (${pr.n.toLowerCase()})`:"Root apex",`Tip of the root, about ${pr.L} mm below the CEJ. Cellular cementum keeps building up here through life, slowly lengthening the root to make up for wear at the biting surface.`,pr2,"cementum");
+    const yc=-.35*pr.L,re=D.rootExtentU(pr,yc);if(re)add("tooth","Cementum","Thin, bone-like layer covering the root, about 20–50 µm thick near the neck and thicker toward the apex. Periodontal ligament fibres (Sharpey's fibres) insert into it. Acellular cementum covers the cervical root; cellular cementum the apical part.",P(re[0]-.06,yc),"cementum");
+    const yp1=-.56*pr.L,re2=D.rootExtentU(pr,yp1);if(re2)add("support","Periodontal ligament","Dense fibrous ligament, about 0.15–0.38 mm wide, that slings the tooth in its socket. It cushions chewing forces, carries mechanoreceptors that sense biting pressure, and contains stem cells for repair. On X-rays it is the thin dark line around the root.",P(re2[1]+.16,yp1),"pdl");
+    const yl=-.74*pr.L,re3=D.rootExtentU(pr,yl);if(re3)add("support","Lamina dura (alveolar bone proper)","Thin layer of compact bone lining the socket. Periodontal ligament fibres anchor into it. It shows as a white line around the root on X-rays; loss of it can signal infection at the apex or periodontal disease.",P(re3[1]+.5,yl),"lamina");
+    const yb=-.42*pr.L,re4=D.rootExtentU(pr,yb);if(re4)add("support","Cancellous (trabecular) bone","Spongy bone between the socket and the outer plates. Its marrow spaces carry the vessels and nerves that feed the periodontium.",P(Math.min(re4[1]+2.2,(D.uAx==="x"?D.Xb:D.Zb)-2),yb),"trab");
+    const yc2=-1.7,re5=D.rootExtentU(pr,-1.7)||[ext(crownSec,0)[0],0];add("support","Alveolar crest","Top of the bone around the tooth, normally 1.5–2 mm below the CEJ. On X-rays, a crest further from the CEJ indicates bone loss from periodontal disease.",P(re5[0]-.9,yc2-.15),"cortical");
+  }
+  const c0=ext(crownSec,.05);
+  add("tooth","Cementoenamel junction (CEJ)","Cervical line where crown enamel meets root cementum. In about 60% of teeth the cementum overlaps the enamel, in about 30% they meet edge to edge, and in about 10% a small gap leaves dentin exposed, a common source of sensitivity.",P(c0[1],.02),"cementum");
+  if(T.trunk){
+    let fp=null;if(D.planeRoots.length>1){const a=D.rootExtentU(D.planeRoots[0],-T.trunk-.6),b=D.rootExtentU(D.planeRoots[1],-T.trunk-.6);if(a&&b){const u=(Math.max(a[0],b[0])+Math.min(a[1],b[1]))/2;fp=P(u,-T.trunk-1.1)}}
+    if(!fp){fp=V3(D.uAx==="x"?0:0,-T.trunk-.9,0);if(D.cutAxis==="z"){fp.x=T.BLc/2*.9;fp.z=D.off}else{fp.x=D.off;fp.z=0}}
+    add("tooth","Root trunk and furcation",`The root trunk runs about ${T.trunk} mm from the CEJ to the furcation, where the roots divide. Once periodontal bone loss reaches the furcation, the area is hard to clean and the tooth's outlook worsens.`,fp,"dentin");
+  }
+  /* supporting */
+  add("support","Cortical plate",`Dense outer shell of the ${U?"maxilla":"mandible"}. ${U?"Over the upper teeth the buccal plate is thin and porous, which is why local anaesthetic infiltrates well here.":t.pos>=6?"Over the lower molars the buccal plate is thick, so infiltration rarely works and a nerve block is used.":"Over the lower anterior teeth the plate is thin."}`,P((D.uAx==="x"?D.Xb:D.Zb)-.5,-.55*T.Lmax),"cortical");
+  add("support","Attached gingiva","Firm, keratinized gum bound to the bone and cementum. It runs from the free gingival groove down to the mucogingival junction, where the looser, redder alveolar mucosa begins.",P((D.uAx==="x"?D.Xb:D.Zb)+.55,-4.5),"gum");
+  const g1=ext(crownSec,1.15);
+  add("support","Free gingiva and gingival sulcus",`Collar of gum around the neck of the tooth that is not attached to it. The shallow groove inside it is the gingival sulcus, normally 0.5–3 mm deep; this is the depth a periodontal probe measures. Buccal gingiva here: ${sup.buccal.toLowerCase()}. ${U?"Palatal":"Lingual"} gingiva: ${sup.lingual.toLowerCase()}.`,P(g1[1]+.5,1.15),"gum");
+  add("support","Junctional epithelium","Thin epithelium that seals the gum to the tooth at the base of the sulcus, just above the connective tissue fibres. Together they form the supracrestal attachment (biologic width) of about 2 mm, which fillings and crowns should not invade.",P(c0[0]-.35,.35),"gum");
+  /* vessels */
+  if(pr){const c=pr.canals[0];const at=(y,o)=>{const s=canalAt(pr,c,y);const p=V3(s.cx,y,s.cz);D.setN(p,D.off);D.setU(p,D.getU(p)+o*Math.min(.32,(D.uAx==="x"?s.a:s.b)*.5));return p};
+    add("vessels","Pulpal nerve fibres",`Branches of the ${sup.pulp.charAt(0).toLowerCase()+sup.pulp.slice(1)}. Mostly A-delta fibres (sharp, quick pain near the odontoblasts) and C fibres (dull, lingering pain deeper in the pulp). Almost any stimulus reaching pulp nerves is felt as pain.`,at(-.22*pr.L,0),"n");
+    add("vessels","Pulpal arteriole","Small artery entering through the apical foramen. It branches into a dense capillary network just under the odontoblast layer.",at(-.32*pr.L,-1),"a");
+    add("vessels","Pulpal venule","Thin-walled vein carrying blood back out of the apex. The pulp is boxed in by dentin, so inflammation squeezes these veins first; pressure builds, which is why pulpitis can be so painful and can end in pulp death.",at(-.12*pr.L,1),"v");
+    const yE=canalEnd(pr,c),e=canalAt(pr,c,yE);const ab=V3(e.cx,(-pr.L+D.yp)/2+.3,e.cz);D.setN(ab,D.off);
+    add("vessels","Apical neurovascular bundle","Nerve, artery and vein passing together from the alveolar bone into the apical foramen. Infection leaving the apex can form an abscess or granuloma around this bundle.",ab,"n");
+  }
+  if(D.plexusPt)add("vessels","Subodontoblastic plexus (of Raschkow)","Nerve plexus under the cell-free zone of the crown pulp. Fibres lose their myelin here; some pass between the odontoblasts and a short way into the tubules.",D.plexusPt.clone(),"n");
+  if(D.perioPt)add("vessels","Periodontal branches","Small arteries and nerves running up through the ligament and interdental bone to the gingiva. They give the ligament a rich blood supply and the pressure-sensing endings that guide chewing force.",D.perioPt.clone(),"n");
+  const par=sup.parent,pv=(k)=>{const p=V3(D.PV[k].x,D.PV[k].y,0);if(D.cutAxis==="z")p.z=D.off;else{p.z=0;p.x=D.PV[k].x}return p};
+  add("vessels",par.n,(PARENT_DESC[par.n]||"")+(sup.extra?" "+sup.extra:""),pv("n"),"n");
+  add("vessels",par.a,`${sup.artery}. It runs with the nerve and gives off dental branches to the apex and periodontal and interalveolar branches to the bone and gingiva.`,pv("a"),"a");
+  add("vessels",par.v,`${sup.vein}. Lymph from this tooth drains to the ${sup.lymph.charAt(0).toLowerCase()+sup.lymph.slice(1)}.`,pv("v"),"v");
+  {const p=V3(D.xp,D.yp-D.canalR+.25,0);if(D.cutAxis==="z")p.z=D.off;add("vessels",par.canal,U?"The superior alveolar vessels and nerves run in thin bony canals in the walls of the maxillary sinus and join above the root tips as the superior dental plexus.":`Bony canal carrying the ${par.n.toLowerCase()}, artery and vein. Its distance from the root tips matters for extractions, implants and root canal treatment.`,p,"marrow")}
+  /* crown landmarks */
+  const cs=(X,Z)=>crownTop(T,X,Z);
+  if(cls==="incisor"){
+    add("crown","Incisal edge","Cutting edge of the crown. Fresh incisors show three rounded mamelons here, which wear flat within a few years.",V3(crownSec(T,T.H).cx,T.H+.05,0),null,{ext:1});
+    add("crown","Cingulum","Bulge on the lingual third of the crown near the gum line, the remnant of a lingual developmental lobe.",crownSide(T,.2*T.Hs,Math.PI),null,{ext:1});
+    add("crown","Lingual fossa",`Shallow scoop on the lingual surface between the marginal ridges${t.key==="U2"?". A lingual pit often lies at its top":""}.`,crownSide(T,.55*T.Hs,Math.PI).add(V3(.25,0,0)),null,{ext:1});
+    add("crown","Mesial marginal ridge","Raised rim along the mesial edge of the lingual surface.",crownSide(T,.55*T.Hs,Math.PI-.7),null,{ext:1});
+    add("crown","Distal marginal ridge","Raised rim along the distal edge of the lingual surface.",crownSide(T,.55*T.Hs,Math.PI+.7),null,{ext:1});
+    add("crown","Labial surface","Smooth, slightly convex face toward the lip, with faint developmental depressions dividing the three labial lobes.",crownSide(T,.6*T.Hs,0),null,{ext:1});
+  }else if(cls==="canine"){
+    add("crown","Cusp tip","Single pointed cusp, the main working tip. It guides the jaw in side-to-side movements (canine guidance).",cs(0,0),null,{ext:1});
+    add("crown","Mesial cusp ridge","Ridge running mesially from the cusp tip; shorter than the distal ridge.",crownSide(T,.86*T.Hs,Math.PI/2),null,{ext:1});
+    add("crown","Distal cusp ridge","Longer ridge running distally from the cusp tip.",crownSide(T,.86*T.Hs,-Math.PI/2),null,{ext:1});
+    add("crown","Labial ridge","Vertical ridge down the middle of the labial surface.",crownSide(T,.62*T.Hs,0),null,{ext:1});
+    add("crown","Lingual ridge","Ridge from the cusp tip toward the cingulum, dividing the lingual surface into two fossae.",crownSide(T,.72*T.Hs,Math.PI),null,{ext:1});
+    add("crown","Cingulum","Lingual bulge near the gum line, very prominent on canines.",crownSide(T,.2*T.Hs,Math.PI),null,{ext:1});
+  }else{
+    for(const s of T.shapes){if(!s.n)continue;
+      const p=s.cusp?cs(s.x,s.z):cs(s.x,s.z);if(s.cusp)p.y+=.05;
+      const d=s.cusp?`${s.n}.${/lingual|palatal/i.test(s.n)?(U?" Palatal cusps of upper teeth are the supporting (holding) cusps.":" Lingual cusps of lower teeth are the non-supporting (guiding) cusps."):(U?" Buccal cusps of upper teeth are non-supporting.":" Buccal cusps of lower teeth are the supporting (holding) cusps.")}`:s.n==="Oblique ridge"?"Ridge running diagonally across the occlusal surface from the mesiopalatal to the distobuccal cusp, a hallmark of upper molars.":s.n==="Transverse ridge"?"Ridge joining the buccal and lingual cusps across the occlusal surface.":`${s.n}, where grooves meet on the occlusal surface. Pits and fissures here are the commonest site of decay and the target of fissure sealants.`;
+      add("crown",s.n,d,p,null,{ext:1})}
+    for(const m of MR)add("crown",m.n,"Raised rim at the edge of the occlusal table that keeps food on the biting surface and forms the contact area with the neighboring tooth.",cs(m.x,m.z),null,{ext:1});
+    if(T.cls==="molar"){add("crown","Buccal groove","Developmental groove running from the central fossa down the buccal surface between the buccal cusps; it often ends in a pit.",crownSide(T,.82*T.Hs,-.12),null,{ext:1});
+      if(t.key==="U6")add("crown","Cusp of Carabelli","Small fifth cusp on the mesiopalatal surface, present in a majority of people of European descent and less often in other populations.",crownSide(T,.6*T.Hs,Math.PI-.55),null,{ext:1})}
+    if(t.key==="U4")add("crown","Mesial developmental depression","Concavity on the mesial surface of the crown and root, unique to this tooth; it makes cleaning and fitting crowns harder.",crownSide(T,.25*T.Hs,Math.PI/2),null,{ext:1});
+  }
+  F.forEach((f,i)=>f.num=i+1);
+  return F;
+}
+function featVisible(f){
+  if(f.g==="support"&&!S.tl.support)return false;
+  if(f.g==="vessels"&&!S.tl.vessels)return false;
+  if(S.disp==="surface"&&!f.ext&&f.g!=="support")return false;
+  if(S.disp==="surface"&&f.g==="support"&&f.layer!=="gum"&&f.layer!=="cortical")return false;
+  if(S.disp==="section"&&f.ext){const n=D.getN(f.p);if(n>D.off+.25)return false}
+  return true;
+}
+
+/* ---------- tooth panel ---------- */
+function renderToothPanel(){
+  if(!D)return;const t=D.t,T=t.T,f=T.facts,sup=supply(t),U=t.arch==="U";
+  $("t-name").textContent=cap1(t.name);
+  $("t-nums").textContent=`Universal #${t.uni} · FDI ${t.fdi} · ${cap1(T.cls)}`;
+  const rows=[["Crown height",`${T.H} mm`],["Root length",T.roots.length>1?T.roots.map(r=>`${r.n.replace(" root","")} ${r.L} mm`).join(", "):`${T.R} mm`],["Crown width",`${T.MD} mm mesiodistal × ${T.BL} mm ${U&&T.pos>3?"buccopalatal":"buccolingual"}`],
+    ["Roots",T.roots.length>1?`${T.roots.length}: `+T.roots.map(r=>r.n.replace(" root","").toLowerCase()).join(", "):"1"],["Canals (typical)",f.canals],
+    ["Calcification begins",f.calc],["Crown complete",f.crown],["Erupts",f.erupt],["Root complete",f.root],
+    ["Pulp nerve supply",sup.pulp],[U?"Buccal gingiva":"Buccal / labial gingiva",sup.buccal],[U?"Palatal gingiva":"Lingual gingiva",sup.lingual],["Arteries",sup.artery],["Veins",sup.vein],["Lymph drainage",sup.lymph]];
+  const box=$("t-facts");box.innerHTML="<h3>Key facts</h3>";const dl=document.createElement("dl");for(const[a,b]of rows){const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=a;dd.textContent=b;dl.append(dt,dd)}box.appendChild(dl);
+  const nb=$("t-notes");nb.innerHTML="<h3>How to recognize it</h3>";const ul=document.createElement("ul");for(const n of f.notes){const li=document.createElement("li");li.textContent=n;ul.appendChild(li)}nb.appendChild(ul);
+  $("t-help").textContent=`Click a number on the model or a row below to highlight that structure and zoom to it. Cut section slices the tooth ${S.cut==="bl"?"buccolingually (cheek to tongue)":"mesiodistally (front to back along the arch)"}; switch the cut to see the other plane, or use X-ray to see every root and canal at once. Shapes are schematic and based on average dimensions.`;
+  renderFeatures();
+}
+function renderFeatures(){
+  if(!D)return;const box=$("t-feats");box.textContent="";
+  for(const g of GROUPS){const items=D.feats.filter(f=>f.g===g.k);if(!items.length)continue;
+    const wrap=document.createElement("div");wrap.className="fgroup";const h=document.createElement("h3");h.textContent=g.n;wrap.appendChild(h);
+    for(const f of items){const el=document.createElement("div");el.className="feat";el.tabIndex=0;el.setAttribute("role","button");el.style.setProperty("--c",f.layer?`var(${FCOL[f.layer]})`:"var(--line)");
+      const vis=featVisible(f);if(!vis)el.classList.add("off");if(f.num-1===S.sel)el.classList.add("sel");
+      el.innerHTML='<div class="fh"><span class="fn"></span><span class="ft"></span><span class="fx"></span></div><p></p>';
+      el.querySelector(".fn").textContent=f.num;el.querySelector(".ft").textContent=f.n;el.querySelector("p").textContent=f.desc;
+      if(!vis)el.querySelector(".fx").textContent=f.g==="support"&&!S.tl.support?"Bone & gum off":f.g==="vessels"&&!S.tl.vessels?"Vessels off":S.disp==="surface"?"Inside the tooth":"Not in this cut";
+      el.onclick=()=>selectFeat(f.num-1===S.sel?-1:f.num-1,true);el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();el.click()}};
+      f.row=el;wrap.appendChild(el)}
+    box.appendChild(wrap)}
+}
+function selectFeat(i,fly){
+  S.sel=i;if(D)D.feats.forEach((f,j)=>f.row&&f.row.classList.toggle("sel",j===i));
+  if(i>=0&&D){const f=D.feats[i];if(f.row){const sb=$("t-box");const top=f.row.offsetTop-sb.offsetTop-40;if(top<sb.scrollTop||top+f.row.offsetHeight>sb.scrollTop+sb.clientHeight)sb.scrollTo({top,behavior:reduceMotion?"auto":"smooth"})}
+    if(fly){const w=f.p.clone().applyMatrix4(D.t.M);tweenTo(w,Math.max(26,toothFit.d*.5),null,null,600)}}
+}
+
+/* ---------- tooth enter / exit ---------- */
+let archCamSave=null,toothFit={c:V3(),d:60,az:0,el:0};
+function toothView(t){
+  const T=t.T,nAx=S.cut==="bl"?"z":"x";
+  const nW=V3(nAx==="z"?0:1,0,nAx==="z"?1:0).transformDirection(t.M);
+  const pts=[];for(const x of[-1,1])for(const z of[-1,1])for(const y of[T.H+1,-(T.Lmax+8)])pts.push(V3(x*(T.BL/2+3),y,z*(T.MD/2+2)).applyMatrix4(t.M));
+  const f=fitDist(pts,1.0);const az=Math.atan2(nW.x,nW.z)+.42,el=Math.asin(Math.max(-1,Math.min(1,nW.y)))+.12;
+  toothFit={c:f.c,d:f.d,az,el};return toothFit;
+}
+function fitTooth(){if(!S.tooth)return;const v=toothView(S.tooth);tweenTo(v.c,v.d,v.az,v.el,700)}
+function enterTooth(t,animate){
+  if(S.mode==="arch"){archCamSave={t:cam.t.clone(),d:cam.d,az:cam.az,el:cam.el};setHover(null)}
+  const wasArch=S.mode==="arch";if(S.tooth!==t)S.cut=DEFAULT_CUT(t.T.key);S.tooth=t;S.sel=-1;
+  const go=()=>{S.mode="tooth";applyLayers();buildDetail(t);renderToothPanel();showPanels();const v=toothView(t);tweenTo(v.c,v.d,v.az,v.el,wasArch?900:650)};
+  if(wasArch&&animate&&!reduceMotion){const c=t.tipW.clone().lerp(t.apex,.35);t.em.emissive.setHex(0x5a3d00);tweenTo(c,Math.max(55,cam.d*.42),null,null,520,()=>{t.em.emissive.setHex(0);go()})}else go();
+}
+function exitTooth(){disposeDetail();S.mode="arch";S.tooth=null;applyLayers();showPanels();if(archCamSave)tweenTo(archCamSave.t,archCamSave.d,archCamSave.az,archCamSave.el,800);else setView(S.view)}
+function showPanels(){const a=S.mode==="arch";$("tools-arch").hidden=!a;$("tools-tooth").hidden=a;$("pane-arch").hidden=!a;$("pane-tooth").hidden=a;renderLegend();
+  canvas.setAttribute("aria-label",a?"3D model of the mouth with all 32 permanent teeth. Click a tooth to open its anatomy.":`3D cut section of the ${S.tooth.name} with its layers, nerves and vessels.`)}
+$("t-back").onclick=exitTooth;
+const stepTooth=d=>{if(!S.tooth)return;let n=S.tooth.uni+d;if(n<1)n=32;if(n>32)n=1;enterTooth(byUni(n),false)};
+$("t-prev").onclick=()=>stepTooth(-1);$("t-next").onclick=()=>stepTooth(1);
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{S.disp=b.dataset.mode;applyDisplay()});
+document.querySelectorAll("[data-cut]").forEach(b=>b.onclick=()=>{if(S.cut===b.dataset.cut)return;S.cut=b.dataset.cut;S.sel=-1;buildDetail(S.tooth);renderToothPanel();fitTooth()});
+document.querySelectorAll("[data-tl]").forEach(b=>b.onclick=()=>{const k=b.dataset.tl;S.tl[k]=!S.tl[k];applyDisplay()});
+
+/* ---------- legend & badge ---------- */
+function renderLegend(){
+  const L=$("legend");L.textContent="";
+  const items=S.mode==="arch"?[["--enamel","Enamel (crown)"],["--cementum","Root (cementum)"],["--gum","Gingiva"],["--palate","Palate"],["--bone","Bone"],["--nerve","Nerve",1],["--artery","Artery",1],["--vein","Vein",1]]
+    :[["--enamel","Enamel"],["--dentin","Dentin"],["--pulp","Pulp"],["--odonto","Odontoblast layer"],["--cementum","Cementum"],["--pdl","Periodontal ligament"],["--lamina","Lamina dura"],["--bone","Cancellous bone"],["--cortical","Cortical bone"],["--gum","Gingiva"],["--nerve","Nerve",1],["--artery","Artery",1],["--vein","Vein",1]];
+  for(const[tk,n,ln]of items){const s=document.createElement("span");s.innerHTML=`<i class="sw${ln?" ln":""}" style="background:var(${tk})"></i>`;s.appendChild(document.createTextNode(n));L.appendChild(s)}
+}
+function paintBadge(){
+  const b=$("badge");
+  if(S.mode==="arch"){b.innerHTML="";b.append(document.createTextNode(S.view==="upper"?"Upper arch from below":S.view==="lower"?"Lower arch from above":S.view==="side"?"Left side":"Front view"));const s=document.createElement("small");s.textContent="Click any tooth to zoom in";b.appendChild(s)}
+  else{b.innerHTML="";b.append(document.createTextNode(cap1(S.tooth.name)));const s=document.createElement("small");s.textContent=S.disp==="section"?(S.cut==="bl"?"Buccolingual cut section":"Mesiodistal cut section"):S.disp==="xray"?"X-ray view":"Surface view";b.appendChild(s)}
+}
+
+/* ---------- per-frame label placement ---------- */
+const tmpV=V3();
+function proj(p,w,h){tmpV.copy(p).project(camera);return{x:(tmpV.x+1)/2*w,y:(1-tmpV.y)/2*h,z:tmpV.z}}
+let featEls=[],leaderEls=[];
+function placeArchLabels(w,h){
+  const placed=[];
+  const fits=(x,y,bw,bh)=>!placed.some(r=>x<r[0]+r[2]&&x+bw>r[0]&&y<r[1]+r[3]&&y+bh>r[1]);
+  for(const l of archLabels){const on=S.mode==="arch"&&S.layers.nerve&&S.layers[l.L]&&(!l.bone||S.layers.bone);if(!on){l.el.style.visibility="hidden";continue}
+    const p=proj(l.p,w,h);if(p.z>1){l.el.style.visibility="hidden";continue}const bw=l.el.offsetWidth,bh=l.el.offsetHeight;let x=p.x-bw/2,y=p.y-bh-6;
+    if(!fits(x,y,bw,bh)){l.el.style.visibility="hidden";continue}placed.push([x,y,bw,bh]);l.el.style.visibility="";l.el.style.transform=`translate(${x}px,${y}px)`}
+  const camDir=V3();camera.getWorldDirection(camDir);
+  for(const[t,d]of numEls){const on=S.mode==="arch"&&S.layers.nums&&S.layers[t.arch];if(!on){d.style.visibility="hidden";continue}
+    const p=proj(t.tipW,w,h);const bw=d.offsetWidth||18,bh=d.offsetHeight||14;const x=p.x-bw/2,y=p.y-bh/2;
+    if(p.z>1||!fits(x,y,bw,bh)){d.style.visibility="hidden";continue}placed.push([x,y,bw,bh]);d.style.visibility="";d.style.transform=`translate(${x}px,${y}px)`;d.classList.toggle("hov",t===S.hover)}
+}
+function ensureFeatEls(n){
+  while(featEls.length<n){const dot=document.createElement("div");dot.className="dot";dot.tabIndex=-1;const lab=document.createElement("div");lab.className="fl";labelsEl.append(dot,lab);const i=featEls.length;dot.onclick=lab.onclick=()=>selectFeat(S.sel===i?-1:i,false);featEls.push({dot,lab})}
+  while(leaderEls.length<n){const l=document.createElementNS("http://www.w3.org/2000/svg","line");leadersEl.appendChild(l);leaderEls.push(l)}
+}
+function placeFeatLabels(w,h){
+  const n=S.mode==="tooth"&&D?D.feats.length:0;ensureFeatEls(n);
+  for(let i=n;i<featEls.length;i++){featEls[i].dot.style.display="none";featEls[i].lab.style.display="none";leaderEls[i].style.display="none"}
+  if(!n)return;
+  const M=D.t.M,wide=w>=700,cx=proj(toothFit.c,w,h).x;
+  const items=[];
+  D.feats.forEach((f,i)=>{const fe=featEls[i],vis=featVisible(f);
+    if(!vis){fe.dot.style.display="none";fe.lab.style.display="none";leaderEls[i].style.display="none";return}
+    const p=proj(f.p.clone().applyMatrix4(M),w,h);if(p.z>1||p.x<-20||p.x>w+20||p.y<-20||p.y>h+20){fe.dot.style.display="none";fe.lab.style.display="none";leaderEls[i].style.display="none";return}
+    fe.dot.style.display="";fe.dot.textContent=f.num;fe.dot.style.transform=`translate(${p.x}px,${p.y}px)`;fe.dot.classList.toggle("sel",i===S.sel);fe.dot.setAttribute("aria-label",f.n);
+    const showLab=S.tl.labels&&(wide||i===S.sel);
+    if(!showLab){fe.lab.style.display="none";leaderEls[i].style.display="none";return}
+    fe.lab.style.display="";fe.lab.innerHTML="";const b=document.createElement("b");b.textContent=f.num;fe.lab.append(b,document.createTextNode(f.n));fe.lab.classList.toggle("sel",i===S.sel);
+    items.push({i,p,left:wide?p.x<cx:p.x>w/2,fe})});
+  const colW=Math.min(190,Math.max(120,w*.2));
+  for(const side of[true,false]){
+    let col=items.filter(o=>o.left===side);
+    const lh=19,top=44,bottom=h-8;
+    if(wide){const cap=Math.max(1,Math.floor((bottom-top)/(lh+2)));
+      if(col.length>cap){const pri={tooth:0,vessels:1,support:2,crown:3};
+        const keep=col.slice().sort((a,b)=>(b.i===S.sel)-(a.i===S.sel)||pri[D.feats[a.i].g]-pri[D.feats[b.i].g]||a.i-b.i).slice(0,cap);
+        for(const o of col)if(!keep.includes(o)){o.fe.lab.style.display="none";leaderEls[o.i].style.display="none"}col=keep}}
+    col.sort((a,b)=>a.p.y-b.p.y);let y=top;
+    const ys=col.map(o=>{y=Math.max(o.p.y-lh/2,y);const r=y;y+=lh+2;return r});
+    let over=(ys.length?ys[ys.length-1]+lh:0)-bottom;if(over>0){for(let k=ys.length-1;k>=0;k--){const lim=k===ys.length-1?bottom-lh:ys[k+1]-lh-2;ys[k]=Math.min(ys[k],lim)}}
+    col.forEach((o,k)=>{const lab=o.fe.lab;lab.style.maxWidth=colW+"px";const bw=Math.min(colW,lab.offsetWidth||colW);
+      let x;if(!wide){x=Math.min(w-bw-6,Math.max(6,o.p.x+12));ys[k]=Math.max(4,o.p.y-28)}else x=side?8:w-bw-8;
+      lab.style.transform=`translate(${x}px,${ys[k]}px)`;
+      const ln=leaderEls[o.i];ln.style.display="";const lx=wide?(side?x+bw:x):x+6,ly=ys[k]+lh/2;
+      ln.setAttribute("x1",lx);ln.setAttribute("y1",ly);ln.setAttribute("x2",o.p.x);ln.setAttribute("y2",o.p.y);ln.classList.toggle("sel",o.i===S.sel)});
+  }
+}
+
+/* ---------- highlight pulse ---------- */
+const hiCol=new THREE.Color();
+function tickHighlight(now){
+  if(!D)return;const sel=S.sel>=0?D.feats[S.sel]:null,k=sel&&sel.layer?sel.layer:null;
+  const pulse=.5+.5*Math.sin(now/260);
+  for(const lk in D.layers){const L=D.layers[lk];const base=colOf(L.def.tok);
+    if(lk===k){hiCol.copy(base).lerp(colOf("--focus"),.35+.35*pulse);L.capM.color.copy(hiCol);if(L.vis)L.vis.userData.mat.emissive.setRGB(.25*pulse,.17*pulse,0)}
+    else{if(!L.capM.color.equals(base))L.capM.color.copy(base);if(L.vis&&L.vis.userData.mat.emissive.r)L.vis.userData.mat.emissive.setRGB(0,0,0)}}
+}
+
+/* ---------- theme ---------- */
+const themeName=()=>root.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+function applyTheme(){scene.background=colOf("--stage");for(const{m,token}of themed)m.color.copy(colOf(token));amb.intensity=themeName()==="dark"?.18:.2}
+const tb=$("theme-btn"),mq=matchMedia("(prefers-color-scheme: dark)");
+const paintTB=()=>{tb.textContent=themeName()==="dark"?"☀ Light mode":"☾ Night mode"};
+try{const t=localStorage.getItem("dentition-theme");if(t==="dark"||t==="light")root.dataset.theme=t}catch(e){}
+tb.onclick=()=>{const t=themeName()==="dark"?"light":"dark";root.dataset.theme=t;try{localStorage.setItem("dentition-theme",t)}catch(e){}};
+mq.addEventListener&&mq.addEventListener("change",()=>{paintTB();applyTheme()});
+new MutationObserver(()=>{paintTB();applyTheme()}).observe(root,{attributes:true,attributeFilter:["data-theme"]});
+
+/* ---------- loop ---------- */
+function resize(){const w=vp.clientWidth,h=vp.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(vp);
+function loop(now){stepTween(now);placeCam();tickHighlight(now);renderer.render(scene,camera);const w=vp.clientWidth,h=vp.clientHeight;placeArchLabels(w,h);placeFeatLabels(w,h);paintBadge();requestAnimationFrame(loop)}
+paintTB();resize();applyTheme();paintNums();applyLayers();showPanels();
+cam.az=.42;cam.el=.18;cam.d=archFitD();cam.t.set(0,0,0);
+document.querySelectorAll("[data-view]").forEach(b=>b.setAttribute("aria-pressed","false"));
+requestAnimationFrame(loop);
+})();
+</script>
+
+</body></html>
