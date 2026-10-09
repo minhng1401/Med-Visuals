@@ -1,0 +1,856 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Left Leg Motor Pathway</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:ital,wght@0,500;0,600;1,500&display=swap">
+<style>
+/* Layout: atlas plate. Tall front-view schematic on the left, a sticky station sheet on the right; stacks on phones. */
+:root{
+  --paper:#EDF0F3; --sheet:#F9FAFB; --ink:#16202A; --muted:#5B6776; --rule:#D2D8DF;
+  --umn:#B3283A; --lmn:#2A62A8; --loop:#2F8455;
+  --lesion:#E29A00; --lesion-edge:#9A6400; --lesion-wash:rgba(226,154,0,.15); --on-lesion:#241800;
+  --gm:#CDBDB3; --gm-strong:#B39A8C; --wm:#F6F1EC; --wm2:#E6DDD5; --csf:#CBDDEB; --nuc:#C3B0A5;
+  --snc:#2E2522; --on-snc:#F4EEE9; --skin:#EAE3DD; --muscle:#D9ABA3;
+  --f-display:"Spectral", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1318; --sheet:#151C23; --ink:#E2E7ED; --muted:#93A0AE; --rule:#28323D;
+    --umn:#EE5F6E; --lmn:#6FA3EA; --loop:#62C38A;
+    --lesion:#FFC234; --lesion-edge:#FFE19A; --lesion-wash:rgba(255,194,52,.13);
+    --gm:#5C504B; --gm-strong:#7C6A61; --wm:#25292E; --wm2:#33373C; --csf:#1F3446; --nuc:#544843;
+    --snc:#0A0807; --on-snc:#E2E7ED; --skin:#262A2F; --muscle:#5E3C39;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1318; --sheet:#151C23; --ink:#E2E7ED; --muted:#93A0AE; --rule:#28323D;
+  --umn:#EE5F6E; --lmn:#6FA3EA; --loop:#62C38A;
+  --lesion:#FFC234; --lesion-edge:#FFE19A; --lesion-wash:rgba(255,194,52,.13);
+  --gm:#5C504B; --gm-strong:#7C6A61; --wm:#25292E; --wm2:#33373C; --csf:#1F3446; --nuc:#544843;
+  --snc:#0A0807; --on-snc:#E2E7ED; --skin:#262A2F; --muscle:#5E3C39;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1260px;margin:0 auto;padding-inline:20px;padding-block:28px 48px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lesion);outline-offset:2px}
+
+/* Top bar: credit + theme */
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.byline{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--muted)}
+.byline b{color:var(--ink);font-weight:500}
+.theme{display:inline-flex;border:1px solid var(--rule);border-radius:999px;background:var(--sheet);padding:3px;gap:2px}
+.theme button{border:none;background:transparent;border-radius:999px;padding:4px 12px;font-size:12.5px;cursor:pointer;color:var(--muted)}
+.theme button:hover{color:var(--ink)}
+.theme button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+
+/* Header */
+.top{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;align-items:end;padding-bottom:22px;border-bottom:1px solid var(--rule)}
+.kicker{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(2rem,4.2vw,3rem);line-height:1.05;margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:italic;font-weight:500;color:var(--umn)}
+.stand{margin:0;max-width:62ch;color:var(--muted)}
+.rule-card{border:1px solid var(--rule);background:var(--sheet);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
+.rule-card h2{margin:0;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.rule-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;font-size:14px}
+.side-chip{font-family:var(--f-mono);font-size:11px;font-weight:500;padding:2px 7px;border-radius:4px;border:1px solid var(--rule);white-space:nowrap;margin-top:1px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:18px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend svg{flex:none}
+
+/* Index */
+.index{margin-top:18px;border:1px solid var(--rule);border-radius:10px;background:var(--sheet)}
+.index summary{cursor:pointer;padding:12px 16px;font-weight:600;font-size:14px;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.index summary::-webkit-details-marker{display:none}
+.index summary::after{content:"+";font-family:var(--f-mono);color:var(--muted)}
+.index[open] summary::after{content:"−"}
+.ix-body{padding:4px 16px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px 22px}
+.ix-group h3{margin:0 0 6px;font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--rule);background:var(--paper);border-radius:999px;padding:3px 10px;font-size:12.5px;cursor:pointer;text-align:left}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--lesion);background:var(--lesion-wash)}
+
+/* Main grid */
+.main{display:grid;grid-template-columns:minmax(0,620px) minmax(0,1fr);gap:32px;margin-top:24px;align-items:start}
+.mapcol{min-width:0}
+.mapbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--paper);padding-block:8px;display:flex;align-items:center;gap:10px;min-height:44px;border-bottom:1px solid var(--rule);font-size:13.5px}
+.mapbar .dot{width:10px;height:10px;border-radius:50%;background:var(--rule);flex:none}
+.mapbar.on .dot{background:var(--lesion);box-shadow:0 0 0 4px var(--lesion-wash)}
+.mapbar #lesionText{flex:1;min-width:0}
+.mapbar b{font-weight:600}
+.btn-ghost{border:1px solid var(--rule);background:var(--sheet);border-radius:6px;padding:4px 10px;font-size:12.5px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--muted)}
+#map{display:block;width:100%;height:auto;margin-top:6px}
+
+/* SVG anatomy */
+.orient{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.tiny{font-family:var(--f-mono);font-size:8.5px;font-weight:500;fill:var(--muted)}
+.tiny.strong{font-size:10px;fill:var(--ink)}
+.level{font-family:var(--f-mono);font-size:10px;font-weight:500;fill:var(--muted)}
+.cortex{fill:var(--wm);stroke:var(--gm);stroke-width:12;stroke-linejoin:round}
+.sulcus{fill:none;stroke:var(--gm);stroke-width:3;stroke-linecap:round}
+.fissure-gm{stroke:var(--gm);stroke-width:14;stroke-linecap:round}
+.fissure{stroke:var(--paper);stroke-width:2.5}
+.leg-area{fill:var(--gm-strong)}
+.leg-area.ghost-area{fill:var(--gm)}
+.callosum{fill:none;stroke:var(--wm2);stroke-width:10;stroke-linecap:round}
+.csf{fill:var(--csf)}
+.nuc{fill:var(--nuc);stroke:var(--gm-strong);stroke-width:.8}
+.gp{fill:var(--wm2)}
+.nuc-ghost{fill:var(--nuc);opacity:.45}
+.gp-ghost{fill:var(--wm2);stroke:var(--gm);stroke-width:.8}
+.snc{fill:var(--snc);stroke:var(--gm-strong);stroke-width:.6}
+.snc-ghost{fill:var(--snc);opacity:.35}
+.tissue{fill:var(--wm);stroke:var(--gm-strong);stroke-width:1.4;stroke-linejoin:round}
+.striae{fill:none;stroke:var(--gm);stroke-width:1}
+.pyr{fill:var(--wm2);stroke:var(--gm-strong);stroke-width:.8}
+.olive{fill:var(--nuc)}
+.graycol{fill:var(--gm);opacity:.6}
+.ah-main{fill:var(--gm-strong)}
+.cauda path{fill:none;stroke:var(--muted);stroke-width:1;opacity:.55}
+.skin{fill:var(--skin);stroke:var(--muted);stroke-width:1.2;stroke-linejoin:round}
+.muscle{fill:var(--muscle)}
+.nmj{fill:var(--sheet);stroke:var(--lmn);stroke-width:2}
+.seg{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:pointer;transition:stroke-width .2s, opacity .25s}
+.umn{stroke:var(--umn);stroke-width:5;opacity:.3}
+.lmn{stroke:var(--lmn);stroke-width:4;opacity:.3}
+.ghost{stroke:var(--muted);stroke-width:2.2;stroke-dasharray:5 4;opacity:.3;cursor:default}
+.loop{fill:none;stroke:var(--loop);stroke-width:2;cursor:pointer;opacity:.35;transition:opacity .25s, stroke-width .2s}
+.seg:hover,.loop:hover{opacity:.7}
+.loop.dashed{stroke-dasharray:4 3}
+.mk-loop{fill:var(--loop)}
+.syn{fill:var(--umn)}
+.soma{fill:var(--lmn)}
+[data-station]{cursor:pointer}
+/* inset */
+.inset-frame{fill:var(--sheet);stroke:var(--rule)}
+.x-cord{fill:var(--wm);stroke:var(--gm-strong);stroke-width:1.2}
+.x-gm{fill:var(--gm-strong)}
+.x-ah{fill:var(--gm-strong);stroke:var(--lmn);stroke-width:1.4}
+.x-lcst{fill:var(--umn);opacity:.9}
+.x-lcst-r{fill:var(--muted);opacity:.35}
+.x-tract{fill:transparent;stroke:var(--muted);stroke-width:.7;stroke-dasharray:2 1.5}
+.x-central{fill:transparent;stroke:none}
+.leader-dash{stroke:var(--muted);stroke-width:.8;stroke-dasharray:3 3}
+/* station labels */
+.stn{cursor:pointer}
+.stn .leader{stroke:var(--muted);stroke-width:.8;opacity:.75}
+.stn .pin{fill:var(--ink)}
+.stn .mk{fill:var(--sheet);stroke:var(--ink);stroke-width:1.2}
+.stn .num{font-family:var(--f-body);font-size:10.5px;font-weight:600;fill:var(--ink)}
+.stn .nm{font-family:var(--f-body);font-size:12.5px;font-weight:600;fill:var(--ink)}
+.stn .sb{font-family:var(--f-mono);font-size:9.5px;fill:var(--muted)}
+.stn:hover .mk{stroke-width:2.2}
+.stn:focus{outline:none}
+.stn:focus-visible .mk{stroke:var(--lesion);stroke-width:3}
+.stn.active .mk{fill:var(--ink)}
+.stn.active .num{fill:var(--sheet)}
+.stn.active .leader{stroke:var(--ink);opacity:1;stroke-width:1.2}
+/* focus + lesion states */
+.seg.umn.focus{stroke-width:7;opacity:1}
+.seg.lmn.focus{stroke-width:6;opacity:1}
+.loop.focus{stroke-width:2.6;opacity:1}
+.shape.focus{stroke:var(--ink);stroke-width:1.6}
+.seg.lesion,.loop.lesion{stroke:var(--lesion) !important;stroke-width:9;opacity:1;stroke-dasharray:none;filter:drop-shadow(0 0 4px var(--lesion))}
+.seg.ghost.lesion{stroke-width:7}
+.shape.lesion{fill:var(--lesion) !important;stroke:var(--lesion-edge);stroke-width:1.5;opacity:1;filter:drop-shadow(0 0 4px var(--lesion))}
+.cbox.lesion rect{fill:var(--lesion);stroke:var(--lesion-edge)}
+.cbox.lesion text{fill:var(--on-lesion)}
+.lesion{animation:throb 1.8s ease-in-out infinite}
+@keyframes throb{0%,100%{opacity:1}50%{opacity:.6}}
+@media (prefers-reduced-motion: reduce){.lesion{animation:none}.seg{transition:none}}
+
+/* Panel */
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:22px 24px 26px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);max-height:calc(100vh - 32px);overflow:auto;min-width:0;scroll-behavior:smooth}
+.p-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start}
+.p-num{font-family:var(--f-display);font-size:3.2rem;line-height:.9;font-weight:500;color:var(--umn);font-variant-numeric:tabular-nums;min-width:1.4ch}
+.p-num.lmn{color:var(--lmn)}
+.p-num.loop{color:var(--loop)}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.panel h2{font-family:var(--f-display);font-weight:600;font-size:1.65rem;line-height:1.15;margin:0;text-wrap:balance}
+.p-where{margin:6px 0 0;color:var(--muted);font-size:14px}
+.p-nav{display:flex;justify-content:space-between;gap:10px;margin:16px 0 4px}
+.p-nav button{border:1px solid var(--rule);background:var(--paper);border-radius:6px;padding:5px 10px;font-size:12.5px;cursor:pointer;max-width:48%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-nav button:hover{border-color:var(--muted)}
+.p-nav button[disabled]{visibility:hidden}
+.p-role{margin:14px 0 0;max-width:65ch}
+.panel h3{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+.facts{display:grid;grid-template-columns:118px minmax(0,1fr);margin:16px 0 0;border-top:1px solid var(--rule)}
+.facts dt,.facts dd{padding:8px 0;border-bottom:1px solid var(--rule);margin:0;font-size:14px}
+.facts dt{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);padding-right:12px;padding-top:10px}
+.damage{margin-top:16px;padding:12px 14px;border-radius:8px;background:var(--paper);font-size:14px}
+.damage strong{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:4px}
+.hint{margin:-4px 0 10px;font-size:13px;color:var(--muted)}
+.dis-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.dis{display:block;width:100%;text-align:left;border:1px solid var(--rule);background:var(--sheet);border-radius:9px;padding:12px 14px;cursor:pointer;transition:border-color .15s}
+.dis:hover{border-color:var(--muted)}
+.dis[aria-pressed="true"]{border-color:var(--lesion);box-shadow:inset 3px 0 0 var(--lesion);background:var(--lesion-wash)}
+.dis-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dis-name{font-weight:600;font-size:15px}
+.kind{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.dis-line{display:block;font-size:13.8px;margin-top:6px}
+.dis-line b{font-weight:600}
+.dis-also{display:block;font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:7px}
+.circuit-wrap{margin-top:16px;border:1px solid var(--rule);border-radius:9px;padding:12px 12px 8px;background:var(--paper);overflow-x:auto}
+.circuit{display:block;width:100%;min-width:300px;height:auto}
+.cbox rect{fill:var(--sheet);stroke:var(--rule);stroke-width:1}
+.cbox text{font-family:var(--f-body);font-size:11px;font-weight:600;fill:var(--ink)}
+.cbox.snc-box rect{fill:var(--snc)}
+.cbox.snc-box text{fill:var(--on-snc)}
+.carr{fill:none;stroke:var(--ink);stroke-width:1.4}
+.mk-exc{fill:var(--ink)}
+.mk-inh{stroke:var(--ink);stroke-width:2.6}
+.clab{font-family:var(--f-body);font-size:10px;font-style:italic;fill:var(--muted)}
+.circuit-key{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:6px 2px 0}
+.back-map{display:none}
+
+/* Signs table */
+.signs{margin-top:44px}
+.signs h2{font-family:var(--f-display);font-weight:600;font-size:1.6rem;margin:0 0 6px}
+.signs > p{margin:0 0 14px;color:var(--muted);max-width:70ch}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--sheet)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+th,td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}
+thead th{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--paper)}
+thead th .sw{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+tbody th{font-weight:600;white-space:nowrap}
+tr:last-child td,tr:last-child th{border-bottom:none}
+.foot{margin-top:28px;font-size:13px;color:var(--muted);max-width:80ch}
+
+#backBtn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:10;background:var(--ink);color:var(--sheet);border:none;border-radius:999px;padding:10px 18px;font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer}
+
+@media (max-width: 960px){
+  .top{grid-template-columns:minmax(0,1fr)}
+  .main{grid-template-columns:minmax(0,1fr)}
+  .panel{position:static;max-height:none;overflow:visible}
+  .back-map{display:inline-block;margin-top:14px}
+}
+@media (min-width: 961px){ #backBtn{display:none !important} }
+@media (max-width: 520px){
+  .wrap{padding-inline:16px}
+  .panel{padding:18px 16px 20px}
+  .facts{grid-template-columns:minmax(0,1fr)}
+  .facts dt{padding-bottom:0;border-bottom:none}
+  .p-num{font-size:2.5rem}
+}
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <span class="byline">Created by <b>Minh</b></span>
+    <div class="theme" role="group" aria-label="Color theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">System</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
+  <header class="top">
+    <div>
+      <p class="kicker">Neuroanatomy · voluntary movement</p>
+      <h1>Moving the <em>left</em> leg</h1>
+      <p class="stand">One voluntary step, traced from the right motor cortex, around the basal ganglia loop, down the corticospinal tract and out to the muscles of the left leg. Pick a station to see its anatomy, then pick a disorder to mark where it strikes.</p>
+    </div>
+    <div class="rule-card" aria-label="Localizing rule">
+      <h2>Localizing rule for a weak left leg</h2>
+      <div class="rule-row"><span class="side-chip">Stations 1–8</span><span>Above the pyramidal decussation the lesion is on the <b>right</b>, opposite the weak leg.</span></div>
+      <div class="rule-row"><span class="side-chip">Stations 9–13</span><span>Below it, in the cord, roots, nerves or muscle, the lesion is on the <b>left</b>, same side.</span></div>
+      <div class="rule-row"><span class="side-chip">Station 2</span><span>Basal ganglia lesions cause abnormal movement, not weakness, and show on the opposite side.</span></div>
+    </div>
+  </header>
+
+  <div class="legend" aria-label="Legend">
+    <span><svg width="26" height="8" aria-hidden="true"><line x1="2" y1="4" x2="24" y2="4" stroke="var(--umn)" stroke-width="4" stroke-linecap="round"/></svg>Upper motor neuron (corticospinal)</span>
+    <span><svg width="26" height="8" aria-hidden="true"><line x1="2" y1="4" x2="24" y2="4" stroke="var(--lmn)" stroke-width="4" stroke-linecap="round"/></svg>Lower motor neuron</span>
+    <span><svg width="26" height="8" aria-hidden="true"><line x1="2" y1="4" x2="24" y2="4" stroke="var(--loop)" stroke-width="2"/></svg>Basal ganglia loop</span>
+    <span><svg width="26" height="8" aria-hidden="true"><line x1="2" y1="4" x2="24" y2="4" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 3" opacity=".6"/></svg>Right-leg pathway, for reference</span>
+    <span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="var(--lesion)"/></svg>Lesion site</span>
+  </div>
+
+  <details class="index" id="index">
+    <summary><span id="ixTitle">Browse all disorders</span></summary>
+    <div class="ix-body" id="ixBody"></div>
+  </details>
+
+  <div class="main">
+    <section class="mapcol" aria-label="Pathway map">
+      <div class="mapbar" id="mapbar" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="lesionText">Pick a disorder in the station sheet to mark its lesion.</span>
+        <button class="btn-ghost" id="clearBtn" type="button" hidden>Clear</button>
+      </div>
+
+      <svg id="map" viewBox="0 0 640 1262" role="img" aria-labelledby="mapTitle mapDesc">
+        <title id="mapTitle">Left leg motor pathway, front view</title>
+        <desc id="mapDesc">Coronal brain section, brainstem, spinal cord and left leg. A red line traces the corticospinal tract from the right motor cortex leg area through the corona radiata, internal capsule, midbrain, pons and medullary pyramid, crossing at the decussation into the left lateral column of the spinal cord. A blue line continues from the left anterior horn at L2 to S2 through the cauda equina, lumbosacral plexus, femoral and sciatic nerves to the left leg muscles. A green loop shows the right basal ganglia circuit.</desc>
+        <defs>
+          <marker id="arrLoop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0 1 L9 5 L0 9 Z" class="mk-loop"/></marker>
+          <path id="homPath" d="M317 58 C 296 42, 238 40, 208 64 C 190 80, 182 98, 180 116" fill="none"/>
+        </defs>
+
+        <text class="orient" x="196" y="14" text-anchor="middle">Patient's right</text>
+        <text class="orient" x="464" y="14" text-anchor="middle">Patient's left</text>
+
+        <!-- Brain, coronal -->
+        <g>
+          <path class="cortex" d="M330 40 C 306 22, 230 20, 192 52 C 158 82, 146 146, 154 194 C 162 234, 176 264, 202 286 C 224 304, 260 306, 282 294 C 292 300, 294 316, 292 336 L 368 336 C 366 316, 368 300, 378 294 C 400 306, 436 304, 458 286 C 484 264, 498 234, 506 194 C 514 146, 502 82, 468 52 C 430 20, 354 22, 330 40 Z"/>
+          <path class="sulcus" d="M157 226 C 172 218, 188 214, 204 214"/>
+          <path class="sulcus" d="M503 226 C 488 218, 472 214, 456 214"/>
+          <line class="fissure-gm" x1="330" y1="36" x2="330" y2="132"/>
+          <line class="fissure" x1="330" y1="28" x2="330" y2="128"/>
+          <ellipse class="shape leg-area" data-h="ctx" data-station="ctx" cx="323" cy="78" rx="6" ry="26"/>
+          <ellipse class="shape leg-area ghost-area" data-h="ctx-l" cx="337" cy="78" rx="6" ry="26"/>
+          <text class="tiny"><textPath href="#homPath" startOffset="3%">leg · trunk · arm · hand · face</textPath></text>
+          <path class="callosum" d="M262 150 Q 330 122 398 150"/>
+          <path class="shape csf" data-h="vent" d="M327 146 C 312 146, 302 152, 300 162 C 304 172, 316 178, 327 180 Z"/>
+          <path class="shape csf" data-h="vent" d="M333 146 C 348 146, 358 152, 360 162 C 356 172, 344 178, 333 180 Z"/>
+          <rect class="csf" x="327" y="194" width="6" height="52" rx="3"/>
+          <!-- left hemisphere nuclei, muted -->
+          <ellipse class="nuc-ghost" cx="364" cy="160" rx="6" ry="10"/>
+          <ellipse class="nuc-ghost" cx="428" cy="214" rx="17" ry="32"/>
+          <ellipse class="gp-ghost" cx="407" cy="218" rx="5" ry="22"/>
+          <ellipse class="gp-ghost" cx="396" cy="222" rx="5" ry="15"/>
+          <ellipse class="nuc-ghost" cx="354" cy="216" rx="18" ry="26"/>
+          <ellipse class="nuc-ghost" cx="356" cy="270" rx="9" ry="5"/>
+          <!-- right basal ganglia & thalamus -->
+          <ellipse class="shape nuc" data-h="caudate striatum" data-station="bg" cx="296" cy="160" rx="6" ry="10"/>
+          <ellipse class="shape nuc" data-h="putamen striatum" data-station="bg" cx="232" cy="214" rx="17" ry="32"/>
+          <ellipse class="shape nuc gp" data-h="gpe" data-station="bg" cx="253" cy="218" rx="5" ry="22"/>
+          <ellipse class="shape nuc gp" data-h="gpi" data-station="bg" cx="264" cy="222" rx="5" ry="15"/>
+          <ellipse class="shape nuc" data-h="thal" data-station="bg" cx="306" cy="216" rx="18" ry="26"/>
+          <ellipse class="shape nuc" data-h="stn" data-station="bg" cx="304" cy="270" rx="9" ry="5"/>
+          <text class="tiny" x="232" y="217" text-anchor="middle">Put</text>
+          <text class="tiny" x="306" y="219" text-anchor="middle">Th</text>
+          <text class="tiny" x="258" y="192" text-anchor="middle">GP</text>
+          <text class="tiny" x="316" y="282">STN</text>
+        </g>
+
+        <!-- Brainstem -->
+        <g>
+          <path class="tissue" d="M284 336 L376 336 L366 402 L294 402 Z"/>
+          <line class="striae" x1="330" y1="362" x2="330" y2="402"/>
+          <ellipse class="shape snc" data-h="snc" data-station="bg" cx="314" cy="350" rx="10" ry="4"/>
+          <ellipse class="snc-ghost" cx="346" cy="350" rx="10" ry="4"/>
+          <text class="tiny" x="318" y="366" text-anchor="middle">SNc</text>
+          <path class="tissue" d="M294 402 C 262 406, 258 472, 298 478 L362 478 C 402 472, 398 406, 366 402 Z"/>
+          <path class="striae" d="M270 420 Q330 412 390 420 M266 438 Q330 430 394 438 M266 456 Q330 448 394 456"/>
+          <path class="tissue" d="M298 478 L362 478 L352 580 L308 580 Z"/>
+          <ellipse class="pyr" cx="319" cy="526" rx="7" ry="44"/>
+          <ellipse class="pyr" cx="341" cy="526" rx="7" ry="44"/>
+          <ellipse class="olive" cx="306" cy="508" rx="3.5" ry="12"/>
+          <ellipse class="olive" cx="354" cy="508" rx="3.5" ry="12"/>
+        </g>
+
+        <!-- Spinal cord -->
+        <g>
+          <path class="tissue" d="M308 580 C 304 630, 306 690, 312 720 L 314 820 C 308 850, 308 880, 316 905 L 330 940 L 344 905 C 352 880, 352 850, 346 820 L 348 720 C 354 690, 356 630, 352 580 Z"/>
+          <rect class="graycol" x="325" y="606" width="10" height="316" rx="5"/>
+          <ellipse class="shape ah-main" data-h="ah" data-station="ah" cx="337" cy="866" rx="6" ry="18"/>
+          <text class="level" x="300" y="655" text-anchor="end">C</text>
+          <text class="level" x="300" y="775" text-anchor="end">T</text>
+          <text class="level" x="300" y="846" text-anchor="end">L</text>
+          <text class="level" x="304" y="912" text-anchor="end">S</text>
+          <g class="cauda" data-h="cauda">
+            <path class="shape-line" d="M330 940 L 318 1002 M330 940 L 324 1004 M330 940 L 330 1006 M330 940 L 336 1004 M330 940 L 342 1002"/>
+          </g>
+        </g>
+
+        <!-- Axial inset -->
+        <g data-station="lcst">
+          <rect class="inset-frame" x="150" y="796" width="140" height="130" rx="8"/>
+          <text class="tiny" x="160" y="812">Lumbar cord · axial</text>
+          <text class="tiny" x="220" y="830" text-anchor="middle">anterior</text>
+          <text class="tiny" x="220" y="916" text-anchor="middle">posterior</text>
+          <text class="tiny strong" x="166" y="872" text-anchor="middle">R</text>
+          <text class="tiny strong" x="274" y="872" text-anchor="middle">L</text>
+          <ellipse class="x-cord" cx="220" cy="868" rx="42" ry="32"/>
+          <ellipse class="shape x-gm" data-h="ah-r" cx="205" cy="857" rx="8" ry="8"/>
+          <ellipse class="shape x-ah" data-h="ah" data-station="ah" cx="235" cy="857" rx="8" ry="8"/>
+          <rect class="x-gm" x="211" y="863" width="18" height="7" rx="3.5"/>
+          <ellipse class="x-gm" cx="210" cy="882" rx="4.5" ry="10" transform="rotate(18 210 882)"/>
+          <ellipse class="x-gm" cx="230" cy="882" rx="4.5" ry="10" transform="rotate(-18 230 882)"/>
+          <ellipse class="shape x-tract" data-h="dc-r" cx="215" cy="893" rx="4.5" ry="5.5"/>
+          <ellipse class="shape x-tract" data-h="dc-l" cx="225" cy="893" rx="4.5" ry="5.5"/>
+          <ellipse class="shape x-tract" data-h="st-r" cx="192" cy="853" rx="4" ry="6"/>
+          <ellipse class="shape x-tract" data-h="st-l" cx="248" cy="853" rx="4" ry="6"/>
+          <ellipse class="shape x-lcst-r" data-h="lcst-r" cx="188" cy="878" rx="5.5" ry="9"/>
+          <ellipse class="shape x-lcst" data-h="lcst" cx="252" cy="878" rx="5.5" ry="9"/>
+          <circle class="shape x-central" data-h="central" cx="220" cy="866" r="13"/>
+          <line class="leader-dash" x1="290" y1="880" x2="313" y2="880"/>
+        </g>
+
+        <!-- Left leg -->
+        <g>
+          <path class="skin" d="M358 990 C 390 972, 440 972, 456 992 C 458 1040, 448 1090, 442 1112 C 444 1140, 442 1170, 432 1204 L 434 1214 C 450 1218, 474 1220, 482 1230 L 406 1232 C 404 1222, 408 1210, 410 1204 C 402 1170, 394 1140, 392 1114 C 382 1080, 366 1040, 358 990 Z"/>
+          <ellipse class="shape muscle" data-h="muscle" data-station="mus" cx="412" cy="1046" rx="20" ry="40"/>
+          <ellipse class="shape muscle" data-h="muscle" data-station="mus" cx="424" cy="1160" rx="9" ry="30"/>
+          <text class="tiny" x="444" y="1252" text-anchor="middle">Patient's left leg</text>
+        </g>
+
+        <!-- Pathways -->
+        <g>
+          <path class="seg ghost" data-h="cr-l" d="M340 82 C 360 106, 382 132, 386 160 C 387 168, 384 174, 382 180"/>
+          <path class="seg ghost" data-h="ic-l" d="M382 180 C 380 204, 377 236, 374 270"/>
+          <path class="seg ghost" data-h="mb-l" d="M374 270 C 370 300, 366 336, 362 368 C 360 382, 358 392, 356 402"/>
+          <path class="seg ghost" data-h="pons-l" d="M356 402 C 354 428, 350 452, 348 478"/>
+          <path class="seg ghost" data-h="med-l" d="M348 478 C 344 512, 340 548, 338 574"/>
+          <path class="seg ghost" data-h="dec-l" d="M338 574 C 336 590, 324 594, 320 610"/>
+          <path class="seg ghost" data-h="lcst-r" d="M320 610 L 320 858"/>
+
+          <path class="loop" data-h="bgloop" data-station="bg" d="M316 96 C 272 108, 236 140, 232 178" marker-end="url(#arrLoop)"/>
+          <path class="loop" data-h="bgloop" data-station="bg" d="M268 232 C 276 242, 286 240, 290 234" marker-end="url(#arrLoop)"/>
+          <path class="loop dashed" data-h="bgloop" data-station="bg" d="M300 192 C 288 178, 283 162, 284 146 C 286 126, 300 104, 312 94" marker-end="url(#arrLoop)"/>
+
+          <path class="seg umn" data-h="cr" data-station="cr" d="M320 82 C 300 106, 278 132, 274 160 C 273 168, 276 174, 278 180"/>
+          <path class="seg umn" data-h="ic" data-station="ic" d="M278 180 C 280 204, 283 236, 286 270"/>
+          <path class="seg umn" data-h="mb" data-station="mb" d="M286 270 C 290 300, 294 336, 298 368 C 300 382, 302 392, 304 402"/>
+          <path class="seg umn" data-h="pons" data-station="pons" d="M304 402 C 306 428, 310 452, 312 478"/>
+          <path class="seg umn" data-h="med" data-station="med" d="M312 478 C 316 512, 320 548, 322 574"/>
+          <path class="seg umn" data-h="dec" data-station="dec" d="M322 574 C 324 590, 336 594, 340 610"/>
+          <path class="seg umn" data-h="lcst" data-station="lcst" d="M340 610 L 340 858"/>
+          <circle class="syn" cx="339" cy="859" r="3.2"/>
+
+          <path class="seg lmn" data-h="root" data-station="pns" d="M337 868 C 350 874, 356 884, 358 900 L 362 960"/>
+          <path class="seg lmn" data-h="plexus" data-station="pns" d="M362 960 C 366 974, 376 984, 386 992"/>
+          <path class="seg lmn" data-h="fem" data-station="pns" d="M386 992 C 398 1010, 404 1030, 406 1058"/>
+          <path class="seg lmn" data-h="sci" data-station="pns" d="M386 992 C 384 1030, 392 1070, 404 1110"/>
+          <path class="seg lmn" data-h="tib" data-station="pns" d="M404 1110 C 408 1140, 412 1170, 416 1198"/>
+          <path class="seg lmn" data-h="fib" data-station="pns" d="M404 1110 C 418 1118, 428 1128, 428 1146 C 428 1158, 427 1162, 427 1166"/>
+          <circle class="soma" cx="337" cy="868" r="4"/>
+          <circle class="shape nmj" data-h="nmj" data-station="nmj" cx="406" cy="1062" r="4.2"/>
+          <circle class="shape nmj" data-h="nmj" data-station="nmj" cx="427" cy="1170" r="4.2"/>
+        </g>
+
+        <g id="labels"></g>
+      </svg>
+    </section>
+
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <section class="signs" aria-labelledby="signsTitle">
+    <h2 id="signsTitle">What the exam tells you</h2>
+    <p>Each tier of the pathway fails in its own way. These patterns are how you place a lesion before imaging.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Finding</th>
+            <th scope="col"><span class="sw" style="background:var(--umn)"></span>UMN (1, 3–9)</th>
+            <th scope="col"><span class="sw" style="background:var(--loop)"></span>Basal ganglia (2)</th>
+            <th scope="col"><span class="sw" style="background:var(--lmn)"></span>LMN (10–11)</th>
+            <th scope="col">NMJ (12)</th>
+            <th scope="col">Muscle (13)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Weakness</th><td>Yes; in the leg, flexors (hip, knee, ankle dorsiflexion) weakest</td><td>None; slowness or extra movement instead</td><td>Yes, in one root, nerve or segment pattern</td><td>Fluctuating, fatigable, often proximal</td><td>Proximal and symmetric</td></tr>
+          <tr><th scope="row">Tone</th><td>Spastic, velocity-dependent, clasp-knife</td><td>Rigid (lead-pipe, cogwheel) or low in chorea</td><td>Flaccid</td><td>Normal</td><td>Normal or low</td></tr>
+          <tr><th scope="row">Reflexes</th><td>Brisk, with clonus</td><td>Normal</td><td>Reduced or absent</td><td>Normal (reduced in Lambert-Eaton)</td><td>Normal until late</td></tr>
+          <tr><th scope="row">Babinski</th><td>Upgoing</td><td>Absent</td><td>Absent</td><td>Absent</td><td>Absent</td></tr>
+          <tr><th scope="row">Atrophy</th><td>Mild, from disuse</td><td>None</td><td>Marked</td><td>None</td><td>Late; calf pseudohypertrophy in Duchenne</td></tr>
+          <tr><th scope="row">Fasciculations</th><td>No</td><td>No</td><td>Yes</td><td>No (yes with organophosphates)</td><td>No</td></tr>
+          <tr><th scope="row">Other clues</th><td>Acute lesions can be flaccid at first (spinal or cerebral shock)</td><td>Tremor, bradykinesia, chorea, ballism, dystonia</td><td>Roots and nerves add pain and sensory loss; anterior horn disease does not</td><td>Ocular and bulbar signs; normal sensation</td><td>Raised CK, myalgia, normal sensation</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="foot">Schematic, not to scale; the front view places the patient's right on your left. The cerebellar loop (cortex → pons → cerebellum → VL thalamus → cortex) also tunes each step but is not drawn. Made for study, not for clinical decisions.</p>
+    <p class="foot byline">Created by <b>Minh</b></p>
+  </section>
+</div>
+
+<button id="backBtn" type="button" hidden>Back to station details ↓</button>
+
+<script>
+(function(){
+const STATIONS = [
+{ id:"ctx", n:1, color:"umn", name:"Motor cortex, leg area", side:"Right", tier:"Upper motor neuron",
+  where:"Right precentral gyrus at the paracentral lobule (medial surface), with the SMA and premotor cortex just in front",
+  role:"The supplementary motor area and premotor cortex build the plan to step with the left leg. Pyramidal neurons in the leg zone of the right primary motor cortex (Brodmann area 4), including the giant Betz cells of layer V, then fire the command. The leg is represented on the medial surface, folded into the interhemispheric fissure.",
+  facts:[["Side","Right, opposite the leg"],["Neuron","UMN cell bodies: Betz and other layer V pyramidal cells"],["Blood supply","Anterior cerebral artery (ACA)"],["Anatomy cue","Homunculus: leg on the medial surface, face low on the lateral convexity. An MCA stroke on the convexity spares the leg."]],
+  damage:"Left leg UMN weakness: spasticity, brisk reflexes, Babinski sign. Cortical lesions can also cause seizures, cortical sensory loss, or changes in drive and behavior.",
+  disorders:["aca","meningioma","seizure","als"], focus:["ctx"],
+  lab:{side:"L",y:66,tx:316,ty:78,name:"Motor cortex",sub:"R paracentral lobule"} },
+{ id:"bg", n:2, color:"loop", name:"Basal ganglia loop", side:"Right", tier:"Modulator, not UMN or LMN",
+  where:"Right striatum (caudate, putamen), globus pallidus, subthalamic nucleus and substantia nigra, returning through the VA/VL thalamus",
+  role:"The basal ganglia send no fibers to the spinal cord. They run a loop out of the cortex and back into it, releasing the movement you want (direct pathway) and braking competing ones (indirect pathway). Dopamine from the SNc tips both toward go. The output nucleus, GPi, holds the VA/VL thalamus under constant inhibition; releasing it at the right moment lets the right cortex start the step and set its size and speed.",
+  facts:[["Side","Right; the loop feeds the same-side cortex, so signs appear on the left"],["Neuron","Modulator circuit"],["Blood supply","Lenticulostriate arteries (MCA) to striatum and GP; anterior choroidal to GPi; PCA and basilar perforators to thalamus, STN and midbrain"],["Anatomy cue","Direct: striatum (D1) inhibits GPi, which releases the thalamus. Indirect: striatum (D2) inhibits GPe, freeing the STN to drive GPi."]],
+  damage:"Strength and reflexes stay normal. The problem is amount and smoothness: too little movement (bradykinesia, rigidity, shuffling gait) or too much (chorea, ballism, dystonia).",
+  disorders:["parkinson","huntington","hemiballismus","wilson","druginduced","co"], focus:["caudate","putamen","gpe","gpi","stn","snc","thal","bgloop"],
+  lab:{side:"L",y:206,tx:216,ty:206,name:"Basal ganglia",sub:"loop via thalamus"} },
+{ id:"cr", n:3, color:"umn", name:"Corona radiata", side:"Right", tier:"Upper motor neuron axons",
+  where:"Right periventricular white matter, fanning down from cortex to internal capsule",
+  role:"Axons from the leg area sweep down through the corona radiata toward the internal capsule. Leg fibers run closest to the lateral ventricles, so anything that stretches or injures the periventricular white matter hits the legs first.",
+  facts:[["Side","Right"],["Neuron","UMN axons"],["Blood supply","Deep medullary branches of the ACA and MCA; a watershed zone"],["Anatomy cue","Leg fibers hug the ventricle; arm and face fibers lie farther out."]],
+  damage:"Left leg UMN weakness, often with the arm. Bilateral periventricular disease gives stiff, weak legs with arms less affected.",
+  disorders:["pvl","nph","ms"], focus:["cr"],
+  lab:{side:"L",y:126,tx:285,ty:127,name:"Corona radiata",sub:"periventricular"} },
+{ id:"ic", n:4, color:"umn", name:"Posterior limb of the internal capsule", side:"Right", tier:"Upper motor neuron axons",
+  where:"Between the right thalamus (medial) and the lentiform nucleus (lateral)",
+  role:"All corticospinal fibers funnel into a few millimeters of the posterior limb, with face fibers toward the genu and leg fibers furthest back. Because they are packed so tightly, a small lesion here weakens the whole left side.",
+  facts:[["Side","Right"],["Neuron","UMN axons"],["Blood supply","Lenticulostriate arteries (MCA); anterior choroidal artery for the posterior part"],["Anatomy cue","Front to back in the posterior limb: face, arm, leg."]],
+  damage:"Pure motor hemiparesis: left face, arm and leg equally weak, with no aphasia, neglect or field loss.",
+  disorders:["lacunar","putaminal","achoroidal"], focus:["ic"],
+  lab:{side:"L",y:256,tx:283,ty:250,name:"Internal capsule",sub:"posterior limb"} },
+{ id:"mb", n:5, color:"umn", name:"Midbrain, cerebral peduncle", side:"Right", tier:"Upper motor neuron axons",
+  where:"Middle three-fifths of the right crus cerebri",
+  role:"The tract descends in the base of the midbrain. The oculomotor nerve (CN III) leaves the brainstem right beside it, which is why midbrain lesions pair left-sided weakness with a right third-nerve palsy.",
+  facts:[["Side","Right"],["Neuron","UMN axons"],["Blood supply","PCA and basilar paramedian (interpeduncular) branches"],["Anatomy cue","CN III exits into the interpeduncular fossa, medial to the peduncle."]],
+  damage:"Left hemiparesis with right CN III signs: eye down and out, ptosis, dilated pupil.",
+  disorders:["weber","uncal","kernohan"], focus:["mb"],
+  lab:{side:"L",y:368,tx:296,ty:368,name:"Midbrain",sub:"cerebral peduncle"} },
+{ id:"pons", n:6, color:"umn", name:"Pons, basis pontis", side:"Right", tier:"Upper motor neuron axons",
+  where:"Right ventral pons, threading between the pontine nuclei",
+  role:"Corticospinal fibers break into bundles as they pass between the pontine nuclei. Other cortical fibers synapse here and cross to the cerebellum, the loop that fine-tunes the step. The abducens (CN VI) and facial (CN VII) nuclei and fibers sit close by.",
+  facts:[["Side","Right"],["Neuron","UMN axons"],["Blood supply","Paramedian branches of the basilar artery"],["Anatomy cue","Same-side CN VI or VII palsy with opposite-side weakness places the lesion in the pons."]],
+  damage:"Left hemiparesis, often with right facial or abducens palsy, ataxia, or slurred speech.",
+  disorders:["millard","lockedin","odz"], focus:["pons"],
+  lab:{side:"L",y:440,tx:306,ty:440,name:"Pons",sub:"basis pontis"} },
+{ id:"med", n:7, color:"umn", name:"Medulla, pyramid", side:"Right", tier:"Upper motor neuron axons",
+  where:"Right medullary pyramid on the front of the medulla",
+  role:"The tract forms the pyramid, lying beside the medial lemniscus and the exiting hypoglossal (CN XII) rootlets.",
+  facts:[["Side","Right"],["Neuron","UMN axons"],["Blood supply","Anterior spinal artery; paramedian branches of the vertebral artery"],["Anatomy cue","The tongue deviates toward the lesion; the body is weak on the other side."]],
+  damage:"Left arm and leg weakness with the face spared, left loss of vibration and position sense, and right tongue weakness.",
+  disorders:["medial"], focus:["med"],
+  lab:{side:"L",y:526,tx:316,ty:526,name:"Medulla",sub:"pyramid"} },
+{ id:"dec", n:8, color:"umn", name:"Pyramidal decussation", side:"Crosses right to left", tier:"Upper motor neuron axons",
+  where:"Caudal medulla at the cervicomedullary junction, level of the foramen magnum",
+  role:"About 85 to 90 percent of fibers cross here and become the lateral corticospinal tract on the left side of the cord. The rest stay uncrossed as the anterior corticospinal tract, which mainly drives trunk and proximal muscles. Arm fibers cross slightly higher and more medially than leg fibers.",
+  facts:[["Side","Crosses from right to left"],["Neuron","UMN axons"],["Blood supply","Anterior spinal artery; vertebral arteries"],["Anatomy cue","Above this point the lesion is opposite the weak leg; below it, on the same side."]],
+  damage:"Lesions at the junction can weaken limbs unevenly because arm and leg fibers cross at slightly different levels.",
+  disorders:["fm","cruciate"], focus:["dec"],
+  lab:{side:"L",y:592,tx:329,ty:592,name:"Decussation",sub:"85–90% cross"} },
+{ id:"lcst", n:9, color:"umn", name:"Lateral corticospinal tract", side:"Left", tier:"Upper motor neuron axons",
+  where:"Left lateral funiculus of the spinal cord, descending to the lumbar enlargement",
+  role:"Now on the left, the tract runs down the lateral column. Sacral and lumbar (leg) fibers sit most laterally, cervical (arm) fibers most medially. Fibers peel off at L2 to S2 to reach the anterior horn.",
+  facts:[["Side","Left, same side as the leg"],["Neuron","UMN axons"],["Blood supply","Anterior spinal artery (anterior two-thirds of the cord); artery of Adamkiewicz, usually T9–T12, for the lower cord"],["Anatomy cue","Lamination puts leg fibers outermost: compression from outside hits the legs first, central lesions spare them."]],
+  damage:"Left leg UMN weakness below the lesion. Cord lesions often add a sensory level and bladder or bowel dysfunction.",
+  disorders:["brownsequard","scd","asa","compression","centralcord","ms","als"], focus:["lcst"],
+  lab:{side:"R",y:720,tx:342,ty:720,name:"Lateral CST",sub:"L lateral column"} },
+{ id:"ah", n:10, color:"lmn", name:"Anterior horn, L2–S2", side:"Left", tier:"Lower motor neuron",
+  where:"Left ventral gray matter of the lumbar enlargement (lamina IX)",
+  role:"The upper motor neuron synapses, directly or through interneurons, on alpha motor neurons in the left anterior horn. These lower motor neurons are the final common pathway: every command to the leg muscles, voluntary or reflex, leaves through them.",
+  facts:[["Side","Left"],["Neuron","LMN cell bodies (alpha and gamma motor neurons)"],["Blood supply","Anterior spinal artery"],["Anatomy cue","Hip flexion L2–L3, knee extension L3–L4, ankle dorsiflexion L4–L5, plantarflexion S1–S2."]],
+  damage:"LMN signs in the left leg: flaccid weakness, wasting, fasciculations, reduced reflexes. No sensory loss.",
+  disorders:["als","polio","sma"], focus:["ah"],
+  lab:{side:"R",y:864,tx:343,ty:866,name:"Anterior horn",sub:"L2–S2 · LMN"} },
+{ id:"pns", n:11, color:"lmn", name:"Roots, plexus and peripheral nerves", side:"Left", tier:"Lower motor neuron axons",
+  where:"Left ventral roots in the cauda equina, lumbosacral plexus, then femoral, obturator and sciatic nerves; the sciatic splits into tibial and common fibular",
+  role:"Motor axons leave in the ventral roots, descend in the cauda equina, exit through their foramina, regroup in the lumbosacral plexus, and travel in named nerves to the leg.",
+  facts:[["Side","Left"],["Neuron","LMN axons"],["Blood supply","Radicular arteries; vasa nervorum"],["Anatomy cue","Femoral: knee extension. Tibial: plantarflexion and inversion. Common fibular: dorsiflexion and eversion."]],
+  damage:"LMN weakness in the territory of one root or nerve, usually with pain and sensory loss in the same distribution.",
+  disorders:["radic","cauda","gbs","fibular","femoral","supgluteal"], focus:["root","plexus","fem","sci","tib","fib"],
+  lab:{side:"R",y:952,tx:363,ty:950,name:"Roots & nerves",sub:"cauda · plexus · sciatic"} },
+{ id:"nmj", n:12, color:"lmn", name:"Neuromuscular junction", side:"Left (systemic diseases are bilateral)", tier:"Synapse",
+  where:"Motor end plates in the left leg muscles",
+  role:"Each nerve action potential opens presynaptic calcium channels and releases acetylcholine, which binds nicotinic receptors on the muscle fiber and triggers contraction. Acetylcholinesterase clears it within milliseconds.",
+  facts:[["Side","Left; most NMJ diseases are systemic"],["Neuron","LMN terminal to muscle fiber"],["Transmitter","Acetylcholine at muscle-type nicotinic receptors"],["Anatomy cue","Weakness that changes with use: worse with repetition in myasthenia, briefly better in Lambert-Eaton."]],
+  damage:"Fluctuating weakness with normal sensation; reflexes usually normal.",
+  disorders:["mg","lems","botulism","op"], focus:["nmj"],
+  lab:{side:"R",y:1072,tx:410,ty:1063,name:"NMJ",sub:"ACh · end plate"} },
+{ id:"mus", n:13, color:"lmn", name:"Muscle", side:"Left", tier:"Effector",
+  where:"Left iliopsoas, quadriceps, hamstrings, gluteals, tibialis anterior, gastrocnemius",
+  role:"Muscle fibers contract and move the joints. Hip flexion and knee extension lift and swing the leg; ankle dorsiflexion clears the foot during swing.",
+  facts:[["Side","Left"],["Neuron","Effector"],["Blood supply","Femoral, popliteal and tibial arteries"],["Anatomy cue","Myopathies are usually proximal and symmetric, with a raised CK."]],
+  damage:"Proximal weakness (rising from a chair, climbing stairs) with normal sensation; reflexes preserved until late.",
+  disorders:["dmd","myositis","ibm","statin"], focus:["muscle"],
+  lab:{side:"R",y:1164,tx:433,ty:1160,name:"Muscle",sub:"quads · tib. anterior"} }
+];
+
+const DIS = {
+aca:{name:"Right ACA stroke",kind:"Vascular",tokens:["ctx"],see:"Left leg weaker than the left arm, face spared. Often adds urinary incontinence, apathy or abulia, and left leg sensory loss.",clue:"Leg worse than arm points to the ACA; arm and face worse than leg points to the MCA."},
+meningioma:{name:"Parasagittal (falcine) meningioma",kind:"Tumor",tokens:["ctx","ctx-l"],see:"Slowly worsening spastic weakness of one or both legs, sometimes with focal seizures or incontinence.",clue:"Bilateral leg UMN signs without a sensory level can come from the brain, not the cord. If the spine MRI is clean, image the head."},
+seizure:{name:"Focal motor seizure",kind:"Electrical",tokens:["ctx"],see:"Rhythmic jerking of the left leg that may spread along the body (Jacksonian march), followed by hours of left leg weakness (Todd paralysis).",clue:"Todd paralysis fades within about 48 hours. Weakness that persists needs a stroke workup."},
+als:{name:"Amyotrophic lateral sclerosis (ALS)",kind:"Degenerative",tokens:["ctx","lcst","lcst-r","ah","ah-r"],see:"UMN and LMN signs in the same leg: brisk reflexes and spasticity next to wasting and fasciculations. Usually starts asymmetrically in one limb. Sensation, bladder and eye movements are spared.",clue:"Mixed UMN and LMN signs with no sensory loss. Linked to SOD1 and C9orf72. Riluzole and edaravone; tofersen for SOD1 disease."},
+parkinson:{name:"Parkinson disease",kind:"Degenerative",tokens:["snc"],see:"Often one-sided at first, so loss of right SNc neurons shows up on the left: slowness, lead-pipe or cogwheel rigidity, resting tremor, short steps that become a shuffle, freezing, and falls.",clue:"Less dopamine weakens the direct pathway and frees the indirect one, so GPi over-inhibits the thalamus. Lewy bodies contain α-synuclein. Levodopa helps."},
+huntington:{name:"Huntington disease",kind:"Genetic",tokens:["caudate","putamen","d2"],see:"Chorea of the legs and trunk (brief, irregular, flowing movements), a lurching, dance-like gait, later rigidity, plus psychiatric change and dementia.",clue:"CAG repeat expansion in HTT on chromosome 4, autosomal dominant with anticipation. D2 (indirect pathway) neurons die first, so the brake on movement fails. Caudate atrophy on MRI."},
+hemiballismus:{name:"Hemiballismus",kind:"Vascular",tokens:["stn"],see:"Sudden, large, flinging movements of the left arm and leg.",clue:"Small stroke in the right subthalamic nucleus, often with diabetes or hypertension. The STN normally drives GPi; losing it releases the thalamus."},
+wilson:{name:"Wilson disease",kind:"Genetic, metabolic",tokens:["putamen","d1","d2"],see:"Teen or young adult with tremor (wing-beating), dystonia, parkinsonism, slurred speech and gait trouble, often with liver disease or psychiatric symptoms.",clue:"ATP7B mutation, autosomal recessive. Copper collects in the putamen (lenticular degeneration). Kayser-Fleischer rings and low ceruloplasmin."},
+druginduced:{name:"Drug-induced parkinsonism",kind:"Drug",tokens:["d2","putamen","caudate"],see:"Symmetric slowness and rigidity with a slow, shuffling gait; tremor is often less prominent.",clue:"Striatal D2 receptor blockade by haloperidol, risperidone, metoclopramide or prochlorperazine. The SNc is intact, so stopping the drug usually reverses it over weeks to months."},
+co:{name:"Carbon monoxide poisoning",kind:"Toxic",tokens:["gpi","gpe"],see:"Days to weeks after apparent recovery: parkinsonism, gait difficulty, and memory or behavior change.",clue:"Bilateral globus pallidus necrosis on MRI, part of the delayed neuropsychiatric syndrome."},
+pvl:{name:"Periventricular leukomalacia (spastic diplegia)",kind:"Developmental",tokens:["cr","cr-l"],see:"Child born preterm with stiff, scissoring legs, toe walking and brisk reflexes; arms mildly affected or normal.",clue:"Leg fibers run closest to the ventricles, so periventricular injury gives legs worse than arms. The most common cerebral palsy pattern after preterm birth."},
+nph:{name:"Normal pressure hydrocephalus",kind:"Structural",tokens:["cr","cr-l","vent"],see:"Older adult with a broad-based, magnetic gait (feet seem stuck to the floor), urinary urgency or incontinence, and slowed thinking.",clue:"Enlarged ventricles stretch the periventricular leg fibers. Gait improves after a large-volume lumbar tap; treated with a ventriculoperitoneal shunt."},
+ms:{name:"Multiple sclerosis",kind:"Demyelinating",tokens:["cr","lcst"],see:"Episodes of left leg weakness or stiffness, numbness and bladder urgency, separated in time and place; heat can bring symptoms back briefly (Uhthoff phenomenon).",clue:"Periventricular plaques at right angles to the ventricles (Dawson fingers) and short cord lesions. Oligoclonal bands in CSF."},
+lacunar:{name:"Lacunar stroke, internal capsule",kind:"Vascular",tokens:["ic"],see:"Sudden weakness of the left face, arm and leg in equal measure, with no aphasia, neglect or visual field loss.",clue:"Lipohyalinosis of a lenticulostriate artery from long-standing hypertension or diabetes. Pure motor hemiparesis is the most common lacunar syndrome."},
+putaminal:{name:"Hypertensive putaminal hemorrhage",kind:"Vascular",tokens:["ic","putamen"],see:"Sudden left hemiparesis with headache, vomiting and falling alertness; the eyes look toward the right, the side of the bleed.",clue:"Charcot-Bouchard microaneurysms of lenticulostriate arteries rupture. The putamen is the most common site of hypertensive bleeding, and the clot compresses the internal capsule."},
+achoroidal:{name:"Anterior choroidal artery stroke",kind:"Vascular",tokens:["ic","gpi"],see:"Left hemiparesis, left hemisensory loss, and a left homonymous hemianopia.",clue:"The artery supplies the posterior limb, the GPi, and the optic tract and lateral geniculate body, which explains the triad."},
+weber:{name:"Weber syndrome",kind:"Vascular",tokens:["mb"],see:"Left arm and leg weakness with a right CN III palsy: right eye down and out, drooping lid, dilated pupil.",clue:"Paramedian midbrain infarct from PCA or basilar perforators. A cranial nerve deficit on one side and body weakness on the other means the brainstem."},
+uncal:{name:"Right uncal herniation",kind:"Structural",tokens:["mb"],see:"A right hemisphere mass pushes the uncus over the tentorium: a right blown pupil first, then left hemiparesis and declining consciousness.",clue:"A new dilated pupil in a drowsy patient with a mass is a neurosurgical emergency."},
+kernohan:{name:"Kernohan notch phenomenon",kind:"Structural",tokens:["mb"],see:"A left hemisphere mass shoves the midbrain so the right cerebral peduncle is pinned against the tentorial edge. The left leg weakens on the same side as the mass.",clue:"A false localizing sign: weakness on the same side as the lesion. Trust the imaging over the exam here."},
+millard:{name:"Ventral pontine syndrome (Millard-Gubler)",kind:"Vascular",tokens:["pons"],see:"Left hemiparesis with right whole-face weakness (CN VII) and a right lateral rectus palsy (CN VI).",clue:"Occlusion of a paramedian basilar branch. A small ventral pontine lacune can instead give pure motor hemiparesis or ataxic hemiparesis."},
+lockedin:{name:"Locked-in syndrome",kind:"Vascular",tokens:["pons","pons-l"],see:"All four limbs paralyzed, no speech or swallowing, but fully awake and aware; vertical eye movements and blinking remain.",clue:"Bilateral ventral pontine infarct, usually basilar artery thrombosis. The dorsal pons (reticular formation) is spared, so consciousness is intact. Communicate with blinks."},
+odz:{name:"Osmotic demyelination syndrome",kind:"Metabolic",tokens:["pons","pons-l"],see:"Two to six days after hyponatremia is corrected too fast: spastic weakness of all limbs, dysarthria, dysphagia, possibly a locked-in state.",clue:"Central pontine myelinolysis. In chronic hyponatremia, keep sodium correction to about 8–10 mEq/L in 24 hours."},
+medial:{name:"Medial medullary (Dejerine) syndrome",kind:"Vascular",tokens:["med"],see:"Left arm and leg weakness with the face spared, left loss of vibration and position sense, and a weak right tongue that deviates to the right.",clue:"Anterior spinal artery or vertebral paramedian branch occlusion takes out the pyramid, medial lemniscus and CN XII together."},
+fm:{name:"Foramen magnum tumor",kind:"Tumor",tokens:["dec","med"],see:"Slowly progressive weakness that can spread around the body in sequence: one arm, the same-side leg, the other leg, then the other arm. Neck pain and occipital headache are common.",clue:"Usually a meningioma and often mistaken for cervical spondylosis. Image the craniocervical junction."},
+cruciate:{name:"Cruciate paralysis",kind:"Trauma",tokens:["dec"],see:"After a high cervical injury, both arms are far weaker than the legs.",clue:"Arm fibers cross higher and more medially than leg fibers, so a small midline lesion at the decussation catches the arms and spares the legs. Often with C2 (odontoid) fractures."},
+brownsequard:{name:"Brown-Séquard syndrome (left hemisection)",kind:"Trauma, structural",tokens:["lcst","dc-l","st-l"],see:"Below the lesion: left leg UMN weakness and left loss of vibration and position sense, with right loss of pain and temperature starting one or two levels lower. At the level: left LMN signs and a band of total sensory loss.",clue:"Classic after a stab wound. Pain and temperature fibers cross within a segment or two of entering the cord, so their loss appears on the opposite side."},
+scd:{name:"Subacute combined degeneration",kind:"Metabolic",tokens:["lcst","lcst-r","dc-l","dc-r"],see:"Both legs: spastic weakness and Babinski signs with lost vibration and position sense, a positive Romberg, and an unsteady gait. Ankle reflexes may be absent from a coexisting neuropathy.",clue:"Vitamin B12 deficiency; also copper deficiency and nitrous oxide use. Raised methylmalonic acid and homocysteine."},
+asa:{name:"Anterior spinal artery syndrome",kind:"Vascular",tokens:["lcst","lcst-r","ah","ah-r","st-l","st-r"],see:"Sudden paralysis of both legs (flaccid at first, spastic later), loss of pain and temperature below the lesion, and bladder dysfunction. Vibration and position sense are spared.",clue:"Infarct of the anterior two-thirds of the cord. Classic after aortic surgery or dissection that compromises the artery of Adamkiewicz."},
+compression:{name:"Spinal cord compression",kind:"Structural",tokens:["lcst","lcst-r"],see:"Progressive stiffness and weakness of both legs, a sensory level on the trunk, back pain, and urinary retention or incontinence.",clue:"Metastasis (prostate, breast, lung), epidural abscess, disc, or cervical spondylotic myelopathy in older adults. Leg fibers sit outermost in the tract, so outside compression shows in the legs first. Urgent MRI."},
+centralcord:{name:"Central cord syndrome",kind:"Trauma",tokens:["central"],see:"After a neck hyperextension injury, often an older adult with cervical spondylosis who falls forward: arms and hands much weaker than the legs, which are relatively spared.",clue:"Damage centers on the middle of the cord. Arm fibers lie medially in the tract and are hit; lateral leg fibers are spared, so the left leg pathway stays largely intact."},
+polio:{name:"Poliomyelitis",kind:"Infectious",tokens:["ah"],see:"Fever and muscle pain, then asymmetric flaccid paralysis of the left leg with absent reflexes and later wasting. Sensation is normal.",clue:"Poliovirus destroys anterior horn cells. Enterovirus D68 and West Nile virus cause a similar acute flaccid myelitis."},
+sma:{name:"Spinal muscular atrophy",kind:"Genetic",tokens:["ah","ah-r"],see:"Infant with symmetric floppy weakness, legs worse than arms, absent reflexes and tongue fasciculations.",clue:"SMN1 deletion, autosomal recessive; type 1 is Werdnig-Hoffmann disease. Treated with nusinersen, risdiplam or onasemnogene gene therapy."},
+radic:{name:"Lumbosacral radiculopathy (L4, L5, S1)",kind:"Structural",tokens:["root"],see:"Shooting pain down the left leg with weakness in one root's muscles. L4: weak knee extension, lost patellar reflex. L5: foot drop with weak big-toe extension and weak inversion. S1: weak plantarflexion, lost ankle reflex.",clue:"A posterolateral disc compresses the root that exits one level below; an L4–L5 disc hits the L5 root."},
+cauda:{name:"Cauda equina syndrome",kind:"Structural",tokens:["root","cauda"],see:"Both legs: asymmetric LMN weakness, absent ankle reflexes, saddle anesthesia, urinary retention, reduced anal tone and severe radicular pain.",clue:"Large central disc, tumor or abscess below the conus (L1–L2). Surgical emergency. A conus medullaris lesion instead gives early symmetric bladder failure with mixed UMN and LMN signs."},
+gbs:{name:"Guillain-Barré syndrome",kind:"Autoimmune",tokens:["root","cauda","plexus","fem","sci","tib","fib"],see:"Weakness that starts in both legs and climbs over days, with lost reflexes, mild tingling and back pain; it can reach the breathing muscles.",clue:"Post-infectious demyelination of roots and nerves, classically after Campylobacter jejuni. CSF protein high with a normal cell count. Track vital capacity; treat with IVIG or plasma exchange."},
+fibular:{name:"Common fibular (peroneal) nerve palsy",kind:"Compression",tokens:["fib"],see:"Left foot drop with a high-stepping gait and numbness over the top of the foot; foot inversion and the ankle reflex are normal.",clue:"Compressed at the fibular neck by leg crossing, casts, weight loss, prolonged squatting or fracture. Normal inversion separates it from an L5 radiculopathy."},
+femoral:{name:"Femoral neuropathy",kind:"Metabolic, compression",tokens:["fem"],see:"Weak knee extension (the knee buckles), weak hip flexion, lost patellar reflex, and numbness over the front of the thigh and inner leg.",clue:"Diabetic amyotrophy, a retroperitoneal (iliopsoas) hematoma on anticoagulants, or prolonged lithotomy positioning."},
+supgluteal:{name:"Superior gluteal nerve injury",kind:"Iatrogenic",tokens:["plexus"],see:"Trendelenburg gait: standing on the left leg, the pelvis drops on the right because the left gluteus medius and minimus are weak.",clue:"Often from a misplaced intramuscular injection or hip surgery. The weak side is the stance side, opposite the side that drops."},
+mg:{name:"Myasthenia gravis",kind:"Autoimmune",tokens:["nmj"],see:"Weakness that worsens with use and through the day: drooping lids and double vision first, then proximal leg weakness on stairs. Sensation and reflexes are normal.",clue:"Antibodies to postsynaptic ACh receptors (or MuSK), associated with thymoma. Decrement on repetitive nerve stimulation. Pyridostigmine and immunotherapy."},
+lems:{name:"Lambert-Eaton myasthenic syndrome",kind:"Paraneoplastic",tokens:["nmj"],see:"Proximal leg weakness (trouble rising from a chair) that briefly improves with repeated effort, reduced reflexes, dry mouth and other autonomic symptoms.",clue:"Antibodies to presynaptic voltage-gated calcium channels, often with small cell lung cancer. Increment on rapid repetitive stimulation."},
+botulism:{name:"Botulism",kind:"Toxic",tokens:["nmj"],see:"Descending flaccid paralysis: cranial nerves first (double vision, trouble swallowing), then arms, breathing and legs; pupils often dilated.",clue:"The toxin cleaves SNARE proteins and blocks ACh release. Infant botulism follows honey or soil spores."},
+op:{name:"Organophosphate poisoning",kind:"Toxic",tokens:["nmj"],see:"Fasciculations, then flaccid weakness, with muscarinic excess: salivation, tearing, urination, diarrhea, bronchorrhea, bradycardia, small pupils.",clue:"Acetylcholinesterase is blocked, so ACh lingers and causes a depolarizing block. Atropine plus pralidoxime."},
+dmd:{name:"Duchenne / Becker muscular dystrophy",kind:"Genetic",tokens:["muscle"],see:"Boy with proximal leg weakness: waddling gait, Gowers sign (pushes up on his own thighs to stand) and enlarged calves.",clue:"X-linked dystrophin mutation. Duchenne (frameshift) starts before age 5; Becker (in-frame) is milder and later. Very high CK; watch for cardiomyopathy."},
+myositis:{name:"Polymyositis / dermatomyositis",kind:"Autoimmune",tokens:["muscle"],see:"Symmetric proximal weakness over weeks (stairs, rising from a chair); dermatomyositis adds a heliotrope rash and Gottron papules.",clue:"High CK; anti-Jo-1 and anti-Mi-2 antibodies. Screen adults with dermatomyositis for cancer."},
+ibm:{name:"Inclusion body myositis",kind:"Inflammatory, degenerative",tokens:["muscle"],see:"Adult over 50 with slowly worsening weakness of the quadriceps (knee buckling, falls) and finger flexors, often asymmetric.",clue:"The most common acquired myopathy after age 50. Responds poorly to steroids; biopsy shows rimmed vacuoles."},
+statin:{name:"Statin-associated myopathy",kind:"Drug",tokens:["muscle"],see:"Aching and weakness in the thighs and hips after starting or raising a statin; rarely rhabdomyolysis with dark urine.",clue:"Risk rises with CYP3A4-inhibiting drugs, hypothyroidism and older age. Anti-HMGCR antibodies mark a rare immune form that persists after stopping."}
+};
+
+const CIRCUIT = `<div class="circuit-wrap">
+<svg class="circuit" viewBox="0 0 340 262" role="img" aria-label="Direct and indirect basal ganglia pathways">
+<defs>
+<marker id="m-exc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 Z" class="mk-exc"/></marker>
+<marker id="m-inh" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse"><path d="M5 0 L5 10" class="mk-inh"/></marker>
+</defs>
+<path class="carr" d="M140 36 L 96 70" marker-end="url(#m-exc)"/>
+<path class="carr" d="M220 36 L 262 70" marker-end="url(#m-exc)"/>
+<path class="carr" d="M146 87 L 124 87" marker-end="url(#m-exc)"/>
+<path class="carr" d="M214 87 L 236 87" marker-end="url(#m-inh)"/>
+<path class="carr" d="M76 102 L 76 160" marker-end="url(#m-inh)"/>
+<path class="carr" d="M284 102 L 284 132" marker-end="url(#m-inh)"/>
+<path class="carr" d="M284 162 L 284 190" marker-end="url(#m-inh)"/>
+<path class="carr" d="M248 204 L 114 182" marker-end="url(#m-exc)"/>
+<path class="carr" d="M76 190 L 76 222" marker-end="url(#m-inh)"/>
+<path class="carr" d="M30 238 L 14 238 L 14 22 L 118 22" marker-end="url(#m-exc)"/>
+<text class="clab" x="84" y="134">direct</text>
+<text class="clab" x="292" y="180">indirect</text>
+<text class="clab" x="126" y="80">D1</text>
+<text class="clab" x="218" y="80">D2</text>
+<g class="cbox" data-h="ctxbox"><rect x="120" y="8" width="120" height="28" rx="5"/><text x="180" y="26" text-anchor="middle">Cortex (SMA, M1)</text></g>
+<g class="cbox" data-h="d1"><rect x="30" y="72" width="92" height="30" rx="5"/><text x="76" y="91" text-anchor="middle">Striatum D1</text></g>
+<g class="cbox snc-box" data-h="snc"><rect x="148" y="72" width="64" height="30" rx="5"/><text x="180" y="91" text-anchor="middle">SNc</text></g>
+<g class="cbox" data-h="d2"><rect x="238" y="72" width="92" height="30" rx="5"/><text x="284" y="91" text-anchor="middle">Striatum D2</text></g>
+<g class="cbox" data-h="gpe"><rect x="248" y="134" width="72" height="28" rx="5"/><text x="284" y="152" text-anchor="middle">GPe</text></g>
+<g class="cbox" data-h="stn"><rect x="248" y="192" width="72" height="28" rx="5"/><text x="284" y="210" text-anchor="middle">STN</text></g>
+<g class="cbox" data-h="gpi"><rect x="40" y="162" width="72" height="28" rx="5"/><text x="76" y="180" text-anchor="middle">GPi / SNr</text></g>
+<g class="cbox" data-h="thal"><rect x="30" y="224" width="92" height="28" rx="5"/><text x="76" y="242" text-anchor="middle">VA/VL thalamus</text></g>
+</svg>
+<div class="circuit-key"><span>→ excites (glutamate; dopamine at D1)</span><span>⊣ inhibits (GABA; dopamine at D2)</span></div>
+</div>`;
+
+const NS = "http://www.w3.org/2000/svg";
+const byId = Object.fromEntries(STATIONS.map(s => [s.id, s]));
+const primary = {}, sitesOf = {};
+STATIONS.forEach(s => s.disorders.forEach(d => {
+  if (!primary[d]) primary[d] = s.id;
+  (sitesOf[d] = sitesOf[d] || []).push(s.id);
+}));
+const panel = document.getElementById("panel");
+const map = document.getElementById("map");
+const mapbar = document.getElementById("mapbar");
+const lesionText = document.getElementById("lesionText");
+const clearBtn = document.getElementById("clearBtn");
+const backBtn = document.getElementById("backBtn");
+const mobile = () => window.matchMedia("(max-width: 960px)").matches;
+const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let cur = null, curDis = null;
+
+function mk(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function els(tokens){
+  const out = [];
+  tokens.forEach(t => document.querySelectorAll('[data-h~="' + t + '"]').forEach(e => out.push(e)));
+  return out;
+}
+
+// Station labels on the map
+const labelsG = document.getElementById("labels");
+STATIONS.forEach(st => {
+  const L = st.lab;
+  const g = mk("g", {class:"stn", "data-station":st.id, tabindex:"0", role:"button", "aria-label":"Station " + st.n + ": " + st.name}, labelsG);
+  const cx = L.side === "L" ? 22 : 478;
+  const tx = L.side === "L" ? 40 : 496;
+  const x1 = L.side === "L" ? tx + Math.max(L.name.length * 7.4, L.sub.length * 5.9) + 8 : cx - 14;
+  mk("line", {class:"leader", x1:x1, y1:L.y, x2:L.tx, y2:L.ty}, g);
+  mk("circle", {class:"pin", cx:L.tx, cy:L.ty, r:2.4}, g);
+  mk("circle", {class:"mk", cx:cx, cy:L.y, r:11}, g);
+  mk("text", {class:"num", x:cx, y:L.y + 3.8, "text-anchor":"middle"}, g).textContent = st.n;
+  mk("text", {class:"nm", x:tx, y:L.y}, g).textContent = L.name;
+  mk("text", {class:"sb", x:tx, y:L.y + 13}, g).textContent = L.sub;
+  g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(st.id, {fromMap:true}); } });
+});
+function layoutLeaders(){
+  document.querySelectorAll(".stn").forEach(g => {
+    const st = byId[g.dataset.station];
+    if (st.lab.side !== "L") return;
+    let maxX = 0;
+    g.querySelectorAll("text.nm, text.sb").forEach(t => { try { const b = t.getBBox(); maxX = Math.max(maxX, b.x + b.width); } catch(e){} });
+    if (maxX > 0) g.querySelector("line").setAttribute("x1", maxX + 8);
+  });
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutLeaders);
+layoutLeaders();
+
+map.addEventListener("click", e => {
+  const t = e.target.closest("[data-station]");
+  if (t) select(t.dataset.station, {fromMap:true});
+});
+
+// Disorder index
+const ixBody = document.getElementById("ixBody");
+document.getElementById("ixTitle").textContent = "Browse all " + Object.keys(DIS).length + " disorders by station";
+STATIONS.forEach(st => {
+  const own = st.disorders.filter(d => primary[d] === st.id);
+  if (!own.length) return;
+  const grp = document.createElement("div");
+  grp.className = "ix-group";
+  grp.innerHTML = "<h3>" + st.n + " · " + esc(st.lab.name) + "</h3><div class=\"chips\">" +
+    own.map(d => "<button type=\"button\" class=\"chip\" data-dis=\"" + d + "\" aria-pressed=\"false\">" + esc(DIS[d].name) + "</button>").join("") + "</div>";
+  ixBody.appendChild(grp);
+});
+ixBody.addEventListener("click", e => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  const d = b.dataset.dis;
+  select(primary[d], {keepDis:true});
+  setLesion(d);
+  const card = panel.querySelector('.dis[data-dis="' + d + '"]');
+  if (card && !mobile()) panel.scrollTop = Math.max(0, card.offsetTop - 120);
+  revealLesion();
+});
+
+function renderPanel(st){
+  const i = STATIONS.indexOf(st);
+  const prev = STATIONS[i-1], next = STATIONS[i+1];
+  const cards = st.disorders.map(d => {
+    const D = DIS[d];
+    const others = sitesOf[d].filter(s => s !== st.id).map(s => byId[s].n + " " + byId[s].lab.name);
+    return "<li><button type=\"button\" class=\"dis\" data-dis=\"" + d + "\" aria-pressed=\"false\">" +
+      "<span class=\"dis-top\"><span class=\"dis-name\">" + esc(D.name) + "</span><span class=\"kind\">" + esc(D.kind) + "</span></span>" +
+      "<span class=\"dis-line\"><b>What you see.</b> " + esc(D.see) + "</span>" +
+      "<span class=\"dis-line\"><b>Key clue.</b> " + esc(D.clue) + "</span>" +
+      (others.length ? "<span class=\"dis-also\">Also listed at station " + esc(others.join(", ")) + "</span>" : "") +
+      "</button></li>";
+  }).join("");
+  panel.innerHTML =
+    "<div class=\"p-head\"><span class=\"p-num " + st.color + "\">" + st.n + "</span><div>" +
+      "<p class=\"eyebrow\">" + esc(st.tier) + " · " + esc(st.side.split(";")[0]) + "</p>" +
+      "<h2>" + esc(st.name) + "</h2><p class=\"p-where\">" + esc(st.where) + "</p></div></div>" +
+    "<div class=\"p-nav\"><button type=\"button\" data-go=\"" + (prev ? prev.id : "") + "\"" + (prev ? "" : " disabled") + ">← " + (prev ? prev.n + " " + esc(prev.lab.name) : "") + "</button>" +
+      "<button type=\"button\" data-go=\"" + (next ? next.id : "") + "\"" + (next ? "" : " disabled") + ">" + (next ? next.n + " " + esc(next.lab.name) : "") + " →</button></div>" +
+    "<p class=\"p-role\">" + esc(st.role) + "</p>" +
+    (st.id === "bg" ? CIRCUIT : "") +
+    "<dl class=\"facts\">" + st.facts.map(f => "<dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd>").join("") + "</dl>" +
+    "<div class=\"damage\"><strong>Damage here looks like</strong>" + esc(st.damage) + "</div>" +
+    "<h3>Disorders at this station (" + st.disorders.length + ")</h3>" +
+    "<p class=\"hint\">Select one to mark its lesion on the map.</p>" +
+    "<ul class=\"dis-list\">" + cards + "</ul>" +
+    "<button type=\"button\" class=\"btn-ghost back-map\" data-backmap>↑ Back to the map</button>";
+}
+
+panel.addEventListener("click", e => {
+  const go = e.target.closest("[data-go]");
+  if (go && go.dataset.go) { select(go.dataset.go, {}); revealFocus(); return; }
+  const card = e.target.closest(".dis");
+  if (card) {
+    const d = card.dataset.dis;
+    if (curDis === d) setLesion(null); else { setLesion(d); revealLesion(); }
+    return;
+  }
+  if (e.target.closest("[data-backmap]")) map.scrollIntoView({block:"start", behavior: reduced() ? "auto" : "smooth"});
+});
+
+function setFocus(st){
+  document.querySelectorAll(".focus").forEach(e => e.classList.remove("focus"));
+  els(st.focus).forEach(e => e.classList.add("focus"));
+  document.querySelectorAll(".stn").forEach(g => g.classList.toggle("active", g.dataset.station === st.id));
+}
+
+function setLesion(d){
+  document.querySelectorAll(".lesion").forEach(e => e.classList.remove("lesion"));
+  curDis = d;
+  if (d) els(DIS[d].tokens).forEach(e => e.classList.add("lesion"));
+  document.querySelectorAll(".dis, .chip").forEach(b => b.setAttribute("aria-pressed", b.dataset.dis === d ? "true" : "false"));
+  clearBtn.hidden = !d;
+  mapbar.classList.toggle("on", !!d);
+  if (d) {
+    const where = sitesOf[d].map(s => byId[s].n).join(", ");
+    lesionText.innerHTML = "<b>" + esc(DIS[d].name) + "</b> · station " + where;
+  } else {
+    lesionText.textContent = "Pick a disorder in the station sheet to mark its lesion.";
+    backBtn.hidden = true;
+  }
+}
+
+function inView(el){
+  const r = el.getBoundingClientRect();
+  return r.top > 60 && r.bottom < window.innerHeight - 30;
+}
+function revealLesion(){
+  const first = map.querySelector(".lesion");
+  if (!first) return;
+  if (mobile()) {
+    first.scrollIntoView({block:"center", behavior: reduced() ? "auto" : "smooth"});
+    backBtn.hidden = false;
+  } else if (!inView(first)) {
+    first.scrollIntoView({block:"center", behavior: reduced() ? "auto" : "smooth"});
+  }
+}
+function revealFocus(){
+  if (mobile()) return;
+  const first = map.querySelector(".focus");
+  if (first && !inView(first)) first.scrollIntoView({block:"center", behavior: reduced() ? "auto" : "smooth"});
+}
+
+function select(id, opts){
+  opts = opts || {};
+  const st = byId[id];
+  if (!st) return;
+  cur = id;
+  renderPanel(st);
+  setFocus(st);
+  if (curDis && !opts.keepDis && sitesOf[curDis].indexOf(id) === -1) setLesion(null);
+  else setLesion(curDis);
+  if (!mobile()) panel.scrollTop = 0;
+  try { history.replaceState(null, "", "#" + id); } catch(e) {}
+  if (opts.fromMap && mobile()) panel.scrollIntoView({block:"start", behavior: reduced() ? "auto" : "smooth"});
+}
+
+clearBtn.addEventListener("click", () => setLesion(null));
+backBtn.addEventListener("click", () => {
+  const card = panel.querySelector('.dis[aria-pressed="true"]') || panel;
+  card.scrollIntoView({block:"center", behavior: reduced() ? "auto" : "smooth"});
+  backBtn.hidden = true;
+});
+window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (byId[h] && h !== cur) select(h, {}); });
+
+// Theme toggle
+const themeBtns = document.querySelectorAll("[data-theme-set]");
+function applyTheme(t){
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+  else { document.documentElement.removeAttribute("data-theme"); t = "system"; }
+  themeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.themeSet === t ? "true" : "false"));
+}
+themeBtns.forEach(b => b.addEventListener("click", () => {
+  applyTheme(b.dataset.themeSet);
+  try { localStorage.setItem("llmp-theme", b.dataset.themeSet); } catch(e) {}
+}));
+let savedTheme = "system";
+try { savedTheme = localStorage.getItem("llmp-theme") || "system"; } catch(e) {}
+applyTheme(savedTheme);
+
+const start = location.hash.slice(1);
+select(byId[start] ? start : "ctx", {});
+})();
+</script>
+
+</body></html>
